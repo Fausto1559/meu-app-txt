@@ -1,459 +1,274 @@
- import { useEffect, useState } from 'react';
-import {
-  Flame,
-  Wallet,
-  RefreshCw,
-  Plus,
-  CreditCard,
-  Check,
-  Crown,
-  FileText,
-  LayoutGrid,
-  Sparkles,
-  ShieldCheck,
-  Unplug,
-} from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import type {
-  FirefightPayload,
-  MaquininhaConnection,
-  MaquininhaProvider,
-} from '@/types';
-
-type Plan = 'gratis' | 'copiloto' | 'alta-performance';
-type Tab = 'painel' | 'calculadora' | 'fechamento' | 'conexao';
-
-interface PayableItem {
-  id: string;
-  description: string;
-  amount: string;
-  dueDate: string;
-  paid: boolean;
-}
-
-interface ReceivableItem {
-  id: string;
-  description: string;
-  amount: string;
-  dueDate: string;
-  received: boolean;
-}
+import React, { useState } from 'react';
+import { X } from 'lucide-react';
 
 export default function App() {
-  const [plan, setPlan] = useState<Plan>('gratis');
-  const [tab, setTab] = useState<Tab>('painel');
-
-  // Conexões de maquininhas
-  const [connectedMachines, setConnectedMachines] = useState<MaquininhaConnection[]>([]);
-
-  // Lançamentos
+  const [showBalcaoModal, setShowBalcaoModal] = useState<boolean>(true);
+  const [precoVenda, setPrecoVenda] = useState<string>('100');
+  const [custoProduto, setCustoProduto] = useState<string>('40');
+  const [formaPagamento, setFormaPagamento] = useState<string | null>('pix');
+  const [parcelaSelecionada, setParcelaSelecionada] = useState<number | null>(null);
+  const [resumoBalcaoAtivo, setResumoBalcaoAtivo] = useState<boolean>(true);
+  const [showDescontoPanel, setShowDescontoPanel] = useState<boolean>(false);
+  const [descontoPercent, setDescontoPercent] = useState<number>(0);
+  const [descontoValor, setDescontoValor] = useState<number>(0);
+  const [copiado, setCopiado] = useState<boolean>(false);
   const [vendasHoje, setVendasHoje] = useState<number>(0);
-  const [receivables, setReceivables] = useState<ReceivableItem[]>([
-    { id: '1', description: 'Cliente João Silva', amount: '262,06', dueDate: '2026-07-28', received: false },
-    { id: '2', description: 'Pedido #1042', amount: '180,00', dueDate: '2026-08-02', received: false },
-  ]);
+  const [totalRecebido, setTotalRecebido] = useState<number>(0);
 
-  const [payables, setPayables] = useState<PayableItem[]>([
-    { id: '1', description: 'Fornecedor ABC', amount: '1.200,00', dueDate: '2026-07-30', paid: false },
-    { id: '2', description: 'Aluguel', amount: '2.500,00', dueDate: '2026-08-05', paid: false },
-    { id: '3', description: 'Energia Elétrica', amount: '380,00', dueDate: '2026-08-10', paid: false },
-  ]);
+  const isEntradaVozDisponivel = false;
+  const ativarEntradaPorVoz = () => {};
 
-  // Formulários de inserção rápida
-  const [newRecDesc, setNewRecDesc] = useState('');
-  const [newRecAmount, setNewRecAmount] = useState('');
-  const [newRecDate, setNewRecDate] = useState('');
+  const precoVendaNumero = Number(precoVenda.replace(',', '.')) || 0;
+  const custoProdutoNumero = Number(custoProduto.replace(',', '.')) || 0;
+  const camposBalcaoValidos = precoVendaNumero > 0 && custoProdutoNumero > 0;
 
-  const [newPayDesc, setNewPayDesc] = useState('');
-  const [newPayAmount, setNewPayAmount] = useState('');
-  const [newPayDate, setNewPayDate] = useState('');
+  const taxaPercentual = formaPagamento === 'pix' ? 0.99 : formaPagamento === 'debito' ? 1.99 : formaPagamento === 'credito_vista' ? 3.49 : 4.99;
+  const taxaValor = Number(((precoVendaNumero * taxaPercentual) / 100).toFixed(2));
+  const valorLiquido = Number((precoVendaNumero - taxaValor).toFixed(2));
+  const lucroReal = Number((valorLiquido - custoProdutoNumero).toFixed(2));
+  const margemLucro = precoVendaNumero > 0 ? ((lucroReal / precoVendaNumero) * 100).toFixed(1) : '0';
 
-  // Cálculos de Caixa
-  const parseBRL = (val: string) => {
-    if (!val) return 0;
-    const clean = val.replace(/\./g, '').replace(',', '.');
-    return parseFloat(clean) || 0;
+  const chavePixExemplo = '00020126360014br.gov.bcb.pix...';
+  const parcelasDisponiveis = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+  const handleSelecionarFormaPagamento = (id: string) => {
+    setFormaPagamento(id);
+    setResumoBalcaoAtivo(true);
   };
 
-  const totalReceivables = receivables
-    .filter((r) => !r.received)
-    .reduce((acc, r) => acc + parseBRL(r.amount), 0);
-
-  const totalPayables = payables
-    .filter((p) => !p.paid)
-    .reduce((acc, p) => acc + parseBRL(p.amount), 0);
-
-  const caixaDisponivel = totalReceivables + vendasHoje;
-  const saldoCaixa = caixaDisponivel - totalPayables;
-
-  // Status visual do caixa
-  const getCaixaStatus = () => {
-    if (totalPayables === 0) return 'verde';
-    if (caixaDisponivel >= totalPayables) return 'verde';
-    if (caixaDisponivel >= totalPayables * 0.5) return 'amarelo';
-    return 'vermelho';
+  const handleSelecionarParcela = (parcela: number) => {
+    setParcelaSelecionada(parcela);
   };
 
-  const statusCaixa = getCaixaStatus();
-
-  // Ações de Recebíveis
-  const addReceivable = () => {
-    if (!newRecDesc || !newRecAmount) return;
-    setReceivables((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString(),
-        description: newRecDesc,
-        amount: newRecAmount,
-        dueDate: newRecDate || new Date().toISOString().split('T')[0],
-        received: false,
-      },
-    ]);
-    setNewRecDesc('');
-    setNewRecAmount('');
-    setNewRecDate('');
-  };
-
-  const toggleReceivable = (id: string) => {
-    setReceivables((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, received: !r.received } : r))
-    );
-  };
-
-  // Ações de Pagáveis
-  const addPayable = () => {
-    if (!newPayDesc || !newPayAmount) return;
-    setPayables((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString(),
-        description: newPayDesc,
-        amount: newPayAmount,
-        dueDate: newPayDate || new Date().toISOString().split('T')[0],
-        paid: false,
-      },
-    ]);
-    setNewPayDesc('');
-    setNewPayAmount('');
-    setNewPayDate('');
-  };
-
-  const togglePayable = (id: string) => {
-    setPayables((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, paid: !p.paid } : p))
-    );
-  };
-
-  // Conexão de Maquininhas
-  const handleConnectMachine = (provider: MaquininhaProvider) => {
-    const exists = connectedMachines.some((m) => m.provider === provider);
-    if (!exists) {
-      setConnectedMachines((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          provider,
-          connectedAt: new Date().toISOString(),
-          status: 'connected',
-        },
-      ]);
-    }
-  };
-
-  const handleDisconnectMachine = (id: string) => {
-    setConnectedMachines((prev) => prev.filter((m) => m.id !== id));
+  const handleConfirmarVendaBalcao = () => {
+    setVendasHoje((prev) => prev + precoVendaNumero);
+    setTotalRecebido((prev) => prev + precoVendaNumero);
+    setShowBalcaoModal(false);
+    setPrecoVenda('');
+    setCustoProduto('');
+    setFormaPagamento(null);
+    setParcelaSelecionada(null);
+    setResumoBalcaoAtivo(false);
   };
 
   return (
-    <div className="min-h-screen bg-[#060D1A] text-white flex flex-col font-sans">
-      {/* Topo / Header */}
-      <header className="border-b border-slate-800 bg-[#0B1528] px-4 py-3 flex items-center justify-between">
-        <div className="flex items-[#00E5FF] items-center gap-2 font-bold text-lg">
-          <Flame className="w-6 h-6 text-amber-500 fill-amber-500" />
-          <span>COPILOTO FINANCEIRO</span>
-        </div>
+    <div className="min-h-screen bg-[#020814] text-slate-100 flex items-center justify-center p-4">
+      <button
+        onClick={() => setShowBalcaoModal(true)}
+        className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm px-4 py-3 rounded-2xl shadow-lg transition-all"
+      >
+        Abrir Calculadora de Balcão Express
+      </button>
 
-        {/* Status do Caixa Badge */}
-        <div className="flex items-center gap-3">
-          <div
-            className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 ${
-              statusCaixa === 'verde'
-                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                : statusCaixa === 'amarelo'
-                ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
-            }`}
-          >
-            <span
-              className={`w-2 h-2 rounded-full ${
-                statusCaixa === 'verde'
-                  ? 'bg-emerald-400 animate-pulse'
-                  : statusCaixa === 'amarelo'
-                  ? 'bg-amber-400'
-                  : 'bg-rose-400 animate-bounce'
-              }`}
-            />
-            {statusCaixa === 'verde' && 'Caixa Seguro'}
-            {statusCaixa === 'amarelo' && 'Atenção ao Caixa'}
-            {statusCaixa === 'vermelho' && 'Risco de Caixa!'}
-          </div>
+      {/* MODAL: CALCULADORA DE BALCÃO EXPRESS */}
+      {showBalcaoModal && (
+        <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#07101F] border border-slate-800 rounded-3xl w-full max-w-[95vw] sm:max-w-xl p-3 text-slate-100 shadow-2xl max-h-[85vh] overflow-hidden overflow-x-hidden flex flex-col">
+            <div className="flex items-start justify-between gap-2 mb-3">
+              <div>
+                <h2 className="text-lg font-black text-amber-400">Calculadora de Balcão Express</h2>
+                <p className="text-[11px] text-slate-400 mt-1">Preencha os valores para liberar as formas de pagamento.</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowBalcaoModal(false);
+                  setFormaPagamento(null);
+                  setParcelaSelecionada(null);
+                  setResumoBalcaoAtivo(false);
+                }}
+                className="text-slate-400 hover:text-white"
+                aria-label="Fechar modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-          {/* Seleção do Plano */}
-          <select
-            value={plan}
-            onChange={(e) => setPlan(e.target.value as Plan)}
-            className="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-blue-500"
-          >
-            <option value="gratis">Plano Grátis</option>
-            <option value="copiloto">Copiloto AI</option>
-            <option value="alta-performance">Alta Performance</option>
-          </select>
-        </div>
-      </header>
-
-      {/* Navegação Secundária */}
-      <nav className="border-b border-slate-800 bg-[#081020] px-4 py-2 flex gap-2 text-sm">
-        <button
-          onClick={() => setTab('painel')}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${
-            tab === 'painel'
-              ? 'bg-blue-600 text-white font-medium shadow-lg shadow-blue-600/20'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-          }`}
-        >
-          <LayoutGrid className="w-4 h-4" />
-          Painel Principal
-        </button>
-        <button
-          onClick={() => setTab('calculadora')}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${
-            tab === 'calculadora'
-              ? 'bg-blue-600 text-white font-medium shadow-lg shadow-blue-600/20'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-          }`}
-        >
-          <Sparkles className="w-4 h-4" />
-          Calculadora Express
-        </button>
-        <button
-          onClick={() => setTab('fechamento')}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${
-            tab === 'fechamento'
-              ? 'bg-blue-600 text-white font-medium shadow-lg shadow-blue-600/20'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-          }`}
-        >
-          <FileText className="w-4 h-4" />
-          Fechamento
-        </button>
-        <button
-          onClick={() => setTab('conexao')}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${
-            tab === 'conexao'
-              ? 'bg-blue-600 text-white font-medium shadow-lg shadow-blue-600/20'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-          }`}
-        >
-          <CreditCard className="w-4 h-4" />
-          Maquininhas
-          {connectedMachines.length > 0 && (
-            <span className="bg-emerald-500/20 text-emerald-400 text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-              {connectedMachines.length}
-            </span>
-          )}
-        </button>
-      </nav>
-
-      {/* Conteúdo das Abas */}
-      <main className="flex-1 p-4 max-w-6xl w-full mx-auto overflow-y-auto">
-        {tab === 'painel' && (
-          <div className="space-y-6">
-            {/* Cards Resumo */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-[#0D1B32] border border-slate-800 p-4 rounded-xl">
-                <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
-                  <span>A Receber + Vendas Hoje</span>
-                  <Wallet className="w-4 h-4 text-emerald-400" />
-                </div>
-                <div className="text-2xl font-bold text-emerald-400">
-                  R$ {caixaDisponivel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </div>
+            <div className="space-y-2 overflow-y-auto overflow-x-hidden pr-2 flex-1" style={{ maxHeight: 'calc(85vh - 7.5rem)' }}>
+              <label className="block text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                Preço de Venda (R$)
+              </label>
+              <div className="relative">
+                <input
+                  value={precoVenda}
+                  onChange={(e) => setPrecoVenda(e.target.value)}
+                  placeholder="0,00"
+                  className="w-full rounded-2xl border border-slate-700 bg-[#020814] text-sm text-white px-3.5 pr-14 py-2 placeholder:text-slate-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setPrecoVenda('')}
+                  className="absolute inset-y-0 right-9 flex items-center justify-center text-slate-400 hover:text-white"
+                  aria-label="Limpar Preço de Venda"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={ativarEntradaPorVoz}
+                  className="absolute inset-y-0 right-2 flex items-center justify-center text-sm text-slate-400"
+                >
+                  {isEntradaVozDisponivel ? '🎙️' : '🔒'}
+                </button>
               </div>
 
-              <div className="bg-[#0D1B32] border border-slate-800 p-4 rounded-xl">
-                <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
-                  <span>Contas a Pagar</span>
-                  <Wallet className="w-4 h-4 text-rose-400" />
-                </div>
-                <div className="text-2xl font-bold text-rose-400">
-                  R$ {totalPayables.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </div>
+              {/* Simulador de Desconto */}
+              <div className="mt-2 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowDescontoPanel((s) => !s)}
+                  className="rounded-2xl border px-2.5 py-1.5 text-[11px] font-bold bg-[#091123] text-slate-200 border-slate-700 hover:border-amber-500 hover:text-white"
+                >
+                  Cliente pediu desconto?
+                </button>
+                {showDescontoPanel && (
+                  <div className="bg-[#06121A] border border-slate-800 rounded-2xl p-3 flex flex-col gap-2 w-full">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        value={descontoPercent}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setDescontoPercent(val);
+                          setDescontoValor(0);
+                        }}
+                        placeholder="% desconto"
+                        className="w-28 rounded-md bg-[#020814] text-white px-2 py-1 border border-slate-700"
+                      />
+                      <span className="text-slate-400">ou</span>
+                      <input
+                        type="number"
+                        value={descontoValor}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setDescontoValor(val);
+                          setDescontoPercent(0);
+                        }}
+                        placeholder="R$ desconto"
+                        className="w-32 rounded-md bg-[#020814] text-white px-2 py-1 border border-slate-700"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="bg-[#0D1B32] border border-slate-800 p-4 rounded-xl">
-                <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
-                  <span>Saldo Projetado</span>
-                  <ShieldCheck className="w-4 h-4 text-blue-400" />
+              <label className="block text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                Custo do Produto (R$)
+              </label>
+              <div className="relative">
+                <input
+                  value={custoProduto}
+                  onChange={(e) => setCustoProduto(e.target.value)}
+                  placeholder="0,00"
+                  className="w-full rounded-2xl border border-slate-700 bg-[#020814] text-sm text-white px-3.5 pr-14 py-2 placeholder:text-slate-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setCustoProduto('')}
+                  className="absolute inset-y-0 right-9 flex items-center justify-center text-slate-400 hover:text-white"
+                  aria-label="Limpar Custo do Produto"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-1">
+                {[
+                  { id: 'pix', label: 'PIX' },
+                  { id: 'debito', label: 'Débito' },
+                  { id: 'credito_vista', label: 'Crédito à Vista' },
+                  { id: 'credito_parcelado', label: 'Crédito Parcelado' },
+                ].map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => handleSelecionarFormaPagamento(option.id)}
+                    disabled={!camposBalcaoValidos}
+                    className={`rounded-2xl border px-2.5 py-1.5 text-[10px] font-bold transition-all min-h-[36px] ${
+                      camposBalcaoValidos
+                        ? formaPagamento === option.id
+                          ? 'bg-amber-400 text-slate-950 border-amber-400'
+                          : 'bg-[#091123] text-slate-200 border-slate-700 hover:border-amber-500 hover:text-white'
+                        : 'bg-slate-900 text-slate-500 border-slate-800 cursor-not-allowed'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+
+              {formaPagamento === 'credito_parcelado' && camposBalcaoValidos && (
+                <div className="bg-[#08131F] border border-slate-800 rounded-3xl p-2.5 text-[10px] text-slate-300">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-bold text-slate-200">TABELA DE PARCELAMENTO</span>
+                    <span className="text-slate-500">Taxa {taxaPercentual.toFixed(2)}%</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1">
+                    {parcelasDisponiveis.map((parcela) => (
+                      <button
+                        key={parcela}
+                        type="button"
+                        onClick={() => handleSelecionarParcela(parcela)}
+                        className={`rounded-2xl border px-2 py-1 text-[10px] font-bold transition-all ${
+                          parcelaSelecionada === parcela
+                            ? 'bg-amber-400 text-slate-950 border-amber-400'
+                            : 'bg-[#091123] text-slate-300 border-slate-700 hover:border-amber-500 hover:text-white'
+                        }`}
+                      >
+                        {parcela}x
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div
-                  className={`text-2xl font-bold ${
-                    saldoCaixa >= 0 ? 'text-blue-400' : 'text-rose-500'
+              )}
+
+              {resumoBalcaoAtivo && camposBalcaoValidos && (
+                <div className="bg-[#08131F] border border-slate-800 rounded-3xl p-3 text-xs space-y-2">
+                  <div className="flex items-center justify-between text-slate-400">
+                    <span>Preço Informado:</span>
+                    <span className="text-white font-bold">R$ {precoVendaNumero.toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-slate-400">
+                    <span>Custo do Produto:</span>
+                    <span className="text-white font-bold">R$ {custoProdutoNumero.toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-slate-400">
+                    <span>Taxa da Operação ({taxaPercentual.toFixed(2)}%):</span>
+                    <span className="text-rose-400 font-bold">- R$ {taxaValor.toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-slate-400">
+                    <span>Valor Líquido Recebido:</span>
+                    <span className="text-emerald-400 font-black">R$ {valorLiquido.toFixed(2)}</span>
+                  </div>
+                  <div className="border-t border-slate-800 pt-2 flex items-center justify-between">
+                    <span className="text-slate-200 font-bold">Lucro Líquido Real:</span>
+                    <span className={`font-black text-sm ${lucroReal >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      R$ {lucroReal.toFixed(2)} ({margemLucro}% de margem)
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-2 border-t border-slate-800 pt-2 sticky bottom-0 bg-[#07101F]">
+                <button
+                  onClick={handleConfirmarVendaBalcao}
+                  disabled={!camposBalcaoValidos || !formaPagamento}
+                  className={`w-full rounded-2xl text-xs font-black py-3 transition-all shadow-md ${
+                    camposBalcaoValidos && formaPagamento
+                      ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                      : 'bg-slate-800 text-slate-500 cursor-not-allowed'
                   }`}
                 >
-                  R$ {saldoCaixa.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </div>
-              </div>
-            </div>
-
-            {/* Listas de Lançamentos */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Contas a Receber */}
-              <div className="bg-[#0D1B32] border border-slate-800 rounded-xl p-4 space-y-4">
-                <h3 className="font-semibold text-sm text-emerald-400 flex items-center gap-2">
-                  <Plus className="w-4 h-4" /> Entradas & Recebíveis
-                </h3>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Descrição"
-                    value={newRecDesc}
-                    onChange={(e) => setNewRecDesc(e.target.value)}
-                    className="flex-1 bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Valor (R$)"
-                    value={newRecAmount}
-                    onChange={(e) => setNewRecAmount(e.target.value)}
-                    className="w-24 bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs"
-                  />
-                  <button
-                    onClick={addReceivable}
-                    className="bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded text-xs font-semibold"
-                  >
-                    OK
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {receivables.map((r) => (
-                    <div
-                      key={r.id}
-                      onClick={() => toggleReceivable(r.id)}
-                      className={`flex items-center justify-between p-2.5 rounded-lg border cursor-pointer text-xs transition-all ${
-                        r.received
-                          ? 'bg-slate-900/40 border-slate-800/60 opacity-50 line-through'
-                          : 'bg-slate-900/80 border-slate-700/50 hover:border-emerald-500/50'
-                      }`}
-                    >
-                      <span className="text-slate-300">{r.description}</span>
-                      <span className="font-semibold text-emerald-400">R$ {r.amount}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Contas a Pagar */}
-              <div className="bg-[#0D1B32] border border-slate-800 rounded-xl p-4 space-y-4">
-                <h3 className="font-semibold text-sm text-rose-400 flex items-center gap-2">
-                  <Plus className="w-4 h-4" /> Saídas & Contas a Pagar
-                </h3>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Descrição"
-                    value={newPayDesc}
-                    onChange={(e) => setNewPayDesc(e.target.value)}
-                    className="flex-1 bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Valor (R$)"
-                    value={newPayAmount}
-                    onChange={(e) => setNewPayAmount(e.target.value)}
-                    className="w-24 bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs"
-                  />
-                  <button
-                    onClick={addPayable}
-                    className="bg-rose-600 hover:bg-rose-500 px-3 py-1 rounded text-xs font-semibold"
-                  >
-                    OK
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {payables.map((p) => (
-                    <div
-                      key={p.id}
-                      onClick={() => togglePayable(p.id)}
-                      className={`flex items-center justify-between p-2.5 rounded-lg border cursor-pointer text-xs transition-all ${
-                        p.paid
-                          ? 'bg-slate-900/40 border-slate-800/60 opacity-50 line-through'
-                          : 'bg-slate-900/80 border-slate-700/50 hover:border-rose-500/50'
-                      }`}
-                    >
-                      <span className="text-slate-300">{p.description}</span>
-                      <span className="font-semibold text-rose-400">R$ {p.amount}</span>
-                    </div>
-                  ))}
-                </div>
+                  Confirmar e Salvar Venda
+                </button>
               </div>
             </div>
           </div>
-        )}
-
-        {tab === 'calculadora' && (
-          <div className="bg-[#0D1B32] border border-slate-800 p-6 rounded-xl max-w-md mx-auto text-center space-y-4">
-            <h2 className="text-lg font-bold text-blue-400 flex items-center justify-center gap-2">
-              <Sparkles className="w-5 h-5" /> Calculadora Express
-            </h2>
-            <p className="text-xs text-slate-400">
-              Insira o valor da venda para atualizar o caixa diário em tempo real.
-            </p>
-            <div className="flex gap-2 justify-center">
-              <input
-                type="number"
-                placeholder="Valor R$"
-                className="bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-center w-36"
-                onChange={(e) => setVendasHoje(parseFloat(e.target.value) || 0)}
-              />
-            </div>
-          </div>
-        )}
-
-        {tab === 'fechamento' && (
-          <div className="bg-[#0D1B32] border border-slate-800 p-6 rounded-xl text-center space-y-4">
-            <h2 className="text-lg font-bold text-slate-200">Fechamento do Mês</h2>
-            <p className="text-xs text-slate-400">Resumo simplificado para conciliação bancária.</p>
-          </div>
-        )}
-
-        {tab === 'conexao' && (
-          <div className="bg-[#0D1B32] border border-slate-800 p-6 rounded-xl space-y-4 max-w-lg mx-auto">
-            <h2 className="text-lg font-bold text-slate-200 flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-blue-400" />
-              Conexão de Maquininhas
-            </h2>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => handleConnectMachine('stone')}
-                className="p-3 bg-slate-900 border border-slate-700 hover:border-emerald-500 rounded-lg text-xs font-semibold text-slate-300"
-              >
-                Conectar Stone
-              </button>
-              <button
-                onClick={() => handleConnectMachine('pagseguro')}
-                className="p-3 bg-slate-900 border border-slate-700 hover:border-emerald-500 rounded-lg text-xs font-semibold text-slate-300"
-              >
-                Conectar PagBank
-              </button>
-            </div>
-          </div>
-        )}
-      </main>
+        </div>
+      )}
 
       {/* Marca d'água */}
-      <footer className="text-center py-2 text-[10px] text-slate-600">
-        Made in Bolt
-      </footer>
+      <div className="fixed bottom-6 right-6 bg-white text-slate-950 px-3 py-1 rounded-full text-xs font-semibold shadow-lg z-50 flex items-center gap-1 border border-slate-200">
+        <span className="text-slate-900 font-extrabold">Made in Bolt</span><span className="text-indigo-600">⚡</span>
+      </div>
     </div>
   );
 }
