@@ -54,6 +54,7 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('painel');
 const [session, setSession] = useState<any>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
+  const [showBalcaoModal, setShowBalcaoModal] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
