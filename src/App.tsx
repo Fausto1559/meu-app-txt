@@ -1819,7 +1819,7 @@ const [session, setSession] = useState<any>(null);
       </button>
 
       {/* MODAL: CALCULADORA DE BALCÃO EXPRESS */}
-      {showBalcaoModal && (
+      {false && (
         <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-[#07101F] border border-slate-800 rounded-3xl w-full max-w-[95vw] sm:max-w-xl p-3 text-slate-100 shadow-2xl max-h-[85vh] overflow-hidden overflow-x-hidden flex flex-col">
             <div className="flex items-start justify-between gap-2 mb-3">
