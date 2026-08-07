@@ -10,6 +10,10 @@ const firebaseConfig = {
   appId: "1:510528690056:web:68a7b654a60659cea80c3d"
 };
 
-// Inicializa o Firebase e o Auth
+// Validação de segurança para garantir que a chave nunca vá vazia
+if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes("undefined")) {
+  console.error("ERRO CRÍTICO: A API Key do Firebase não foi carregada corretamente!");
+}
+
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
