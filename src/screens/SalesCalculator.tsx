@@ -24,7 +24,7 @@ export default function SalesCalculator({ plan, onSaleBooked }: SalesCalculatorP
   }
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-md">
+    <div className="w-full max-w-sm sm:max-w-md md:max-w-lg mx-auto bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-md">
       <div className="flex items-center gap-3 mb-6">
         <div className="bg-[#C5A028]/20 border border-[#C5A028]/40 p-2.5 rounded-xl text-[#E5C158]">
           <Calculator className="w-6 h-6" />
