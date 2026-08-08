@@ -52,7 +52,7 @@ export default function LoginScreen() {
     try {
       await sendSignInLinkToEmail(auth, email, actionCodeSettings);
       window.localStorage.setItem('emailForSignIn', email);
-      setMessage('Link mágico enviado com sucesso! Verifique sua caixa de entrada.');
+      setMessage('Link enviado com sucesso! Verifique sua caixa de entrada.');
     } catch (err: any) {
       setError(`Erro ao enviar link: ${err.message}`);
     } finally {
@@ -112,7 +112,7 @@ export default function LoginScreen() {
             disabled={loading}
             className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-lg text-xs transition-all cursor-pointer shadow-md shadow-amber-500/10"
           >
-            {loading ? 'Enviando Link...' : 'Enviar Link Mágico por E-mail'}
+            {loading ? 'Enviando...' : 'Enviar Link por E-mail'}
           </button>
         </form>
 
