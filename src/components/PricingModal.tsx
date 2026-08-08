@@ -27,7 +27,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
         {/* Cabeçalho do Modal */}
         <div className="text-center max-w-xl mx-auto mb-8">
           <h2 className="text-2xl font-extrabold text-white tracking-wide mb-2">
-            Escolha o plano ideal para o seu negócio
+            Seja Copiloto Pro
           </h2>
           <p className="text-xs text-slate-400">
             Tenha controle total e ferramentas avançadas de gestão. Cancele quando quiser, sem burocracia.
@@ -45,7 +45,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4">
                 <Zap className="w-5 h-5"/>
               </div>
-              <h3 className="text-base font-bold text-white mb-1">Freemium/Essencial</h3>
+              <h3 className="text-base font-bold text-white mb-1">Freemium / Essencial</h3>
               
               <div className="mb-4">
                 <div className="flex items-baseline gap-1">
@@ -141,7 +141,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
             </button>
           </div>
 
-          {/* Plano Alta Performance */}
+          {/* Plano Copiloto Pro (antigo Alta Performance) */}
           <div className={`relative bg-slate-900/90 border rounded-2xl p-6 flex flex-col justify-between transition-all ${
             currentPlan === 'alta-performance' ? 'border-[#C5A028] shadow-lg shadow-[#C5A028]/10' : 'border-slate-800 hover:border-slate-700'
           }`}>
@@ -153,7 +153,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4">
                 <Crown className="w-5 h-5"/>
               </div>
-              <h3 className="text-base font-bold text-white mb-1">Alta Performance</h3>
+              <h3 className="text-base font-bold text-white mb-1">Copiloto Pro</h3>
               <div className="flex items-baseline gap-1 mb-4">
                 <span className="text-2xl font-extrabold text-amber-400">R$ 39,90</span>
                 <span className="text-[11px] text-slate-400">/mês</span>
@@ -190,7 +190,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
                   : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
               }`}
             >
-              {currentPlan === 'alta-performance' ? 'Plano Atual' : 'Assinar Alta Performance'}
+              {currentPlan === 'alta-performance' ? 'Plano Atual' : 'Assinar Copiloto Pro'}
             </button>
           </div>
 
