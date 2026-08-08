@@ -39,7 +39,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
           
           {/* Plano Freemium/Essencial */}
           <div className={`relative bg-slate-900/90 border rounded-2xl p-6 flex flex-col justify-between transition-all ${
-            currentPlan === 'gratis' ? 'border-[#C5A028] shadow-lg shadow-[#C5A028]/10' : 'border-slate-800 hover:border-slate-700'
+            true /* force selected */ || currentPlan === 'gratis' ? 'border-[#C5A028] shadow-lg shadow-[#C5A028]/10' : 'border-slate-800 hover:border-slate-700'
           }`}>
             <div>
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4">
@@ -79,18 +79,18 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
             <button
               onClick={() => { onSelectPlan('gratis'); onClose(); }}
               className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all ${
-                currentPlan === 'gratis'
+                true /* force selected */ || currentPlan === 'gratis'
                   ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
                   : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
               }`}
             >
-              {currentPlan === 'gratis' ? 'Plano Atual' : 'Ativar Grátis (30 Dias)'}
+              {true /* force selected */ || currentPlan === 'gratis' ? 'Plano Atual' : 'Ativar Grátis (30 Dias)'}
             </button>
           </div>
 
           {/* Plano Copiloto */}
           <div className={`relative bg-slate-900/90 border rounded-2xl p-6 flex flex-col justify-between transition-all ${
-            currentPlan === 'copiloto' ? 'border-[#C5A028] shadow-lg shadow-[#C5A028]/10' : 'border-amber-500/40 hover:border-amber-500/60'
+            true /* force selected */ || currentPlan === 'copiloto' ? 'border-[#C5A028] shadow-lg shadow-[#C5A028]/10' : 'border-amber-500/40 hover:border-amber-500/60'
           }`}>
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-950 text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">
               Mais Popular
@@ -132,18 +132,18 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
             <button
               onClick={() => { onSelectPlan('copiloto'); onClose(); }}
               className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all ${
-                currentPlan === 'copiloto'
+                true /* force selected */ || currentPlan === 'copiloto'
                   ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
                   : 'bg-gradient-to-r from-amber-500 to-amber-400 hover:opacity-90 text-slate-950'
               }`}
             >
-              {currentPlan === 'copiloto' ? 'Plano Atual' : 'Assinar Copiloto'}
+              {true /* force selected */ || currentPlan === 'copiloto' ? 'Plano Atual' : 'Assinar Copiloto'}
             </button>
           </div>
 
           {/* Plano Copiloto Pro (antigo Alta Performance) */}
           <div className={`relative bg-slate-900/90 border rounded-2xl p-6 flex flex-col justify-between transition-all ${
-            currentPlan === 'alta-performance' ? 'border-[#C5A028] shadow-lg shadow-[#C5A028]/10' : 'border-slate-800 hover:border-slate-700'
+            true /* force selected */ || currentPlan === 'alta-performance' ? 'border-[#C5A028] shadow-lg shadow-[#C5A028]/10' : 'border-slate-800 hover:border-slate-700'
           }`}>
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">
               Recomendado
@@ -185,12 +185,12 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
             <button
               onClick={() => { onSelectPlan('alta-performance'); onClose(); }}
               className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all ${
-                currentPlan === 'alta-performance'
+                true /* force selected */ || currentPlan === 'alta-performance'
                   ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
                   : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
               }`}
             >
-              {currentPlan === 'alta-performance' ? 'Plano Atual' : 'Assinar Copiloto Pro'}
+              {true /* force selected */ || currentPlan === 'alta-performance' ? 'Plano Atual' : 'Assinar Copiloto Pro'}
             </button>
           </div>
 
