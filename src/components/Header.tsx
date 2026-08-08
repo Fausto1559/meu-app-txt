@@ -74,7 +74,7 @@ export default function Header({ plan, setPlan, caixaStatus, activeTab, setActiv
     degust: 'Degustação (App Completo)',
     gratis: 'Freemium/Essencial (R$ 19,90)',
     copiloto: 'Copiloto (R$ 29,90)',
-    'alta-performance': 'Copiloto Pro (R$ 39,90)',
+    'alta-performance': 'Alta Performance (R$ 39,90)',
   };
 
   return (
@@ -205,25 +205,23 @@ export default function Header({ plan, setPlan, caixaStatus, activeTab, setActiv
                       onClick={() => { setPlan('alta-performance'); setAdminOpen(false); }}
                       className="w-full text-left px-4 py-2.5 text-xs text-slate-300 hover:bg-slate-800/60 cursor-pointer"
                     >
-                      3. Copiloto Pro = R$ 39,90
+                      3. Alta Performance = R$ 39,90
                     </button>
                   </div>
                 )}
               </div>
             )}
 
-            <div className="flex flex-col items-end gap-1">
-              <div className="relative">
-                <button
-                  onClick={() => setPricingOpen(true)}
-                  className="bg-gradient-to-r from-[#C5A028] to-[#E5C158] hover:opacity-90 text-slate-950 font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg shadow-[#C5A028]/20 transition-all cursor-pointer"
-                >
-                  <span>Seja Copiloto Pro</span>
-                </button>
-              </div>
+            <div className="flex flex-col items-end gap-1.5">
+              <button
+                onClick={() => setPricingOpen(true)}
+                className="bg-gradient-to-r from-[#C5A028] to-[#E5C158] hover:opacity-90 text-slate-950 font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg shadow-[#C5A028]/20 transition-all cursor-pointer"
+              >
+                <span>Seja Copiloto Pro</span>
+              </button>
 
-              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 <span>Plano Atual: <strong className="uppercase">{planLabels[plan]}</strong></span>
               </div>
             </div>
@@ -240,7 +238,7 @@ export default function Header({ plan, setPlan, caixaStatus, activeTab, setActiv
       />
 
       <PricingModal 
-        isOpen={pricingOpen} 
+        isOpen={pricingModalOpen} 
         onClose={() => setPricingOpen(false)}
         onSelectPlan={(selectedPlan) => {
           setPlan(selectedPlan);
