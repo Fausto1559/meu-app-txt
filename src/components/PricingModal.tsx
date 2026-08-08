@@ -46,9 +46,15 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
                 <Zap className="w-5 h-5"/>
               </div>
               <h3 className="text-base font-bold text-white mb-1">Freemium/Essencial</h3>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-2xl font-extrabold text-amber-400">R$ 19,90</span>
-                <span className="text-[11px] text-slate-400">/mês</span>
+              
+              <div className="mb-4">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl font-extrabold text-emerald-400">R$ 0,00</span>
+                  <span className="text-[11px] text-slate-400">/ 30 dias</span>
+                </div>
+                <div className="text-xs text-slate-400 font-medium mt-0.5">
+                  Depois R$ 19,90<span className="text-[10px]">/mês</span>
+                </div>
               </div>
               
               <ul className="flex flex-col gap-2.5 text-xs text-slate-300 mb-6">
@@ -66,7 +72,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0"/>
-                  <span>Suporte por e-mail</span>
+                  <span>Peça por e-mail</span>
                 </li>
               </ul>
             </div>
@@ -78,7 +84,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
                   : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
               }`}
             >
-              {currentPlan === 'gratis' ? 'Plano Atual' : 'Assinar Freemium/Essencial'}
+              {currentPlan === 'gratis' ? 'Plano Atual' : 'Ativar Grátis (30 Dias)'}
             </button>
           </div>
 
@@ -139,6 +145,10 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
           <div className={`relative bg-slate-900/90 border rounded-2xl p-6 flex flex-col justify-between transition-all ${
             currentPlan === 'alta-performance' ? 'border-[#C5A028] shadow-lg shadow-[#C5A028]/10' : 'border-slate-800 hover:border-slate-700'
           }`}>
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">
+              Recomendado
+            </div>
+
             <div>
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4">
                 <Crown className="w-5 h-5"/>
