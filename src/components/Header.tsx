@@ -211,6 +211,7 @@ export default function Header({ plan, setPlan, caixaStatus, activeTab, setActiv
               </div>
             )}
 
+            {/* BOTÃO ACIMA DO PLANO ATUAL E COM NOME "SEJA COPILOTO PRO" */}
             <div className="flex flex-col items-end gap-1.5">
               <button
                 onClick={() => setPricingOpen(true)}
