@@ -173,7 +173,6 @@ export default function Header({ plan, setPlan, caixaStatus, activeTab, setActiv
             </button>
           </nav>
 
-          {/* Alterado aqui: flex-row-reverse resolve a ordem no celular */}
           <div className="flex flex-row-reverse sm:flex-row items-center gap-3">
             {isAdmin && (
               <div className="relative" ref={adminRef}>
