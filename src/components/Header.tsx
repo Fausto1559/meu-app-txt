@@ -74,7 +74,7 @@ export default function Header({ plan, setPlan, caixaStatus, activeTab, setActiv
     degust: 'Degustação (App Completo)',
     gratis: 'Freemium/Essencial (R$ 19,90)',
     copiloto: 'Copiloto (R$ 29,90)',
-    'alta-performance': 'Alta Performance (R$ 39,90)',
+    'alta-performance': 'Copiloto Pro (R$ 39,90)',
   };
 
   return (
@@ -173,7 +173,8 @@ export default function Header({ plan, setPlan, caixaStatus, activeTab, setActiv
             </button>
           </nav>
 
-          <div className="flex items-center gap-3">
+          {/* Alterado aqui: flex-row-reverse resolve a ordem no celular */}
+          <div className="flex flex-row-reverse sm:flex-row items-center gap-3">
             {isAdmin && (
               <div className="relative" ref={adminRef}>
                 <button
@@ -205,7 +206,7 @@ export default function Header({ plan, setPlan, caixaStatus, activeTab, setActiv
                       onClick={() => { setPlan('alta-performance'); setAdminOpen(false); }}
                       className="w-full text-left px-4 py-2.5 text-xs text-slate-300 hover:bg-slate-800/60 cursor-pointer"
                     >
-                      3. Alta Performance = R$ 39,90
+                      3. Copiloto Pro = R$ 39,90
                     </button>
                   </div>
                 )}
@@ -238,7 +239,7 @@ export default function Header({ plan, setPlan, caixaStatus, activeTab, setActiv
       />
 
       <PricingModal 
-        isOpen={pricingModalOpen} 
+        isOpen={pricingOpen} 
         onClose={() => setPricingOpen(false)}
         onSelectPlan={(selectedPlan) => {
           setPlan(selectedPlan);
