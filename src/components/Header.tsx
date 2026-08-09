@@ -120,53 +120,19 @@ export default function Header({ plan, setPlan, caixaStatus, activeTab, setActiv
           </div>
 
           <nav className="hidden md:flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800 shadow-lg">
-            <button
-              onClick={() => setActiveTab('painel')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'painel' 
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' 
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
+            <button onClick={() => setActiveTab('painel')} className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeTab === 'painel' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
               <LayoutDashboard className="w-4 h-4" />
               <span>Painel</span>
             </button>
-
-            <button
-              onClick={() => {
-                setActiveTab('calculadora');
-                setIsCalculadoraOpen(true);
-              }}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'calculadora' 
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' 
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
+            <button onClick={() => { setActiveTab('calculadora'); setIsCalculadoraOpen(true); }} className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeTab === 'calculadora' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
               <Calculator className="w-4 h-4" />
               <span>Calculadora</span>
             </button>
-
-            <button
-              onClick={() => setActiveTab('fechamento')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'fechamento' 
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' 
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
+            <button onClick={() => setActiveTab('fechamento')} className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeTab === 'fechamento' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
               <FileText className="w-4 h-4" />
               <span>Fechamento</span>
             </button>
-
-            <button
-              onClick={() => setActiveTab('conexao')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'conexao' 
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' 
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
+            <button onClick={() => setActiveTab('conexao')} className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeTab === 'conexao' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
               <Link2 className="w-4 h-4" />
               <span>Conexão</span>
             </button>
@@ -175,43 +141,22 @@ export default function Header({ plan, setPlan, caixaStatus, activeTab, setActiv
           <div className="flex flex-row-reverse sm:flex-row items-center gap-3">
             {isAdmin && (
               <div className="relative" ref={adminRef}>
-                <button
-                  onClick={() => setAdminOpen(!adminOpen)}
-                  className="bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-red-400 text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
-                >
+                <button onClick={() => setAdminOpen(!adminOpen)} className="bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-red-400 text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer">
                   <ShieldAlert className="w-4 h-4"/>
                   <span>Admin Dev</span>
                 </button>
-
                 {adminOpen && (
                   <div className="absolute right-0 mt-2 w-64 bg-slate-900 border border-slate-800 rounded-xl shadow-xl overflow-hidden z-50">
-                    <div className="px-3 py-2 text-[10px] font-semibold text-red-400 uppercase tracking-wider bg-slate-950/80 border-b border-slate-800">
-                      Painel do Desenvolvedor
-                    </div>
-                    <button
-                      onClick={() => { setPlan('gratis'); setAdminOpen(false); }}
-                      className="w-full text-left px-4 py-2.5 text-xs text-slate-300 hover:bg-slate-800/60 border-b border-slate-800/40 cursor-pointer"
-                    >
-                      1. Freemium/Essencial = R$ 19,90
-                    </button>
-                    <button
-                      onClick={() => { setPlan('copiloto'); setAdminOpen(false); }}
-                      className="w-full text-left px-4 py-2.5 text-xs text-slate-300 hover:bg-slate-800/60 border-b border-slate-800/40 cursor-pointer"
-                    >
-                      2. Copiloto = R$ 29,90
-                    </button>
-                    <button
-                      onClick={() => { setPlan('alta-performance'); setAdminOpen(false); }}
-                      className="w-full text-left px-4 py-2.5 text-xs text-slate-300 hover:bg-slate-800/60 cursor-pointer"
-                    >
-                      3. Copiloto Pro = R$ 39,90
-                    </button>
+                    <div className="px-3 py-2 text-[10px] font-semibold text-red-400 uppercase tracking-wider bg-slate-950/80 border-b border-slate-800">Painel do Desenvolvedor</div>
+                    <button onClick={() => { setPlan('gratis'); setAdminOpen(false); }} className="w-full text-left px-4 py-2.5 text-xs text-slate-300 hover:bg-slate-800/60 border-b border-slate-800/40 cursor-pointer">1. Freemium/Essencial = R$ 19,90</button>
+                    <button onClick={() => { setPlan('copiloto'); setAdminOpen(false); }} className="w-full text-left px-4 py-2.5 text-xs text-slate-300 hover:bg-slate-800/60 border-b border-slate-800/40 cursor-pointer">2. Copiloto = R$ 29,90</button>
+                    <button onClick={() => { setPlan('alta-performance'); setAdminOpen(false); }} className="w-full text-left px-4 py-2.5 text-xs text-slate-300 hover:bg-slate-800/60 cursor-pointer">3. Copiloto Pro = R$ 39,90</button>
                   </div>
                 )}
               </div>
             )}
 
-            {/* BOTÃO ACIMA DO PLANO ATUAL E COM NOME "SEJA COPILOTO PRO" */}
+            {/* CONTAINER COM BOTÃO ACIMA DO STATUS */}
             <div className="flex flex-col items-end gap-1.5">
               <button
                 onClick={() => setPricingOpen(true)}
