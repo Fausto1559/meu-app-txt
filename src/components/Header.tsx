@@ -1,4 +1,3 @@
-// src/components/Header.tsx
 import { useState, useRef, useEffect } from 'react';
 import type { Plan, CaixaStatus } from '@/types';
 import { Crown, Flame, ShieldAlert, Clock, LayoutDashboard, Calculator, FileText, Link2 } from 'lucide-react';
