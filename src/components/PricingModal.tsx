@@ -1,5 +1,4 @@
-Set-Content -Path "src\components\PricingModal.tsx" -Value '// src/components/PricingModal.tsx
-import { X, Zap, Crown, Sparkles, Check } from ''lucide-react'';
+Set-Content -Path "src\components\PricingModal.tsx" -Value 'import { X, Zap, Crown, Sparkles, Check } from ''lucide-react'';
 import type { Plan } from ''@/types'';
 
 interface PricingModalProps {
@@ -16,7 +15,6 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 overflow-y-auto">
       <div className="relative w-full max-w-4xl bg-[#0B132B] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden p-6 md:p-8">
         
-        {/* Botão Fechar */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-slate-400 hover:text-white p-2 rounded-lg bg-slate-900/80 border border-slate-800 transition-colors z-10 cursor-pointer"
@@ -24,7 +22,6 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
           <X className="w-5 h-5"/>
         </button>
 
-        {/* Cabeçalho do Modal */}
         <div className="text-center max-w-xl mx-auto mb-8">
           <h2 className="text-2xl font-extrabold text-white tracking-wide mb-2">
             Seja Copiloto Pro
@@ -34,10 +31,8 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
           </p>
         </div>
 
-        {/* Cards dos Planos */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           
-          {/* Plano Freemium/Essencial */}
           <div className={`relative bg-slate-900/90 border rounded-2xl p-6 flex flex-col justify-between transition-all ${
             currentPlan === ''gratis'' ? ''border-[#C5A028] shadow-lg shadow-[#C5A028]/10'' : ''border-slate-800 hover:border-slate-700''
           }`}>
@@ -88,7 +83,6 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
             </button>
           </div>
 
-          {/* Plano Copiloto */}
           <div className={`relative bg-slate-900/90 border rounded-2xl p-6 flex flex-col justify-between transition-all ${
             currentPlan === ''copiloto'' ? ''border-[#C5A028] shadow-lg shadow-[#C5A028]/10'' : ''border-amber-500/40 hover:border-amber-500/60''
           }`}>
@@ -141,7 +135,6 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
             </button>
           </div>
 
-          {/* Plano Copiloto Pro (antigo Alta Performance) */}
           <div className={`relative bg-slate-900/90 border rounded-2xl p-6 flex flex-col justify-between transition-all ${
             currentPlan === ''alta-performance'' ? ''border-[#C5A028] shadow-lg shadow-[#C5A028]/10'' : ''border-slate-800 hover:border-slate-700''
           }`}>
