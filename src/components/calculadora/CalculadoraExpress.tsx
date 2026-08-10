@@ -12,6 +12,7 @@ interface CalculadoraExpressProps {
 
 export default function CalculadoraExpress({ isOpen, onClose, onSaveSale }: CalculadoraExpressProps) {
   if (!isOpen) return null;
+  
   const [precoVenda, setPrecoVenda] = useState('');
   const [custoProduto, setCustoProduto] = useState('');
   const [formaPagamento, setFormaPagamento] = useState<'pix' | 'debito' | 'creditoVista' | 'parc3x' | 'parc12x'>('creditoVista');
