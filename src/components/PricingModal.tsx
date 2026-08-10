@@ -50,7 +50,7 @@ export default function PricingModal({ isOpen, onClose, userPlan, onSelectPlan }
                 <div className="mt-2">
                   <div className="text-2xl font-black text-emerald-400">R$ 0,00 <span className="text-xs font-normal text-slate-400">/30 dias</span></div>
                   <p className="text-[11px] text-amber-400 font-semibold mt-1">
-                    (R$ 19,90/mês após os 30 dias freemium)
+                    R$ 19,90 APÓS OS 30 DIAS FREEMIUM
                   </p>
                 </div>
               </div>
@@ -128,7 +128,7 @@ export default function PricingModal({ isOpen, onClose, userPlan, onSelectPlan }
               onClick={() => onSelectPlan && onSelectPlan('alta_performance')}
               className="mt-6 w-full py-2.5 px-4 bg-gradient-to-r from-[#C5A028] to-[#E5C158] hover:opacity-90 text-slate-950 font-black text-xs rounded-lg transition-all shadow-md shadow-amber-500/20 uppercase"
             >
-              Assinar Copiloto Pro
+              Assinar COPILOTO PRO
             </button>
           </div>
 

@@ -189,7 +189,7 @@ export default function App() {
               <div className="absolute right-0 top-full mt-2 w-[840px] bg-[#0A1428] border border-slate-700 rounded-2xl p-6 shadow-2xl z-50">
                 <div className="flex justify-between items-center mb-4">
                   <div>
-                    <h3 className="text-sm font-bold text-white">Seja Premium</h3>
+                    <h3 className="text-sm font-bold text-amber-400">SEJA COPILOTO PRO</h3>
                     <p className="text-xs text-slate-400">Escolha o plano ideal para o seu negócio. Cancele quando quiser, sem burocracia.</p>
                   </div>
                   <button onClick={() => setIsUpgradeOpen(false)} className="text-slate-400 hover:text-white cursor-pointer">
