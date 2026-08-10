@@ -23,7 +23,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Card 1: Freemium / Essencial (Sem R$ 19,90) */}
+          {/* Card 1: Freemium / Essencial (Livre de cobranças) */}
           <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
             <div>
               <span className="inline-block px-2.5 py-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 rounded-full mb-3">PLANO ESSENCIAL</span>
