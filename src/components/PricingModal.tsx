@@ -43,10 +43,13 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
 
               {/* Bloco de Preços Corrigido */}
               <div className="my-4 flex flex-col gap-1">
+                {/* Valor do Teste */}
                 <div className="flex items-baseline">
                   <span className="text-2xl font-bold text-emerald-400">R$ 0,00</span>
                   <span className="text-xs text-slate-400 ml-1">/30 dias</span>
                 </div>
+                
+                {/* Valor Dourado Após 30 Dias */}
                 <div className="flex items-baseline">
                   <span className="text-2xl font-bold text-amber-400">R$ 19,90</span>
                   <span className="text-xs text-slate-400 ml-1">/mês após 30 dias</span>
