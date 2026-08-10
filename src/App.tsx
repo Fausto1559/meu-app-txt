@@ -8,7 +8,19 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from './services/firebaseConfig';
 import LoginScreen from './screens/LoginScreen';
 import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
+const calculateTimeLeft = () => {
+  const targetDate = new Date('2026-09-09T23:59:59');
+  const difference = +targetDate - +new Date();
 
+  if (difference <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+
+  return {
+    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((difference / 1000 / 60) % 60),
+    seconds: Math.floor((difference / 1000) % 60),
+  };
+};
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -19,7 +31,15 @@ export default function App() {
   const [userPlan, setUserPlan] = useState<'gratis' | 'essencial' | 'copiloto' | 'alta_performance'>('essencial');
   const [userPlanName, setUserPlanName] = useState('FREEMIUM / ESSENCIAL');
   const [userPlanPrice, setUserPlanPrice] = useState('R$ 0,00');
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
   const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
 
   const [vendasHoje, setVendasHoje] = useState('R$ 0,00');
@@ -94,7 +114,7 @@ export default function App() {
           <span>MODO APAGA INCÊNDIO</span>
         </div>
         <div className="flex items-center gap-2 bg-black/40 px-3 py-1 rounded-full border border-amber-500/30 text-xs text-slate-200">
-          <span>Trial Gratuito: <strong className="text-white font-mono">29d 18h 47m 00s</strong></span>
+          <strong className="text-amber-400 font-mono">{timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {String(timeLeft.seconds).padStart(2, '0')}s</strong>
         </div>
         <div className="text-xs text-slate-300 flex items-center gap-3">
           <span>Logado como: <strong className="text-white">{user.email || user.displayName}</strong></span>
