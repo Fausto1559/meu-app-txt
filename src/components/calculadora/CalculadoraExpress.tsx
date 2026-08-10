@@ -1,12 +1,12 @@
 // src/components/calculadora/CalculadoraExpress.tsx
 import { useState } from 'react';
-import type { Plan } from '@/types';
+import type { Plan } from '../../types';
 import { X, Calculator, Mic, CheckCircle2, AlertTriangle, ShieldCheck, ChevronRight } from 'lucide-react';
 
 interface CalculadoraExpressProps {
   isOpen: boolean;
   onClose: () => void;
-  userPlan: Plan;
+  userPlan: any;
   isTrialActive: boolean;
   onOpenUpgrade: () => void;
 }
@@ -24,6 +24,25 @@ export default function CalculadoraExpress({
   const [custoProduto, setCustoProduto] = useState<string>('');
   const [formaPagamento, setFormaPagamento] = useState<FormaPagamento>('pix');
   const [parcelaSelecionada, setParcelaSelecionada] = useState<number>(1);
+
+  const iniciarReconhecimentoVoz = (onResultado: (texto: string) => void) => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Seu navegador não suporta reconhecimento de voz.");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+    recognition.interimResults = false;
+
+    recognition.onresult = (event: any) => {
+      const textoFalado = event.results[0][0].transcript;
+      const numeroApenas = textoFalado.replace(/[^0-9,]/g, '').replace(',', '.');
+      onResultado(numeroApenas || textoFalado);
+    };
+
+    recognition.start();
+  };
 
   if (!isOpen) return null;
 
@@ -112,7 +131,10 @@ export default function CalculadoraExpress({
                       placeholder="0,00"
                       className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-amber-500"
                     />
-                    <Mic className="absolute right-2 w-3 h-3 text-slate-400 cursor-pointer hover:text-amber-400" />
+                    <Mic 
+                      className="absolute right-2 w-3 h-3 text-slate-400 cursor-pointer hover:text-amber-400" 
+                      onMouseDown={() => iniciarReconhecimentoVoz((valor) => setPrecoVenda(valor))}
+                    />
                   </div>
                 </div>
 
@@ -127,7 +149,10 @@ export default function CalculadoraExpress({
                       placeholder="0,00"
                       className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-amber-500"
                     />
-                    <Mic className="absolute right-2 w-3 h-3 text-slate-400 cursor-pointer hover:text-amber-400" />
+                    <Mic 
+                      className="absolute right-2 w-3 h-3 text-slate-400 cursor-pointer hover:text-amber-400" 
+                      onMouseDown={() => iniciarReconhecimentoVoz((valor) => setCustoProduto(valor))}
+                    />
                   </div>
                 </div>
               </div>

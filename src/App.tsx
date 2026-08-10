@@ -7,7 +7,7 @@ import {
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from './services/firebaseConfig';
 import LoginScreen from './screens/LoginScreen';
-import CalculadoraExpress from '@/components/calculadora/CalculadoraExpress';
+import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -170,7 +170,7 @@ export default function App() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col-reverse md:flex-row items-center gap-4">
           <div className="bg-slate-800/60 border border-slate-700/50 px-3 py-1 rounded-full flex items-center gap-2 text-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
             <span className="text-slate-300">Plano Atual: <strong className="text-emerald-400">{userPlanName} ({userPlanPrice})</strong></span>
@@ -181,7 +181,7 @@ export default function App() {
               onClick={() => setIsUpgradeOpen(!isUpgradeOpen)}
               className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-md shadow-amber-500/10 flex items-center gap-1"
             >
-              <span>Seja Copiloto</span>
+              <span>Seja Copiloto Pro</span>
               <ChevronDown className="w-3 h-3" />
             </button>
 

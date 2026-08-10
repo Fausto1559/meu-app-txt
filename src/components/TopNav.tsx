@@ -1,40 +1,20 @@
-// src/components/TopNav.tsx
-import type { Tab } from '@/types';
-import { LayoutDashboard, Calculator, FileText, Cpu } from 'lucide-react';
-
-interface TopNavProps {
-  tab: Tab;
-  setTab: (tab: Tab) => void;
-}
-
-export default function TopNav({ tab, setTab }: TopNavProps) {
-  const navItems: { id: Tab; label: string; icon: any }[] = [
-    { id: 'painel', label: 'Painel', icon: LayoutDashboard },
-    { id: 'calculadora', label: 'Calculadora', icon: Calculator },
-    { id: 'fechamento', label: 'Fechamento', icon: FileText },
-    { id: 'conexao', label: 'Conexão', icon: Cpu },
-  ];
-
+export default function TopNav({ onOpenUpgrade }: any) {
   return (
-    <nav className="bg-slate-900/40 border-b border-slate-800/60 px-6 py-2 flex gap-2 overflow-x-auto">
-      {navItems.map((item) => {
-        const Icon = item.icon;
-        const isActive = tab === item.id;
-        return (
-          <button
-            key={item.id}
-            onClick={() => setTab(item.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all ${
-              isActive
-                ? 'bg-[#C5A028]/20 border border-[#C5A028]/30 text-[#E5C158]'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-            }`}
-          >
-            <Icon className="w-4 h-4" />
-            {item.label}
-          </button>
-        );
-      })}
-    </nav>
+    <div className="flex flex-col-reverse sm:flex-row items-center gap-2">
+      
+      {/* Texto do Plano Atual (embaixo no celular) */}
+      <div className="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-[10px] sm:text-xs text-emerald-400">
+        Plano Atual: <span className="font-bold">FREEMIUM / ESSENCIAL (R$ 0,00)</span>
+      </div>
+
+      {/* Botão SEJA COPILOTO PRO (acima no celular) */}
+      <button
+        onClick={onOpenUpgrade}
+        className="w-full sm:w-auto bg-gradient-to-r from-[#C5A028] to-[#E5C158] text-slate-950 font-extrabold text-xs px-3 py-1.5 rounded-lg shadow-md hover:opacity-90 transition-all uppercase"
+      >
+        Seja Copiloto Pro
+      </button>
+
+    </div>
   );
 }
