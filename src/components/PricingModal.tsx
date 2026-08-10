@@ -47,12 +47,9 @@ export default function PricingModal({ isOpen, onClose, userPlan, onSelectPlan }
                   <Flame className="w-4 h-4 text-emerald-400" />
                   Freemium / Essencial
                 </h3>
-                <div className="mt-2">
-                  <div className="text-2xl font-black text-emerald-400">R$ 0,00 <span className="text-xs font-normal text-slate-400">/30 dias</span></div>
-                  <p className="text-[11px] text-amber-400 font-semibold mt-1">
-                    R$ 19,90 APÓS OS 30 DIAS FREEMIUM
-                  </p>
-                </div>
+                <p className="text-xs text-amber-400 font-semibold mt-1">
+                  (R$ 19,90/mês após os 30 dias freemium)
+                </p>
               </div>
               <ul className="space-y-2 text-xs text-slate-300 border-t border-slate-800 pt-3">
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> Painel manual de prioridades</li>
