@@ -23,25 +23,19 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Card 1: Freemium / Essencial */}
+          {/* Card 1: Freemium / Essencial (Sem R$ 19,90) */}
           <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
             <div>
-              <span className="inline-block px-2.5 py-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 rounded-full mb-3">TRIAL 30 DIAS (GRÁTIS)</span>
+              <span className="inline-block px-2.5 py-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 rounded-full mb-3">PLANO ESSENCIAL</span>
               <h3 className="text-base font-bold text-white flex items-center gap-2"><Flame className="w-4 h-4 text-emerald-400" /> Freemium / Essencial</h3>
               
-              <div className="my-4 flex flex-col gap-1">
-                <div className="flex items-baseline">
-                  <span className="text-2xl font-bold text-emerald-400">R$ 0,00</span>
-                  <span className="text-xs text-slate-400 ml-1">/30 dias</span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="text-xl font-bold text-amber-400">R$ 19,90</span>
-                  <span className="text-xs text-slate-400 ml-1">/mês após período de teste</span>
-                </div>
+              <div className="my-4 flex items-baseline">
+                <span className="text-2xl font-bold text-emerald-400">R$ 0,00</span>
+                <span className="text-xs text-slate-400 ml-1">/gratuito</span>
               </div>
 
               <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2 mb-3 text-[11px] text-emerald-300 text-center font-medium">
-                Totalmente Gratuito no período de teste!
+                Uso essencial gratuito para o seu negócio!
               </div>
 
               <ul className="space-y-2 text-xs text-slate-300 border-t border-slate-800 pt-3">
@@ -51,7 +45,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> Peça por e-mail</li>
               </ul>
             </div>
-            <button onClick={() => { if(onSelectPlan) onSelectPlan('essencial', 'Freemium / Essencial', 0); onClose(); }} className="mt-6 w-full bg-slate-800 hover:bg-slate-700 py-2.5 rounded-lg text-xs font-bold transition-all">Ativar Grátis (30 Dias)</button>
+            <button onClick={() => { if(onSelectPlan) onSelectPlan('essencial', 'Freemium / Essencial', 0); onClose(); }} className="mt-6 w-full bg-slate-800 hover:bg-slate-700 py-2.5 rounded-lg text-xs font-bold transition-all">Selecionar Essencial</button>
           </div>
 
           {/* Card 2: Copiloto */}
