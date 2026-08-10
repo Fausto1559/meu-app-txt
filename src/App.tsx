@@ -108,23 +108,24 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#050B14] text-slate-100 flex flex-col font-sans relative">
-      <div className="bg-gradient-to-r from-[#380b0b] via-[#581c1c] to-[#380b0b] border-b border-[#7f1d1d] px-6 py-2 flex items-center justify-between animate-pulse">
-        <div className="flex items-center gap-2 text-amber-400 text-xs font-bold tracking-wider">
+      <div className="bg-gradient-to-r from-[#380b0b] via-[#581c1c] to-[#380b0b] border-b border-[#7f1d1d] px-6 py-2 flex items-center justify-between text-xs">
+        <div className="flex items-center gap-2 text-amber-400 font-bold tracking-wider">
           <Flame className="w-4 h-4 text-amber-400" />
           <span>MODO APAGA INCÊNDIO</span>
         </div>
-        <div className="flex items-center gap-2 bg-black/40 px-3 py-1 rounded-full border border-amber-500/30 text-xs text-slate-200">
-          <strong className="text-amber-400 font-mono">{timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {String(timeLeft.seconds).padStart(2, '0')}s</strong>
+        <div className="text-slate-300">
+          Trial Gratuito: <strong className="text-amber-400 font-mono">{timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {String(timeLeft.seconds).padStart(2, '0')}s</strong>
         </div>
-        <div className="text-xs text-slate-300 flex items-center gap-3">
-          <span>Logado como: <strong className="text-white">{user.email || user.displayName}</strong></span>
-          <button 
-            onClick={() => auth.signOut()} 
-            className="bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/40 px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-all"
-          >
-            Sair
-          </button>
-        </div>
+      </div>
+
+      <div className="px-6 py-2 flex items-center justify-between text-xs text-slate-300 border-b border-slate-800">
+        <span>Logado como: <strong className="text-white">{user?.email || user?.displayName}</strong></span>
+        <button
+          onClick={() => auth.signOut()}
+          className="bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/40 px-2 py-0.5 rounded"
+        >
+          Sair
+        </button>
       </div>
 
       <header className="bg-slate-900 border-b border-slate-800 px-6 py-3 flex items-center justify-between shadow-md relative z-20">
