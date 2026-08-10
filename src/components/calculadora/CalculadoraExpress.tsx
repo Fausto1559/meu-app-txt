@@ -1,31 +1,32 @@
-// src/components/calculadora/CalculadoraExpress.tsx
-import { useState } from 'react';
-import type { Plan } from '../../types';
-import { X, Calculator, Mic, CheckCircle2, AlertTriangle, ShieldCheck, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Flame, Mic, Settings, Check } from 'lucide-react';
 
 interface CalculadoraExpressProps {
   isOpen: boolean;
   onClose: () => void;
-  userPlan: any;
-  isTrialActive: boolean;
-  onOpenUpgrade: () => void;
+  onSaveSale?: (saleData: any) => void;
+  userPlan?: string;
+  isTrialActive?: boolean;
+  onOpenUpgrade?: () => void;
 }
 
-type FormaPagamento = 'pix' | 'debito' | 'credito_vista' | 'credito_3x' | 'credito_12x';
+export default function CalculadoraExpress({ isOpen, onClose, onSaveSale }: CalculadoraExpressProps) {
+  if (!isOpen) return null;
+  const [precoVenda, setPrecoVenda] = useState('');
+  const [custoProduto, setCustoProduto] = useState('');
+  const [formaPagamento, setFormaPagamento] = useState<'pix' | 'debito' | 'creditoVista' | 'parc3x' | 'parc12x'>('creditoVista');
+  
+  const [rates, setRates] = useState({
+    pix: 0.99,
+    debito: 1.99,
+    creditoVista: 3.49,
+    parc3x: 5.99,
+    parc12x: 12.99,
+  });
 
-export default function CalculadoraExpress({
-  isOpen,
-  onClose,
-  userPlan,
-  isTrialActive,
-  onOpenUpgrade,
-}: CalculadoraExpressProps) {
-  const [precoVenda, setPrecoVenda] = useState<string>('');
-  const [custoProduto, setCustoProduto] = useState<string>('');
-  const [formaPagamento, setFormaPagamento] = useState<FormaPagamento>('pix');
-  const [parcelaSelecionada, setParcelaSelecionada] = useState<number>(1);
+  const [showTaxSettings, setShowTaxSettings] = useState(false);
 
-  const iniciarReconhecimentoVoz = (onResultado: (texto: string) => void) => {
+  const handleSpeechInput = (setter: (val: string) => void) => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       alert("Seu navegador não suporta reconhecimento de voz.");
@@ -33,259 +34,239 @@ export default function CalculadoraExpress({
     }
     const recognition = new SpeechRecognition();
     recognition.lang = 'pt-BR';
-    recognition.interimResults = false;
-
     recognition.onresult = (event: any) => {
-      const textoFalado = event.results[0][0].transcript;
-      const numeroApenas = textoFalado.replace(/[^0-9,]/g, '').replace(',', '.');
-      onResultado(numeroApenas || textoFalado);
+      const transcript = event.results[0][0].transcript.replace(/\D/g, '');
+      if (transcript) {
+        const formatted = (Number(transcript) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        setter(formatted);
+      }
     };
-
     recognition.start();
   };
 
-  if (!isOpen) return null;
-
-  const numericPreco = parseFloat(precoVenda.replace(/\./g, '').replace(',', '.')) || 0;
-  const numericCusto = parseFloat(custoProduto.replace(/\./g, '').replace(',', '.')) || 0;
-
-  const taxasParcelamento: Record<number, number> = {
-    1: 3.49,
-    2: 4.49,
-    3: 5.49,
-    4: 6.29,
-    5: 7.09,
-    6: 7.89,
-    7: 8.49,
-    8: 9.09,
-    9: 9.69,
-    10: 10.29,
-    11: 10.89,
-    12: 11.49,
+  const parseCurrency = (val: string) => {
+    if (!val) return 0;
+    return Number(val.replace(/\./g, '').replace(',', '.')) || 0;
   };
 
-  let taxaPercentual = 0;
-  if (formaPagamento === 'pix') taxaPercentual = 0.99;
-  else if (formaPagamento === 'debito') taxaPercentual = 1.99;
-  else if (formaPagamento === 'credito_vista') taxaPercentual = taxasParcelamento[1];
-  else if (formaPagamento === 'credito_3x') taxaPercentual = taxasParcelamento[parcelaSelecionada <= 3 ? parcelaSelecionada : 3];
-  else if (formaPagamento === 'credito_12x') taxaPercentual = taxasParcelamento[parcelaSelecionada];
+  const vVenda = parseCurrency(precoVenda);
+  const vCusto = parseCurrency(custoProduto);
 
-  const valorTaxa = (numericPreco * taxaPercentual) / 100;
-  const valorLiquido = numericPreco - valorTaxa;
-  const lucro = valorLiquido - numericCusto;
-  const margem = numericPreco > 0 ? (lucro / numericPreco) * 100 : 0;
+  const currentRate = rates[formaPagamento];
+  const taxaValor = vVenda * (currentRate / 100);
+  const valorLiquido = vVenda - taxaValor;
+  const lucroEstimado = valorLiquido - vCusto;
+  const margem = vVenda > 0 ? (lucroEstimado / vVenda) * 100 : 0;
 
-  const canUseCalculator = userPlan !== 'gratis' || isTrialActive;
+  const handleSave = () => {
+    if (onSaveSale) {
+      onSaveSale({
+        precoVenda: vVenda,
+        custoProduto: vCusto,
+        formaPagamento,
+        taxaAplicada: currentRate,
+        valorLiquido,
+        lucroEstimado
+      });
+    }
+    onClose();
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-2 sm:p-4">
-      <div className="relative w-full max-w-[340px] sm:max-w-md bg-[#0A1428] border border-slate-800 rounded-xl shadow-2xl overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-3">
+      <div className="relative w-full max-w-xl bg-[#0A1428] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden text-slate-100 flex flex-col max-h-[90vh]">
         
-        {/* Topo do Modal */}
-        <div className="flex items-center justify-between px-3 py-2 bg-slate-900/90 border-b border-slate-800 shrink-0">
-          <div className="flex items-center gap-1.5">
-            <div className="p-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400">
-              <Calculator className="w-3.5 h-3.5" />
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-900/50">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400">
+              <Flame className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-[10px] sm:text-[11px] font-bold text-white tracking-wide uppercase">Calculadora de Balcão Express</h2>
-              <p className="text-[8px] sm:text-[9px] text-slate-400">Simule recebimentos e repasse taxas com precisão.</p>
+              <h2 className="text-sm font-bold text-white">CALCULADORA DE BALCÃO EXPRESS</h2>
+              <p className="text-[11px] text-slate-400">Simule recebimentos e ajuste suas taxas com precisão.</p>
             </div>
           </div>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setShowTaxSettings(!showTaxSettings)}
+              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+              title="Configurar Taxas"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+            <button onClick={onClose} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        <div className="p-5 overflow-y-auto space-y-4">
+          
+          {/* Painel de Configuração de Taxas */}
+          {showTaxSettings && (
+            <div className="p-4 rounded-xl bg-slate-900/90 border border-amber-500/30 space-y-3">
+              <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Configurar Taxas das Operações (%)</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                <div>
+                  <label className="text-slate-400">Pix</label>
+                  <input 
+                    type="number" 
+                    step="0.01"
+                    value={rates.pix} 
+                    onChange={(e) => setRates({...rates, pix: Number(e.target.value)})}
+                    className="w-full mt-1 px-2 py-1 bg-slate-950 border border-slate-700 rounded text-white" 
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-400">Débito</label>
+                  <input 
+                    type="number" 
+                    step="0.01"
+                    value={rates.debito} 
+                    onChange={(e) => setRates({...rates, debito: Number(e.target.value)})}
+                    className="w-full mt-1 px-2 py-1 bg-slate-950 border border-slate-700 rounded text-white" 
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-400">Créd. à Vista</label>
+                  <input 
+                    type="number" 
+                    step="0.01"
+                    value={rates.creditoVista} 
+                    onChange={(e) => setRates({...rates, creditoVista: Number(e.target.value)})}
+                    className="w-full mt-1 px-2 py-1 bg-slate-950 border border-slate-700 rounded text-white" 
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-400">Parcelado Até 3x</label>
+                  <input 
+                    type="number" 
+                    step="0.01"
+                    value={rates.parc3x} 
+                    onChange={(e) => setRates({...rates, parc3x: Number(e.target.value)})}
+                    className="w-full mt-1 px-2 py-1 bg-slate-950 border border-slate-700 rounded text-white" 
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-400">Parcelado Até 12x</label>
+                  <input 
+                    type="number" 
+                    step="0.01"
+                    value={rates.parc12x} 
+                    onChange={(e) => setRates({...rates, parc12x: Number(e.target.value)})}
+                    className="w-full mt-1 px-2 py-1 bg-slate-950 border border-slate-700 rounded text-white" 
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Inputs de Valores com Microfone */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs text-slate-300 font-medium">PREÇO DE VENDA (R$)</label>
+              <div className="relative">
+                <input 
+                  type="text" 
+                  value={precoVenda} 
+                  onChange={(e) => setPrecoVenda(e.target.value)}
+                  placeholder="0,00"
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500 pr-10 font-mono" 
+                />
+                <button 
+                  onClick={() => handleSpeechInput(setPrecoVenda)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-amber-400 transition-colors"
+                  title="Falar valor"
+                >
+                  <Mic className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs text-slate-300 font-medium">CUSTO DO PRODUTO (R$)</label>
+              <div className="relative">
+                <input 
+                  type="text" 
+                  value={custoProduto} 
+                  onChange={(e) => setCustoProduto(e.target.value)}
+                  placeholder="0,00"
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500 pr-10 font-mono" 
+                />
+                <button 
+                  onClick={() => handleSpeechInput(setCustoProduto)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-amber-400 transition-colors"
+                  title="Falar valor"
+                >
+                  <Mic className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Forma de Pagamento */}
+          <div className="space-y-1.5">
+            <label className="text-xs text-slate-300 font-medium">FORMA DE PAGAMENTO</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+              {[
+                { id: 'pix', label: `Pix (${rates.pix}%)` },
+                { id: 'debito', label: `Débito (${rates.debito}%)` },
+                { id: 'creditoVista', label: `Créd. à Vista (${rates.creditoVista}%)` },
+                { id: 'parc3x', label: `Parcelado (Até 3x) (${rates.parc3x}%)` },
+                { id: 'parc12x', label: `Parcelado (Até 12x) (${rates.parc12x}%)` },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setFormaPagamento(item.id as any)}
+                  className={`p-2.5 rounded-lg border text-left transition-all font-medium ${
+                    formaPagamento === item.id 
+                      ? 'bg-amber-500/20 border-amber-500 text-amber-300' 
+                      : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Resumo */}
+          <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
+            <div className="flex items-center gap-1.5 text-amber-400 font-bold">
+              <Check className="w-4 h-4" />
+              <span>RESUMO ({currentRate}%)</span>
+            </div>
+            <div className="flex justify-between text-slate-400">
+              <span>Taxa aplicada:</span>
+              <span className="text-red-400 font-mono">- R$ {taxaValor.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-slate-300 font-semibold">
+              <span>Valor Líquido:</span>
+              <span className="font-mono text-white">R$ {valorLiquido.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-slate-300 font-semibold">
+              <span>Lucro Estimado:</span>
+              <span className="font-mono text-emerald-400">R$ {lucroEstimado.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-slate-300 font-semibold border-t border-slate-800 pt-1.5">
+              <span>Margem:</span>
+              <span className="font-mono text-amber-400">{margem.toFixed(1)}%</span>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-slate-800 bg-slate-900/50 flex justify-end">
           <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+            onClick={handleSave}
+            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#C5A028] to-[#E5C158] text-slate-950 font-bold text-xs hover:opacity-90 transition-all shadow-lg"
           >
-            <X className="w-4 h-4" />
+            CONFIRMAR E SALVAR VENDA
           </button>
         </div>
 
-        {/* Corpo do Modal */}
-        <div className="p-3 space-y-2 overflow-hidden flex-1 text-xs">
-          {!canUseCalculator ? (
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-center space-y-2">
-              <AlertTriangle className="w-5 h-5 text-amber-400 mx-auto animate-bounce" />
-              <h3 className="text-xs font-bold text-white">Recurso Exclusivo do Plano Copiloto</h3>
-              <p className="text-[10px] text-slate-300">
-                O registro e cálculo avançado de vendas estão habilitados nos planos Copiloto e Alta Performance.
-              </p>
-              <button
-                onClick={onOpenUpgrade}
-                className="w-full bg-gradient-to-r from-[#C5A028] to-[#E5C158] text-slate-950 font-bold text-[11px] py-1.5 rounded-lg shadow-lg cursor-pointer"
-              >
-                Fazer Upgrade Agora
-              </button>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 gap-2">
-                {/* Preço de Venda */}
-                <div className="space-y-0.5">
-                  <label className="text-[8px] sm:text-[9px] font-semibold text-slate-300 uppercase">PREÇO DE VENDA (R$)</label>
-                  <div className="relative flex items-center">
-                    <input
-                      type="text"
-                      value={precoVenda}
-                      onChange={(e) => setPrecoVenda(e.target.value)}
-                      placeholder="0,00"
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-amber-500"
-                    />
-                    <Mic 
-                      className="absolute right-2 w-3 h-3 text-slate-400 cursor-pointer hover:text-amber-400" 
-                      onMouseDown={() => iniciarReconhecimentoVoz((valor) => setPrecoVenda(valor))}
-                    />
-                  </div>
-                </div>
-
-                {/* Custo do Produto */}
-                <div className="space-y-0.5">
-                  <label className="text-[8px] sm:text-[9px] font-semibold text-slate-300 uppercase">CUSTO DO PRODUTO (R$)</label>
-                  <div className="relative flex items-center">
-                    <input
-                      type="text"
-                      value={custoProduto}
-                      onChange={(e) => setCustoProduto(e.target.value)}
-                      placeholder="0,00"
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-amber-500"
-                    />
-                    <Mic 
-                      className="absolute right-2 w-3 h-3 text-slate-400 cursor-pointer hover:text-amber-400" 
-                      onMouseDown={() => iniciarReconhecimentoVoz((valor) => setCustoProduto(valor))}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Forma de Pagamento */}
-              <div className="space-y-1">
-                <label className="text-[8px] sm:text-[9px] font-semibold text-slate-300 uppercase">FORMA DE PAGAMENTO</label>
-                <div className="grid grid-cols-3 gap-1">
-                  <button
-                    type="button"
-                    onClick={() => { setFormaPagamento('pix'); setParcelaSelecionada(1); }}
-                    className={`py-1 px-1 rounded-md text-[9px] font-bold border transition-all cursor-pointer truncate ${
-                      formaPagamento === 'pix' ? 'bg-amber-500 border-amber-400 text-slate-950' : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
-                    }`}
-                  >
-                    Pix (0.99%)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setFormaPagamento('debito'); setParcelaSelecionada(1); }}
-                    className={`py-1 px-1 rounded-md text-[9px] font-bold border transition-all cursor-pointer truncate ${
-                      formaPagamento === 'debito' ? 'bg-amber-500 border-amber-400 text-slate-950' : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
-                    }`}
-                  >
-                    Débito (1.99%)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setFormaPagamento('credito_vista'); setParcelaSelecionada(1); }}
-                    className={`py-1 px-1 rounded-md text-[9px] font-bold border transition-all cursor-pointer truncate ${
-                      formaPagamento === 'credito_vista' ? 'bg-amber-500 border-amber-400 text-slate-950' : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
-                    }`}
-                  >
-                    Créd. à Vista
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-1 pt-0.5">
-                  <button
-                    type="button"
-                    onClick={() => { setFormaPagamento('credito_3x'); setParcelaSelecionada(1); }}
-                    className={`py-1 px-2 rounded-md text-[9px] font-bold border flex items-center justify-between transition-all cursor-pointer ${
-                      formaPagamento === 'credito_3x' ? 'bg-amber-500 border-amber-400 text-slate-950' : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
-                    }`}
-                  >
-                    <span>Parcelado (Até 3x)</span>
-                    <ChevronRight className="w-2.5 h-2.5" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => { setFormaPagamento('credito_12x'); setParcelaSelecionada(1); }}
-                    className={`py-1 px-2 rounded-md text-[9px] font-bold border flex items-center justify-between transition-all cursor-pointer ${
-                      formaPagamento === 'credito_12x' ? 'bg-amber-500 border-amber-400 text-slate-950' : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
-                    }`}
-                  >
-                    <span>Parcelado (Até 12x)</span>
-                    <ChevronRight className="w-2.5 h-2.5" />
-                  </button>
-                </div>
-
-                {/* Seletor Compacto 3x ou 12x */}
-                {(formaPagamento === 'credito_3x' || formaPagamento === 'credito_12x') && (
-                  <div className="bg-slate-900/90 border border-amber-500/40 rounded-lg p-1.5 space-y-1 mt-1">
-                    <div className="text-[9px] font-bold text-amber-400 uppercase">
-                      Parcelas ({formaPagamento === 'credito_3x' ? '1 a 3x' : '1 a 12x'}):
-                    </div>
-                    <div className={`grid ${formaPagamento === 'credito_3x' ? 'grid-cols-3' : 'grid-cols-6'} gap-1`}>
-                      {Array.from({ length: formaPagamento === 'credito_3x' ? 3 : 12 }, (_, i) => i + 1).map((num) => {
-                        const tx = taxasParcelamento[num];
-                        const valParcela = numericPreco > 0 ? (numericPreco * (1 + tx / 100)) / num : 0;
-                        return (
-                          <button
-                            key={num}
-                            type="button"
-                            onClick={() => setParcelaSelecionada(num)}
-                            className={`p-1 rounded-md text-center border transition-all cursor-pointer ${
-                              parcelaSelecionada === num
-                                ? 'bg-amber-500 border-amber-400 text-slate-950 font-bold'
-                                : 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800'
-                            }`}
-                          >
-                            <div className="text-[8px] font-bold">{num}x</div>
-                            <div className="text-[7px] opacity-80">{tx}%</div>
-                            <div className="text-[7px] font-mono mt-0.5">R$ {valParcela.toFixed(0)}</div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Resumo da Venda Compacto */}
-              <div className="bg-slate-900/90 border border-slate-800 rounded-lg p-2 space-y-1 font-mono text-[10px]">
-                <div className="flex items-center gap-1 text-amber-400 font-bold">
-                  <ShieldCheck className="w-3 h-3" />
-                  <span className="font-sans text-[8px] sm:text-[9px] uppercase tracking-wider">Resumo ({parcelaSelecionada}x)</span>
-                </div>
-                <div className="flex justify-between text-slate-400 text-[9px]">
-                  <span>Taxa aplicada ({taxaPercentual}%):</span>
-                  <span className="text-red-400">- R$ {valorTaxa.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-slate-300 text-[9px]">
-                  <span>Valor Líquido:</span>
-                  <span className="text-white font-bold">R$ {valorLiquido.toFixed(2)}</span>
-                </div>
-                <div className="border-t border-slate-800 pt-1 flex justify-between font-bold text-[9px]">
-                  <span className="text-slate-300">Lucro Estimado:</span>
-                  <span className={lucro >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-                    R$ {lucro.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-[9px]">
-                  <span className="text-slate-400">Margem:</span>
-                  <span className={margem >= 0 ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}>
-                    {margem.toFixed(1)}%
-                  </span>
-                </div>
-              </div>
-
-              {/* Botão Salvar */}
-              <button
-                type="button"
-                onClick={onClose}
-                className="w-full bg-gradient-to-r from-[#C5A028] to-[#E5C158] hover:opacity-90 text-slate-950 font-bold text-[10px] sm:text-[11px] py-2 rounded-lg flex items-center justify-center gap-1 shadow-lg shadow-[#C5A028]/25 transition-all cursor-pointer"
-              >
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>CONFIRMAR E SALVAR VENDA</span>
-              </button>
-            </>
-          )}
-        </div>
       </div>
     </div>
   );
