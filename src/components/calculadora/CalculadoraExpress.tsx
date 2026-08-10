@@ -1,273 +1,215 @@
-import React, { useState } from 'react';
-import { X, Flame, Mic, Settings, Check } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Settings, Mic, Check } from 'lucide-react';
 
 interface CalculadoraExpressProps {
   isOpen: boolean;
   onClose: () => void;
   onSaveSale?: (saleData: any) => void;
-  userPlan?: string;
-  isTrialActive?: boolean;
-  onOpenUpgrade?: () => void;
 }
 
 export default function CalculadoraExpress({ isOpen, onClose, onSaveSale }: CalculadoraExpressProps) {
-  if (!isOpen) return null;
-  
-  const [precoVenda, setPrecoVenda] = useState('');
-  const [custoProduto, setCustoProduto] = useState('');
-  const [formaPagamento, setFormaPagamento] = useState<'pix' | 'debito' | 'creditoVista' | 'parc3x' | 'parc12x'>('creditoVista');
-  
-  const [rates, setRates] = useState({
-    pix: 0.99,
-    debito: 1.99,
-    creditoVista: 3.49,
-    parc3x: 5.99,
-    parc12x: 12.99,
+  const [precoVenda, setPrecoVenda] = useState<string>('');
+  const [custoProduto, setCustoProduto] = useState<string>('');
+  const [formaPagamento, setFormaPagamento] = useState<'pix' | 'debito' | 'credito_vista' | 'parc_3x' | 'parc_12x'>('pix');
+  const [parcelasSelecionadas, setParcelasSelecionadas] = useState<number>(1);
+  const [showTaxSettings, setShowTaxSettings] = useState<boolean>(false);
+
+  // Tabela de taxas padrão editável
+  const [taxas, setTaxas] = useState<Record<string, number>>(() => {
+    const saved = localStorage.getItem('copiloto_taxas_personalizadas');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return {
+      pix: 0.99,
+      debito: 1.99,
+      credito_vista: 3.49,
+      parc_1: 4.49,
+      parc_2: 5.29,
+      parc_3: 5.99,
+      parc_4: 6.99,
+      parc_5: 7.99,
+      parc_6: 8.99,
+      parc_7: 9.99,
+      parc_8: 10.99,
+      parc_9: 11.49,
+      parc_10: 11.99,
+      parc_11: 12.49,
+      parc_12: 12.99,
+    };
   });
 
-  const [showTaxSettings, setShowTaxSettings] = useState(false);
+  useEffect(() => {
+    localStorage.setItem('copiloto_taxas_personalizadas', JSON.stringify(taxas));
+  }, [taxas]);
 
-  const handleSpeechInput = (setter: (val: string) => void) => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("Seu navegador não suporta reconhecimento de voz.");
-      return;
-    }
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'pt-BR';
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript.replace(/\D/g, '');
-      if (transcript) {
-        const formatted = (Number(transcript) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        setter(formatted);
-      }
-    };
-    recognition.start();
+  if (!isOpen) return null;
+
+  const getTaxaAtual = (): number => {
+    if (formaPagamento === 'pix') return taxas.pix || 0;
+    if (formaPagamento === 'debito') return taxas.debito || 0;
+    if (formaPagamento === 'credito_vista') return taxas.credito_vista || 0;
+    return taxas[`parc_${parcelasSelecionadas}`] || 0;
   };
 
-  const parseCurrency = (val: string) => {
-    if (!val) return 0;
-    return Number(val.replace(/\./g, '').replace(',', '.')) || 0;
-  };
+  const taxaAplicadaPercent = getTaxaAtual();
+  const numVenda = parseFloat(precoVenda.replace(',', '.')) || 0;
+  const numCusto = parseFloat(custoProduto.replace(',', '.')) || 0;
 
-  const vVenda = parseCurrency(precoVenda);
-  const vCusto = parseCurrency(custoProduto);
+  const valorTaxa = (numVenda * taxaAplicadaPercent) / 100;
+  const valorLiquido = numVenda - valorTaxa;
+  const lucroEstimado = valorLiquido - numCusto;
+  const margem = numVenda > 0 ? (lucroEstimado / numVenda) * 100 : 0;
 
-  const currentRate = rates[formaPagamento];
-  const taxaValor = vVenda * (currentRate / 100);
-  const valorLiquido = vVenda - taxaValor;
-  const lucroEstimado = valorLiquido - vCusto;
-  const margem = vVenda > 0 ? (lucroEstimado / vVenda) * 100 : 0;
-
-  const handleSave = () => {
-    if (onSaveSale) {
+  const handleSalvarVenda = () => {
+    if (onSaveSale && numVenda > 0) {
       onSaveSale({
-        precoVenda: vVenda,
-        custoProduto: vCusto,
+        precoVenda: numVenda,
+        custoProduto: numCusto,
         formaPagamento,
-        taxaAplicada: currentRate,
+        parcelas: parcelasSelecionadas,
+        taxaPercent: taxaAplicadaPercent,
+        valorTaxa,
         valorLiquido,
-        lucroEstimado
+        lucroEstimado,
+        margem,
+        data: new Date().toISOString()
       });
     }
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-3">
-      <div className="relative w-full max-w-xl bg-[#0A1428] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden text-slate-100 flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-[#0B132B] border border-slate-800 rounded-2xl w-full max-w-lg p-6 relative text-white shadow-2xl max-h-[90vh] overflow-y-auto">
         
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-900/50">
+        {/* Cabeçalho */}
+        <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400">
-              <Flame className="w-5 h-5" />
+            <div className="p-2 bg-amber-500/10 rounded-lg border border-amber-500/20">
+              <span className="text-amber-400 text-lg font-bold">⚡</span>
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white">CALCULADORA DE BALCÃO EXPRESS</h2>
-              <p className="text-[11px] text-slate-400">Simule recebimentos e ajuste suas taxas com precisão.</p>
+              <h2 className="text-base font-bold tracking-tight">CALCULADORA DE BALCÃO EXPRESS</h2>
+              <p className="text-xs text-slate-400">Simule recebimentos e ajuste suas taxas.</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button 
               onClick={() => setShowTaxSettings(!showTaxSettings)}
-              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
-              title="Configurar Taxas"
+              className={`p-2 rounded-lg border transition-colors ${showTaxSettings ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'}`}
             >
               <Settings className="w-4 h-4" />
             </button>
-            <button onClick={onClose} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">
-              <X className="w-4 h-4" />
+            <button onClick={onClose} className="p-2 text-slate-400 hover:text-white">
+              <X className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        <div className="p-5 overflow-y-auto space-y-4">
-          
-          {/* Painel de Configuração de Taxas */}
-          {showTaxSettings && (
-            <div className="p-4 rounded-xl bg-slate-900/90 border border-amber-500/30 space-y-3">
-              <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Configurar Taxas das Operações (%)</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-                <div>
-                  <label className="text-slate-400">Pix</label>
-                  <input 
-                    type="number" 
-                    step="0.01"
-                    value={rates.pix} 
-                    onChange={(e) => setRates({...rates, pix: Number(e.target.value)})}
-                    className="w-full mt-1 px-2 py-1 bg-slate-950 border border-slate-700 rounded text-white" 
-                  />
-                </div>
-                <div>
-                  <label className="text-slate-400">Débito</label>
-                  <input 
-                    type="number" 
-                    step="0.01"
-                    value={rates.debito} 
-                    onChange={(e) => setRates({...rates, debito: Number(e.target.value)})}
-                    className="w-full mt-1 px-2 py-1 bg-slate-950 border border-slate-700 rounded text-white" 
-                  />
-                </div>
-                <div>
-                  <label className="text-slate-400">Créd. à Vista</label>
-                  <input 
-                    type="number" 
-                    step="0.01"
-                    value={rates.creditoVista} 
-                    onChange={(e) => setRates({...rates, creditoVista: Number(e.target.value)})}
-                    className="w-full mt-1 px-2 py-1 bg-slate-950 border border-slate-700 rounded text-white" 
-                  />
-                </div>
-                <div>
-                  <label className="text-slate-400">Parcelado Até 3x</label>
-                  <input 
-                    type="number" 
-                    step="0.01"
-                    value={rates.parc3x} 
-                    onChange={(e) => setRates({...rates, parc3x: Number(e.target.value)})}
-                    className="w-full mt-1 px-2 py-1 bg-slate-950 border border-slate-700 rounded text-white" 
-                  />
-                </div>
-                <div>
-                  <label className="text-slate-400">Parcelado Até 12x</label>
-                  <input 
-                    type="number" 
-                    step="0.01"
-                    value={rates.parc12x} 
-                    onChange={(e) => setRates({...rates, parc12x: Number(e.target.value)})}
-                    className="w-full mt-1 px-2 py-1 bg-slate-950 border border-slate-700 rounded text-white" 
-                  />
-                </div>
-              </div>
+        {/* Painel de Edição de Taxas */}
+        {showTaxSettings && (
+          <div className="bg-slate-900/90 border border-amber-500/30 rounded-xl p-4 mb-4">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Ajustar Suas Taxas (%)</h3>
+              <button 
+                onClick={() => setShowTaxSettings(false)}
+                className="text-[11px] bg-amber-500 text-slate-950 px-2 py-1 rounded font-bold"
+              >
+                Salvar Taxas
+              </button>
             </div>
-          )}
-
-          {/* Inputs de Valores com Microfone */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs text-slate-300 font-medium">PREÇO DE VENDA (R$)</label>
-              <div className="relative">
-                <input 
-                  type="text" 
-                  value={precoVenda} 
-                  onChange={(e) => setPrecoVenda(e.target.value)}
-                  placeholder="0,00"
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500 pr-10 font-mono" 
-                />
-                <button 
-                  onClick={() => handleSpeechInput(setPrecoVenda)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-amber-400 transition-colors"
-                  title="Falar valor"
-                >
-                  <Mic className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs text-slate-300 font-medium">CUSTO DO PRODUTO (R$)</label>
-              <div className="relative">
-                <input 
-                  type="text" 
-                  value={custoProduto} 
-                  onChange={(e) => setCustoProduto(e.target.value)}
-                  placeholder="0,00"
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500 pr-10 font-mono" 
-                />
-                <button 
-                  onClick={() => handleSpeechInput(setCustoProduto)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-amber-400 transition-colors"
-                  title="Falar valor"
-                >
-                  <Mic className="w-4 h-4" />
-                </button>
-              </div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div><label className="text-slate-400">Pix (%):</label><input type="number" step="0.01" value={taxas.pix} onChange={e => setTaxas({...taxas, pix: parseFloat(e.target.value) || 0})} className="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-white mt-0.5" /></div>
+              <div><label className="text-slate-400">Débito (%):</label><input type="number" step="0.01" value={taxas.debito} onChange={e => setTaxas({...taxas, debito: parseFloat(e.target.value) || 0})} className="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-white mt-0.5" /></div>
+              <div><label className="text-slate-400">Créd. à Vista (%):</label><input type="number" step="0.01" value={taxas.credito_vista} onChange={e => setTaxas({...taxas, credito_vista: parseFloat(e.target.value) || 0})} className="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-white mt-0.5" /></div>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => (
+                <div key={n}><label className="text-slate-400">{n}x (%):</label><input type="number" step="0.01" value={taxas[`parc_${n}`]} onChange={e => setTaxas({...taxas, [`parc_${n}`]: parseFloat(e.target.value) || 0})} className="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-white mt-0.5" /></div>
+              ))}
             </div>
           </div>
+        )}
 
-          {/* Forma de Pagamento */}
-          <div className="space-y-1.5">
-            <label className="text-xs text-slate-300 font-medium">FORMA DE PAGAMENTO</label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-              {[
-                { id: 'pix', label: `Pix (${rates.pix}%)` },
-                { id: 'debito', label: `Débito (${rates.debito}%)` },
-                { id: 'creditoVista', label: `Créd. à Vista (${rates.creditoVista}%)` },
-                { id: 'parc3x', label: `Parcelado (Até 3x) (${rates.parc3x}%)` },
-                { id: 'parc12x', label: `Parcelado (Até 12x) (${rates.parc12x}%)` },
-              ].map((item) => (
+        {/* Inputs */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Preço de Venda (R$)</label>
+            <div className="relative">
+              <input type="text" placeholder="0,00" value={precoVenda} onChange={e => setPrecoVenda(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500" />
+              <Mic className="w-3.5 h-3.5 text-slate-500 absolute right-3 top-3" />
+            </div>
+          </div>
+          <div>
+            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Custo do Produto (R$)</label>
+            <div className="relative">
+              <input type="text" placeholder="0,00" value={custoProduto} onChange={e => setCustoProduto(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500" />
+              <Mic className="w-3.5 h-3.5 text-slate-500 absolute right-3 top-3" />
+            </div>
+          </div>
+        </div>
+
+        {/* Formas de Pagamento */}
+        <div className="mb-4">
+          <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Forma de Pagamento</label>
+          <div className="grid grid-cols-3 gap-2 mb-2">
+            <button onClick={() => { setFormaPagamento('pix'); setParcelasSelecionadas(1); }} className={`p-2.5 rounded-xl border text-xs font-medium transition-all ${formaPagamento === 'pix' ? 'border-amber-500 bg-amber-500/10 text-amber-400' : 'border-slate-800 bg-slate-900/60 text-slate-300'}`}>
+              Pix ({taxas.pix}%)
+            </button>
+            <button onClick={() => { setFormaPagamento('debito'); setParcelasSelecionadas(1); }} className={`p-2.5 rounded-xl border text-xs font-medium transition-all ${formaPagamento === 'debito' ? 'border-amber-500 bg-amber-500/10 text-amber-400' : 'border-slate-800 bg-slate-900/60 text-slate-300'}`}>
+              Débito ({taxas.debito}%)
+            </button>
+            <button onClick={() => { setFormaPagamento('credito_vista'); setParcelasSelecionadas(1); }} className={`p-2.5 rounded-xl border text-xs font-medium transition-all ${formaPagamento === 'credito_vista' ? 'border-amber-500 bg-amber-500/10 text-amber-400' : 'border-slate-800 bg-slate-900/60 text-slate-300'}`}>
+              Créd. à Vista ({taxas.credito_vista}%)
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => { setFormaPagamento('parc_3x'); setParcelasSelecionadas(3); }} className={`p-2.5 rounded-xl border text-xs font-medium transition-all ${formaPagamento === 'parc_3x' ? 'border-amber-500 bg-amber-500/10 text-amber-400' : 'border-slate-800 bg-slate-900/60 text-slate-300'}`}>
+              Parcelado (Até 3x) ({taxas.parc_3}%)
+            </button>
+            <button onClick={() => { setFormaPagamento('parc_12x'); setParcelasSelecionadas(12); }} className={`p-2.5 rounded-xl border text-xs font-medium transition-all ${formaPagamento === 'parc_12x' ? 'border-amber-500 bg-amber-500/10 text-amber-400' : 'border-slate-800 bg-slate-900/60 text-slate-300'}`}>
+              Parcelado (Até 12x) ({taxas.parc_12}%)
+            </button>
+          </div>
+        </div>
+
+        {/* Submenu de Parcelas Dinâmico */}
+        {(formaPagamento === 'parc_3x' || formaPagamento === 'parc_12x') && (
+          <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-3 mb-4">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Selecione o número de parcelas:</span>
+            <div className="grid grid-cols-3 gap-1.5 max-h-36 overflow-y-auto pr-1">
+              {Array.from({ length: formaPagamento === 'parc_3x' ? 3 : 12 }, (_, i) => i + 1).map((n) => (
                 <button
-                  key={item.id}
-                  onClick={() => setFormaPagamento(item.id as any)}
-                  className={`p-2.5 rounded-lg border text-left transition-all font-medium ${
-                    formaPagamento === item.id 
-                      ? 'bg-amber-500/20 border-amber-500 text-amber-300' 
-                      : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
-                  }`}
+                  key={n}
+                  onClick={() => setParcelasSelecionadas(n)}
+                  className={`p-2 rounded-lg text-xs font-semibold flex justify-between items-center transition-all ${parcelasSelecionadas === n ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
                 >
-                  {item.label}
+                  <span>{n}x</span>
+                  <span className="text-[10px] opacity-80">{taxas[`parc_${n}`]}%</span>
                 </button>
               ))}
             </div>
           </div>
+        )}
 
-          {/* Resumo */}
-          <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
-            <div className="flex items-center gap-1.5 text-amber-400 font-bold">
-              <Check className="w-4 h-4" />
-              <span>RESUMO ({currentRate}%)</span>
-            </div>
-            <div className="flex justify-between text-slate-400">
-              <span>Taxa aplicada:</span>
-              <span className="text-red-400 font-mono">- R$ {taxaValor.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-slate-300 font-semibold">
-              <span>Valor Líquido:</span>
-              <span className="font-mono text-white">R$ {valorLiquido.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-slate-300 font-semibold">
-              <span>Lucro Estimado:</span>
-              <span className="font-mono text-emerald-400">R$ {lucroEstimado.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-slate-300 font-semibold border-t border-slate-800 pt-1.5">
-              <span>Margem:</span>
-              <span className="font-mono text-amber-400">{margem.toFixed(1)}%</span>
-            </div>
+        {/* Resumo */}
+        <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 mb-4">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400 mb-3">
+            <Check className="w-4 h-4" />
+            <span>RESUMO ({taxaAplicadaPercent}% TX - {parcelasSelecionadas}x)</span>
           </div>
 
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between text-slate-400"><span>Taxa aplicada:</span><span className="text-red-400 font-mono">- R$ {valorTaxa.toFixed(2)}</span></div>
+            <div className="flex justify-between text-slate-200"><span>Valor Líquido:</span><span className="font-bold font-mono">R$ {valorLiquido.toFixed(2)}</span></div>
+            <div className="flex justify-between text-emerald-400 font-bold"><span>Lucro Estimado:</span><span className="font-mono">R$ {lucroEstimado.toFixed(2)}</span></div>
+            <div className="flex justify-between text-slate-400 pt-2 border-t border-slate-800"><span>Margem:</span><span className="font-bold text-slate-200">{margem.toFixed(1)}%</span></div>
+          </div>
         </div>
 
-        {/* Footer */}
-        <div className="p-4 border-t border-slate-800 bg-slate-900/50 flex justify-end">
-          <button
-            onClick={handleSave}
-            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#C5A028] to-[#E5C158] text-slate-950 font-bold text-xs hover:opacity-90 transition-all shadow-lg"
-          >
-            CONFIRMAR E SALVAR VENDA
-          </button>
-        </div>
-
+        <button onClick={handleSalvarVenda} className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition-colors uppercase tracking-wider">
+          CONFIRMAR E SALVAR VENDA
+        </button>
       </div>
     </div>
   );
