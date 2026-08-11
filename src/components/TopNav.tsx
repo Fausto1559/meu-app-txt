@@ -34,7 +34,7 @@ export default function TopNav({ onOpenUpgrade }: TopNavProps) {
   }, []);
 
   return (
-    <div className="flex flex-col-reverse sm:flex-row items-center gap-2">
+    <div className="flex flex-col-reverse sm:flex-col md:flex-row items-center gap-2">
       <div className="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-[10px] sm:text-xs text-slate-300">
         Trial Gratuito: <strong className="text-amber-400">{timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {String(timeLeft.seconds).padStart(2, '0')}s</strong>
       </div>

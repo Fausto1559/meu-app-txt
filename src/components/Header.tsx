@@ -5,7 +5,7 @@ interface HeaderProps {
 
 export default function Header({ onOpenUpgrade }: HeaderProps) {
   return (
-    <div className="flex flex-col-reverse sm:flex-row items-center gap-2">
+    <div className="flex flex-col-reverse sm:flex-col md:flex-row items-center gap-2">
       
       {/* Texto do Plano Atual */}
       <div className="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-[10px] sm:text-xs text-emerald-400">
