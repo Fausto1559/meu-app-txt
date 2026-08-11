@@ -11,9 +11,9 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-      <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
-        <button onClick={onClose} className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+      <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
+        <button onClick={onClose} className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
           <X className="w-5 h-5" />
         </button>
 
@@ -24,7 +24,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 w-full">
           {/* Card 1: Freemium / Essencial */}
-          <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
+          <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
             <div>
               <span className="inline-block px-2.5 py-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 rounded-full mb-3">PLANO ESSENCIAL</span>
               <h3 className="text-base font-bold text-white flex items-center gap-2"><Flame className="w-4 h-4 text-emerald-400" /> Freemium / Essencial</h3>
@@ -38,7 +38,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
                 Uso essencial gratuito para o seu negócio!
               </div>
 
-              <ul className="space-y-2 text-xs text-slate-300 border-t border-slate-800 pt-3">
+              <ul className="space-y-2 text-xs text-slate-300 border-t border-slate-800 pt-3 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> Painel manual de prioridades</li>
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> Calculadora de balcão digital</li>
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> Fluxo de caixa básico</li>
@@ -49,7 +49,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
           </div>
 
           {/* Card 2: Copiloto */}
-          <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
+          <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
             <div>
               <h3 className="text-base font-bold text-white flex items-center gap-2"><Crown className="w-4 h-4 text-amber-400" /> Copiloto</h3>
               
@@ -58,7 +58,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
                 <span className="text-xs text-slate-400 ml-1">/mês</span>
               </div>
 
-              <ul className="space-y-2 text-xs text-slate-300 border-t border-slate-800 pt-3">
+              <ul className="space-y-2 text-xs text-slate-300 border-t border-slate-800 pt-3 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Tudo do Essencial</li>
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Finanças Abertas</li>
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Auditoria automática de taxas</li>
@@ -70,8 +70,8 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
           </div>
 
           {/* Card 3: Copiloto Pro */}
-          <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
-            <span className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">Recomendado</span>
+          <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
+            <span className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">Recomendado</span>
             <div>
               <h3 className="text-base font-bold text-white flex items-center gap-2"><Zap className="w-4 h-4 text-amber-400" /> Copiloto Pro</h3>
               
@@ -80,7 +80,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
                 <span className="text-xs text-slate-400 ml-1">/mês</span>
               </div>
 
-              <ul className="space-y-2 text-xs text-slate-300 border-t border-slate-800 pt-3">
+              <ul className="space-y-2 text-xs text-slate-300 border-t border-slate-800 pt-3 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Tudo do Copiloto</li>
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Fluxos automatizados do WhatsApp</li>
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Pix 1-Clique</li>
