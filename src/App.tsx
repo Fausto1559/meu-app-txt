@@ -34,7 +34,7 @@ export default function App() {
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
   useEffect(() => {
-    const timer = setTimeout(() => { setLoading(false); }, 3000);
+    const loadingTimer = setTimeout(() => { setLoading(false); }, 3000);
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
@@ -67,7 +67,7 @@ export default function App() {
   });
 
   useEffect(() => {
-    const timer = setTimeout(() => { setLoading(false); }, 3000);
+    const loadingTimer = setTimeout(() => { setLoading(false); }, 3000);
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
