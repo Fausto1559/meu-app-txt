@@ -22,7 +22,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
           <p className="text-xs text-slate-400 mt-1">Escolha o plano ideal para o seu negócio. Cancele quando quiser, sem burocracia.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="flex flex-col md:grid md:grid-cols-3 gap-4">
           {/* Card 1: Freemium / Essencial */}
           <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
             <div>
@@ -69,11 +69,11 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
             <button onClick={() => { if(onSelectPlan) onSelectPlan('copiloto', 'Copiloto', 29.90); onClose(); }} className="mt-6 w-full bg-amber-500 hover:bg-amber-400 text-slate-950 py-2.5 rounded-lg text-xs font-bold transition-all shadow">Assinar Copiloto</button>
           </div>
 
-          {/* Card 3: Alta Performance */}
+          {/* Card 3: Copiloto Pro */}
           <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 flex flex-col justify-between relative">
             <span className="absolute -top-2.5 right-4 px-2 py-0.5 bg-amber-500 text-slate-950 font-bold text-[9px] rounded-full uppercase">Recomendado</span>
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2"><Zap className="w-4 h-4 text-amber-400" /> Alta Performance</h3>
+              <h3 className="text-base font-bold text-white flex items-center gap-2"><Zap className="w-4 h-4 text-amber-400" /> Copiloto Pro</h3>
               
               <div className="my-4 flex items-baseline">
                 <span className="text-2xl font-bold text-amber-400">R$ 39,90</span>
@@ -88,7 +88,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Relatórios avançados</li>
               </ul>
             </div>
-            <button onClick={() => { if(onSelectPlan) onSelectPlan('alta_performance', 'Alta Performance', 39.90); onClose(); }} className="mt-6 w-full bg-amber-500 hover:bg-amber-400 text-slate-950 py-2.5 rounded-lg text-xs font-bold transition-all shadow">Assinar Alta Performance</button>
+            <button onClick={() => { if(onSelectPlan) onSelectPlan('alta_performance', 'Copiloto Pro', 39.90); onClose(); }} className="mt-6 w-full bg-amber-500 hover:bg-amber-400 text-slate-950 py-2.5 rounded-lg text-xs font-bold transition-all shadow">Assinar Copiloto Pro</button>
           </div>
 
         </div>
