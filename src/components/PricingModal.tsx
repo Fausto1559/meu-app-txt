@@ -11,7 +11,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
       <div className="bg-[#0B132B] border border-slate-800 rounded-2xl w-full max-w-4xl p-6 relative text-white shadow-2xl max-h-[90vh] overflow-y-auto">
         <button onClick={onClose} className="absolute right-4 top-4 text-slate-400 hover:text-white transition-colors">
           <X className="w-5 h-5" />
@@ -22,9 +22,9 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
           <p className="text-xs text-slate-400 mt-1">Escolha o plano ideal para o seu negócio. Cancele quando quiser, sem burocracia.</p>
         </div>
 
-        <div className="flex flex-col md:grid md:grid-cols-1 md:grid-cols-1 md:grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="flex flex-col md:grid md:grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 gap-4">
           {/* Card 1: Freemium / Essencial */}
-          <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+          <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 max-h-[85vh] overflow-y-auto my-auto shadow-2xl">
             <div>
               <span className="inline-block px-2.5 py-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 rounded-full mb-3">PLANO ESSENCIAL</span>
               <h3 className="text-base font-bold text-white flex items-center gap-2"><Flame className="w-4 h-4 text-emerald-400" /> Freemium / Essencial</h3>
@@ -49,7 +49,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
           </div>
 
           {/* Card 2: Copiloto */}
-          <div className="bg-slate-900/80 border border-amber-500/30 rounded-xl p-5 flex flex-col justify-between relative shadow-lg">
+          <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 max-h-[85vh] overflow-y-auto my-auto shadow-2xl">
             <div>
               <h3 className="text-base font-bold text-white flex items-center gap-2"><Crown className="w-4 h-4 text-amber-400" /> Copiloto</h3>
               
@@ -70,7 +70,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
           </div>
 
           {/* Card 3: Copiloto Pro */}
-          <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 flex flex-col justify-between relative">
+          <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 max-h-[85vh] overflow-y-auto my-auto shadow-2xl">
             <span className="absolute -top-2.5 right-4 px-2 py-0.5 bg-amber-500 text-slate-950 font-bold text-[9px] rounded-full uppercase">Recomendado</span>
             <div>
               <h3 className="text-base font-bold text-white flex items-center gap-2"><Zap className="w-4 h-4 text-amber-400" /> Copiloto Pro</h3>
