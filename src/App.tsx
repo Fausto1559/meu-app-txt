@@ -224,7 +224,7 @@ export default function App() {
             </button>
 
             {isUpgradeOpen && (
-              <div className="absolute right-0 top-full mt-2 w-full bg-[#0A1428] border border-slate-700 rounded-2xl p-4 shadow-2xl z-50">
+              <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 my-auto shadow-2xl">
                 <div className="flex justify-between items-center mb-4">
                   <div>
                     <h3 className="text-sm font-bold text-amber-400">SEJA COPILOTO PRO</h3>
@@ -235,7 +235,7 @@ export default function App() {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-1 md:grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="bg-slate-900/90 border border-emerald-500/40 rounded-xl p-4 flex flex-col justify-between space-y-4 relative shadow-md">
                     <div className="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
                       Trial 30 Dias (Grátis)
@@ -460,7 +460,7 @@ export default function App() {
             <h2 className="text-sm font-bold text-white">Fechamento de Caixa Diário (Interno)</h2>
             <div className="bg-[#0A1428] border border-slate-800 rounded-xl p-4 space-y-3 shadow-sm">
               <p className="text-xs text-slate-400">Resumo consolidado das operações diárias para controle interno da caixa.</p>
-              <div className="grid grid-cols-1 md:grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-1 md:grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
                   <span className="text-xs text-slate-400">Entradas Totais</span>
                   <div className="text-base font-bold text-emerald-400 font-mono">R$ 442,06</div>
