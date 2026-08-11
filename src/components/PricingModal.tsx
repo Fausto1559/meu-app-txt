@@ -11,9 +11,9 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[9999] flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-[#0B132B] border border-slate-800 rounded-2xl w-full max-w-4xl p-6 relative text-white shadow-2xl max-h-[90vh] overflow-y-auto">
-        <button onClick={onClose} className="absolute right-4 top-4 text-slate-400 hover:text-white transition-colors">
+        <button onClick={onClose} className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
           <X className="w-5 h-5" />
         </button>
 
@@ -22,7 +22,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
           <p className="text-xs text-slate-400 mt-1">Escolha o plano ideal para o seu negócio. Cancele quando quiser, sem burocracia.</p>
         </div>
 
-        <div className="flex flex-col md:grid md:grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="flex flex-col md:grid md:grid grid-cols-1 md:grid-cols-3 gap-4 w-full md:grid grid-cols-1 md:grid-cols-3 gap-4 w-full md:grid grid-cols-1 md:grid-cols-3 gap-4 w-full md:grid grid-cols-1 md:grid-cols-3 gap-4 w-full gap-4">
           {/* Card 1: Freemium / Essencial */}
           <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 pt-10 max-h-[88vh] overflow-y-auto my-auto shadow-2xl">
             <div>
@@ -71,7 +71,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
 
           {/* Card 3: Copiloto Pro */}
           <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 pt-10 max-h-[88vh] overflow-y-auto my-auto shadow-2xl">
-            <span className="absolute -top-2.5 right-4 px-2 py-0.5 bg-amber-500 text-slate-950 font-bold text-[9px] rounded-full uppercase">Recomendado</span>
+            <span className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">Recomendado</span>
             <div>
               <h3 className="text-base font-bold text-white flex items-center gap-2"><Zap className="w-4 h-4 text-amber-400" /> Copiloto Pro</h3>
               

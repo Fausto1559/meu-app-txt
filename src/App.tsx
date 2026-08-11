@@ -237,9 +237,9 @@ export default function App() {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid grid-cols-1 md:grid-cols-3 gap-4 w-full md:grid grid-cols-1 md:grid-cols-3 gap-4 w-full md:grid grid-cols-1 md:grid-cols-3 gap-4 w-full md:grid grid-cols-1 md:grid-cols-3 gap-4 w-full gap-4">
                   <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 pt-10 max-h-[88vh] overflow-y-auto my-auto shadow-2xl">
-                    <div className="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+                    <div className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
                       Trial 30 Dias (Grátis)
                     </div>
                     <div className="space-y-2 pt-1">
@@ -288,7 +288,7 @@ export default function App() {
                   </div>
 
                   <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 pt-10 max-h-[88vh] overflow-y-auto my-auto shadow-2xl">
-                    <div className="absolute -top-2.5 right-3 bg-amber-500 text-slate-950 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+                    <div className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
                       Recomendado
                     </div>
                     <div className="space-y-2">
@@ -327,7 +327,7 @@ export default function App() {
               <p className="text-xs text-slate-400">Selecionamos as ações mais urgentes para colocar dinheiro na caixa e evitar prejuízos. Resolva na ordem ” cada minuto conta.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid grid-cols-1 md:grid-cols-3 gap-4 w-full gap-3">
               <div className="bg-[#0A1428] border border-slate-800 rounded-xl p-3 space-y-1.5 relative shadow-sm">
                 <div className="flex justify-between items-center text-slate-400 text-xs">
                   <span>Vendas Hoje</span>
@@ -395,7 +395,7 @@ export default function App() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+            <div className="grid grid grid-cols-1 md:grid-cols-3 gap-4 w-full gap-4 pt-1">
               <div className="bg-[#0A1428] border border-slate-800 rounded-xl p-4 space-y-3 shadow-sm">
                 <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
                   <ArrowUpRight className="w-3.5 h-3.5" /> Contas a Receber Pendentes
@@ -462,7 +462,7 @@ export default function App() {
             <h2 className="text-sm font-bold text-white">Fechamento de Caixa Diário (Interno)</h2>
             <div className="bg-[#0A1428] border border-slate-800 rounded-xl p-4 space-y-3 shadow-sm">
               <p className="text-xs text-slate-400">Resumo consolidado das operações diárias para controle interno da caixa.</p>
-              <div className="grid grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="grid grid grid-cols-1 md:grid-cols-3 gap-4 w-full md:grid grid-cols-1 md:grid-cols-3 gap-4 w-full md:grid grid-cols-1 md:grid-cols-3 gap-4 w-full md:grid grid-cols-1 md:grid-cols-3 gap-4 w-full gap-3">
                 <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 pt-10 max-h-[88vh] overflow-y-auto my-auto shadow-2xl">
                   <span className="text-xs text-slate-400">Entradas Totais</span>
                   <div className="text-base font-bold text-emerald-400 font-mono">R$ 442,06</div>
@@ -492,7 +492,7 @@ export default function App() {
                 <span>Exportar Relatório</span>
               </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid grid-cols-1 md:grid-cols-3 gap-4 w-full gap-4">
               <div className="bg-[#0A1428] border border-slate-800 rounded-xl p-4 space-y-2.5 shadow-sm">
                 <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Resumo Faturamento Mensal</h3>
                 <div className="space-y-2 text-xs text-slate-300">
@@ -520,7 +520,7 @@ export default function App() {
               <p className="text-xs text-slate-400">Conecte suas operadoras para captura automática de vendas.</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 gap-12">
+            <div className="grid grid grid-cols-1 md:grid-cols-3 gap-4 w-full md:grid grid-cols-1 md:grid-cols-3 gap-4 w-full gap-12">
               <div className="space-y-3">
                 {['Stone / Ton', 'Redecard', 'Getnet'].map((operadora, idx) => {
                   const conectado = conexoes[operadora];
