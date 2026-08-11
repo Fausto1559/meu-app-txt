@@ -592,12 +592,13 @@ export default function App() {
           setActiveTab('painel');
         }}
         userPlan={userPlan}
-        isTrialActive={true}
+        
         onOpenUpgrade={() => {}}
       />
     </div>
   );
 }
+
 
 
 
