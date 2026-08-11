@@ -23,6 +23,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Card 1: Freemium / Essencial */}
           <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
             <div>
               <span className="inline-block px-2.5 py-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 rounded-full mb-3">PLANO ESSENCIAL</span>
@@ -47,6 +48,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
             <button onClick={() => { if(onSelectPlan) onSelectPlan('essencial', 'Freemium / Essencial', 0); onClose(); }} className="mt-6 w-full bg-slate-800 hover:bg-slate-700 py-2.5 rounded-lg text-xs font-bold transition-all">Selecionar Essencial</button>
           </div>
 
+          {/* Card 2: Copiloto */}
           <div className="bg-slate-900/80 border border-amber-500/30 rounded-xl p-5 flex flex-col justify-between relative shadow-lg">
             <div>
               <h3 className="text-base font-bold text-white flex items-center gap-2"><Crown className="w-4 h-4 text-amber-400" /> Copiloto</h3>
@@ -67,6 +69,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
             <button onClick={() => { if(onSelectPlan) onSelectPlan('copiloto', 'Copiloto', 29.90); onClose(); }} className="mt-6 w-full bg-amber-500 hover:bg-amber-400 text-slate-950 py-2.5 rounded-lg text-xs font-bold transition-all shadow">Assinar Copiloto</button>
           </div>
 
+          {/* Card 3: Alta Performance */}
           <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 flex flex-col justify-between relative">
             <span className="absolute -top-2.5 right-4 px-2 py-0.5 bg-amber-500 text-slate-950 font-bold text-[9px] rounded-full uppercase">Recomendado</span>
             <div>
