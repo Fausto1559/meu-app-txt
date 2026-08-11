@@ -147,7 +147,7 @@ export default function App() {
         </button>
       </div>
 
-      <header className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 max-h-[85vh] overflow-y-auto my-auto shadow-2xl">
+      <header className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 pt-10 max-h-[88vh] overflow-y-auto my-auto shadow-2xl">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
             <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
@@ -211,7 +211,7 @@ export default function App() {
         </div>
 
         <div className="flex flex-col-reverse md:flex-col md:flex-col md:flex-row items-center gap-4">
-          <div className="bg-slate-800/60 border border-slate-700/50 px-3 py-1 rounded-full flex items-center gap-2 text-xs">
+          <div className="bg-slate-800/60 border border-slate-700 pt-8/50 px-3 py-1 rounded-full flex items-center gap-2 text-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
             <span className="text-slate-300">Plano Atual: <strong className="text-emerald-400">{userPlanName} ({userPlanPrice})</strong></span>
           </div>
@@ -226,7 +226,7 @@ export default function App() {
             </button>
 
             {isUpgradeOpen && (
-              <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 my-auto shadow-2xl">
+              <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 pt-10 max-h-[88vh] overflow-y-auto my-auto shadow-2xl">
                 <div className="flex justify-between items-center mb-4">
                   <div>
                     <h3 className="text-sm font-bold text-amber-400">SEJA COPILOTO PRO</h3>
@@ -238,7 +238,7 @@ export default function App() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 max-h-[85vh] overflow-y-auto my-auto shadow-2xl">
+                  <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 pt-10 max-h-[88vh] overflow-y-auto my-auto shadow-2xl">
                     <div className="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
                       Trial 30 Dias (Grátis)
                     </div>
@@ -264,7 +264,7 @@ export default function App() {
                     </button>
                   </div>
 
-                  <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 max-h-[85vh] overflow-y-auto my-auto shadow-2xl">
+                  <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 pt-10 max-h-[88vh] overflow-y-auto my-auto shadow-2xl">
                     <div className="space-y-2">
                       <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
                         <Crown className="w-4 h-4" />
@@ -287,7 +287,7 @@ export default function App() {
                     </button>
                   </div>
 
-                  <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 max-h-[85vh] overflow-y-auto my-auto shadow-2xl">
+                  <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 pt-10 max-h-[88vh] overflow-y-auto my-auto shadow-2xl">
                     <div className="absolute -top-2.5 right-3 bg-amber-500 text-slate-950 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
                       Recomendado
                     </div>
@@ -403,7 +403,7 @@ export default function App() {
                 <div className="space-y-2.5">
                   {contasReceber.length > 0 ? (
                     contasReceber.map((item) => (
-                      <div key={item.id} className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 max-h-[85vh] overflow-y-auto my-auto shadow-2xl">
+                      <div key={item.id} className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 pt-10 max-h-[88vh] overflow-y-auto my-auto shadow-2xl">
                         <div>
                           <p className="text-xs font-bold text-white">{item.cliente}</p>
                           <p className="text-[10px] text-slate-400">Vencimento: {item.vencimento}</p>
@@ -432,7 +432,7 @@ export default function App() {
                 <div className="space-y-2.5">
                   {contasPagar.length > 0 ? (
                     contasPagar.map((item) => (
-                      <div key={item.id} className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 max-h-[85vh] overflow-y-auto my-auto shadow-2xl">
+                      <div key={item.id} className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 pt-10 max-h-[88vh] overflow-y-auto my-auto shadow-2xl">
                         <div>
                           <p className="text-xs font-bold text-white">{item.fornecedor}</p>
                           <p className="text-[10px] text-slate-400">Vencimento: {item.vencimento}</p>
@@ -463,15 +463,15 @@ export default function App() {
             <div className="bg-[#0A1428] border border-slate-800 rounded-xl p-4 space-y-3 shadow-sm">
               <p className="text-xs text-slate-400">Resumo consolidado das operações diárias para controle interno da caixa.</p>
               <div className="grid grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 md:grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 max-h-[85vh] overflow-y-auto my-auto shadow-2xl">
+                <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 pt-10 max-h-[88vh] overflow-y-auto my-auto shadow-2xl">
                   <span className="text-xs text-slate-400">Entradas Totais</span>
                   <div className="text-base font-bold text-emerald-400 font-mono">R$ 442,06</div>
                 </div>
-                <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 max-h-[85vh] overflow-y-auto my-auto shadow-2xl">
+                <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 pt-10 max-h-[88vh] overflow-y-auto my-auto shadow-2xl">
                   <span className="text-xs text-slate-400">Saídas Totais</span>
                   <div className="text-base font-bold text-red-400 font-mono">R$ 4.080,00</div>
                 </div>
-                <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 max-h-[85vh] overflow-y-auto my-auto shadow-2xl">
+                <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 pt-10 max-h-[88vh] overflow-y-auto my-auto shadow-2xl">
                   <span className="text-xs text-slate-400">Resultado Líquido</span>
                   <div className="text-base font-bold text-red-400 font-mono">R$ -3.637,94</div>
                 </div>
