@@ -591,13 +591,12 @@ export default function App() {
           setIsCalculadoraOpen(false);
           setActiveTab('painel');
         }}
-        userPlan={userPlan}
-        
-        onOpenUpgrade={() => {}}
+        userPlan={userPlan}}
       />
     </div>
   );
 }
+
 
 
 
