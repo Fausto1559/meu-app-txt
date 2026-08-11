@@ -6,7 +6,7 @@ import {
   GoogleAuthProvider, 
   signInWithPopup 
 } from 'firebase/auth';
-import { auth } from '@/services/firebaseConfig';
+import { auth } from '../services/firebaseConfig';
 import { Crown } from 'lucide-react';
 
 export default function LoginScreen() {

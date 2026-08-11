@@ -48,7 +48,7 @@ export default function App() {
   const [saldoPrevisto, setSaldoPrevisto] = useState('R$ -3.637,94');
 
   const [contasReceber, setContasReceber] = useState([
-    { id: 1, cliente: 'Cliente JoÃ£o Silva', vencimento: '2026-07-28', valor: 'R$ 262,06' },
+    { id: 1, cliente: 'Cliente João Silva', vencimento: '2026-07-28', valor: 'R$ 262,06' },
     { id: 2, cliente: 'Pedido #1042', vencimento: '2026-08-05', valor: 'R$ 180,00' }
   ]);
 
@@ -111,10 +111,10 @@ export default function App() {
       {/* Banner Apaga IncÃªndio - Risco de Caixa Negativo */}
       <div className="bg-red-600 animate-pulse px-6 py-2 flex items-center justify-between text-xs text-white border-b border-red-800">
         
-        {/* 1. Esquerda: TÃ­tulo */}
+        {/* 1. Esquerda: Título */}
         <div className="flex items-center gap-2 font-bold tracking-wider flex-1">
           <Flame className="w-4 h-4 text-amber-400" />
-          <span>MODO APAGA INCÃŠNDIO</span>
+          <span>MODO APAGA INCÊNDIO</span>
         </div>
         
         {/* 2. Meio: Contador Centralizado */}
@@ -153,7 +153,7 @@ export default function App() {
             </div>
             <div>
               <h1 className="text-xs font-bold text-white tracking-wider">Copiloto Financeiro</h1>
-              <p className="text-[10px] text-slate-400">GestÃ£o inteligente para o seu negÃ³cio</p>
+              <p className="text-[10px] text-slate-400">Gestão inteligente para o seu negócio</p>
             </div>
           </div>
           
@@ -183,7 +183,7 @@ export default function App() {
               }`}
             >
               <FileText className="w-3.5 h-3.5" />
-              <span>Fechamento DiÃ¡rio</span>
+              <span>Fechamento Diário</span>
             </button>
 
             <button
@@ -228,7 +228,7 @@ export default function App() {
                 <div className="flex justify-between items-center mb-4">
                   <div>
                     <h3 className="text-sm font-bold text-amber-400">SEJA COPILOTO PRO</h3>
-                    <p className="text-xs text-slate-400">Escolha o plano ideal para o seu negÃ³cio. Cancele quando quiser, sem burocracia.</p>
+                    <p className="text-xs text-slate-400">Escolha o plano ideal para o seu negócio. Cancele quando quiser, sem burocracia.</p>
                   </div>
                   <button onClick={() => setIsUpgradeOpen(false)} className="text-slate-400 hover:text-white cursor-pointer">
                     <X className="w-4 h-4" />
@@ -238,7 +238,7 @@ export default function App() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="bg-slate-900/90 border border-emerald-500/40 rounded-xl p-4 flex flex-col justify-between space-y-4 relative shadow-md">
                     <div className="absolute -top-2.5 left-3 bg-emerald-500 text-slate-950 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
-                      Trial 30 Dias (GrÃ¡tis)
+                      Trial 30 Dias (Grátis)
                     </div>
                     <div className="space-y-2 pt-1">
                       <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
@@ -246,19 +246,19 @@ export default function App() {
                       </div>
                       <h4 className="text-sm font-bold text-white">Freemium / Essencial</h4>
                       <div className="text-lg font-bold text-emerald-400 font-mono">R$ 19,90<span className="text-[10px] text-slate-400 font-normal">/mês</span></div>
-                      <p className="text-[10px] text-emerald-400 font-medium bg-emerald-500/10 px-2 py-1 rounded">Totalmente Gratuito no perÃ­odo de teste!</p>
+                      <p className="text-[10px] text-emerald-400 font-medium bg-emerald-500/10 px-2 py-1 rounded">Totalmente Gratuito no período de teste!</p>
                       <ul className="space-y-1.5 text-xs text-slate-300 pt-1">
                         <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Painel manual de prioridades</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Calculadora de balcÃ£o digital</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Fluxo de caixa bÃ¡sico</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> PeÃ§a por e-mail</li>
+                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Calculadora de balcão digital</li>
+                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Fluxo de caixa básico</li>
+                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Peça por e-mail</li>
                       </ul>
                     </div>
                     <button 
                       onClick={() => selecionarPlano('essencial', 'FREEMIUM / ESSENCIAL', 'R$ 19,90')} 
                       className="w-full bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-lg text-xs font-bold transition-all cursor-pointer"
                     >
-                      Ativar GrÃ¡tis (30 Dias)
+                      Ativar Grátis (30 Dias)
                     </button>
                   </div>
 
@@ -271,10 +271,10 @@ export default function App() {
                       <div className="text-lg font-bold text-amber-400 font-mono">R$ 29,90<span className="text-[10px] text-slate-400 font-normal">/mÃªs</span></div>
                       <ul className="space-y-1.5 text-xs text-slate-300 pt-2">
                         <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Tudo do Essencial</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> FinanÃ§as Abertas</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Auditoria automÃ¡tica de taxas</li>
+                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Finanças Abertas</li>
+                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Auditoria automática de taxas</li>
                         <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Comandos de voz</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> CobranÃ§a via WhatsApp</li>
+                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Cobrança via WhatsApp</li>
                       </ul>
                     </div>
                     <button 
@@ -300,7 +300,7 @@ export default function App() {
                         <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Fluxos automatizados do WhatsApp</li>
                         <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Pix 1-Clique</li>
                         <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Central do Contador</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> RelatÃ³rios avanÃ§ados</li>
+                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Relatórios avançados</li>
                       </ul>
                     </div>
                     <button 
@@ -322,7 +322,7 @@ export default function App() {
           <div className="space-y-5">
             <div className="space-y-1">
               <h2 className="text-base font-bold text-amber-400">Suas prioridades de hoje</h2>
-              <p className="text-xs text-slate-400">Selecionamos as aÃ§Ãµes mais urgentes para colocar dinheiro na caixa e evitar prejuÃ­zos. Resolva na ordem â€” cada minuto conta.</p>
+              <p className="text-xs text-slate-400">Selecionamos as ações mais urgentes para colocar dinheiro na caixa e evitar prejuízos. Resolva na ordem ” cada minuto conta.</p>
             </div>
 
             <div className="grid grid-cols-4 gap-3">
@@ -379,14 +379,14 @@ export default function App() {
                   </div>
                 </div>
                 <div className="text-base font-bold text-red-400 font-mono">{saldoPrevisto}</div>
-                <div className="text-[10px] text-slate-400">BalanÃ§o geral</div>
+                <div className="text-[10px] text-slate-400">Balanço geral</div>
               </div>
             </div>
 
             <div className="bg-[#0A1428] border border-slate-800 rounded-xl p-3.5 flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-2.5">
                 <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                <p className="text-xs text-slate-300">Conecte suas contas via Open Finance para automatizar o fluxo de vendas diÃ¡rias.</p>
+                <p className="text-xs text-slate-300">Conecte suas contas via Open Finance para automatizar o fluxo de vendas diárias.</p>
               </div>
               <button onClick={() => setActiveTab('conexao')} className="bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer">
                 Conectar
@@ -457,20 +457,20 @@ export default function App() {
 
         {activeTab === 'fechamento_diario' && (
           <div className="space-y-4">
-            <h2 className="text-sm font-bold text-white">Fechamento de Caixa DiÃ¡rio (Interno)</h2>
+            <h2 className="text-sm font-bold text-white">Fechamento de Caixa Diário (Interno)</h2>
             <div className="bg-[#0A1428] border border-slate-800 rounded-xl p-4 space-y-3 shadow-sm">
-              <p className="text-xs text-slate-400">Resumo consolidado das operaÃ§Ãµes diÃ¡rias para controle interno da caixa.</p>
+              <p className="text-xs text-slate-400">Resumo consolidado das operações diárias para controle interno da caixa.</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
                   <span className="text-xs text-slate-400">Entradas Totais</span>
                   <div className="text-base font-bold text-emerald-400 font-mono">R$ 442,06</div>
                 </div>
                 <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-                  <span className="text-xs text-slate-400">SaÃ­das Totais</span>
+                  <span className="text-xs text-slate-400">Saídas Totais</span>
                   <div className="text-base font-bold text-red-400 font-mono">R$ 4.080,00</div>
                 </div>
                 <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-                  <span className="text-xs text-slate-400">Resultado LÃ­quido</span>
+                  <span className="text-xs text-slate-400">Resultado Líquido</span>
                   <div className="text-base font-bold text-red-400 font-mono">R$ -3.637,94</div>
                 </div>
               </div>
@@ -483,11 +483,11 @@ export default function App() {
             <div className="flex justify-between items-center">
               <div>
                 <h2 className="text-sm font-bold text-white">Central Contador / Fim de MÃªs</h2>
-                <p className="text-xs text-slate-400">RelatÃ³rio fiscal e gerencial completo formatado para o contador.</p>
+                <p className="text-xs text-slate-400">Relatório fiscal e gerencial completo formatado para o contador.</p>
               </div>
               <button className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer">
                 <Download className="w-3.5 h-3.5" />
-                <span>Exportar RelatÃ³rio</span>
+                <span>Exportar Relatório</span>
               </button>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -496,15 +496,15 @@ export default function App() {
                 <div className="space-y-2 text-xs text-slate-300">
                   <div className="flex justify-between py-1 border-b border-slate-800"><span>Faturamento Bruto:</span> <strong className="font-mono text-white">R$ 14.580,00</strong></div>
                   <div className="flex justify-between py-1 border-b border-slate-800"><span>Total Descontos:</span> <strong className="font-mono text-white">R$ 19,90</strong></div>
-                  <div className="flex justify-between py-1"><span>LÃ­quido Apurado:</span> <strong className="font-mono text-emerald-400">R$ 14.580,00</strong></div>
+                  <div className="flex justify-between py-1"><span>Líquido Apurado:</span> <strong className="font-mono text-emerald-400">R$ 14.580,00</strong></div>
                 </div>
               </div>
               <div className="bg-[#0A1428] border border-slate-800 rounded-xl p-4 space-y-2.5 shadow-sm">
-                <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">ObrigaÃ§Ãµes e Guias</h3>
+                <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Obrigações e Guias</h3>
                 <div className="space-y-2 text-xs text-slate-300">
                   <div className="flex justify-between py-1 border-b border-slate-800"><span>Contas Pagas no MÃªs:</span> <strong className="font-mono text-white">R$ 12.200,00</strong></div>
-                  <div className="flex justify-between py-1 border-b border-slate-800"><span>ProvisÃ£o Impostos (DAS):</span> <strong className="font-mono text-red-400">R$ 874,80</strong></div>
-                  <div className="flex justify-between py-1"><span>BalanÃ§o Operacional:</span> <strong className="font-mono text-emerald-400">Positivo</strong></div>
+                  <div className="flex justify-between py-1 border-b border-slate-800"><span>Provisão Impostos (DAS):</span> <strong className="font-mono text-red-400">R$ 874,80</strong></div>
+                  <div className="flex justify-between py-1"><span>Balanço Operacional:</span> <strong className="font-mono text-emerald-400">Positivo</strong></div>
                 </div>
               </div>
             </div>
@@ -514,8 +514,8 @@ export default function App() {
         {activeTab === 'conexao' && (
           <div className="space-y-4">
             <div>
-              <h2 className="text-sm font-bold text-white">Open Finance - Operadoras de CartÃ£o de CrÃ©dito</h2>
-              <p className="text-xs text-slate-400">Conecte suas operadoras para captura automÃ¡tica de vendas.</p>
+              <h2 className="text-sm font-bold text-white">Open Finance - Operadoras de Cartão de Crédito</h2>
+              <p className="text-xs text-slate-400">Conecte suas operadoras para captura automática de vendas.</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -531,7 +531,7 @@ export default function App() {
                         <div>
                           <p className="text-xs font-bold text-white">{operadora}</p>
                           <p className="text-[10px] text-slate-400">
-                            {conectado ? <span className="text-emerald-400 font-bold">Conectado via Open Finance</span> : 'IntegraÃ§Ã£o API Open Finance'}
+                            {conectado ? <span className="text-emerald-400 font-bold">Conectado via Open Finance</span> : 'Integração API Open Finance'}
                           </p>
                         </div>
                       </div>
@@ -562,7 +562,7 @@ export default function App() {
                         <div>
                           <p className="text-xs font-bold text-white">{operadora}</p>
                           <p className="text-[10px] text-slate-400">
-                            {conectado ? <span className="text-emerald-400 font-bold">Conectado via Open Finance</span> : 'IntegraÃ§Ã£o API Open Finance'}
+                            {conectado ? <span className="text-emerald-400 font-bold">Conectado via Open Finance</span> : 'Integração API Open Finance'}
                           </p>
                         </div>
                       </div>
