@@ -293,7 +293,7 @@ export default function App() {
                       <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400">
                         <Crown className="w-4 h-4" />
                       </div>
-                      <h4 className="text-sm font-bold text-white">Alta Performance</h4>
+                      <h4 className="text-sm font-bold text-white">Copiloto Pro</h4>
                       <div className="text-lg font-bold text-amber-400 font-mono">R$ 39,90<span className="text-[10px] text-slate-400 font-normal">/mês</span></div>
                       <ul className="space-y-1.5 text-xs text-slate-300 pt-2">
                         <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Tudo do Copiloto</li>
@@ -304,10 +304,10 @@ export default function App() {
                       </ul>
                     </div>
                     <button 
-                      onClick={() => selecionarPlano('alta_performance', 'ALTA PERFORMANCE', 'R$ 39,90')} 
+                      onClick={() => selecionarPlano('alta_performance', 'Copiloto Pro', 'R$ 39,90')} 
                       className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-md"
                     >
-                      Assinar Alta Performance
+                      Assinar Copiloto Pro
                     </button>
                   </div>
                 </div>

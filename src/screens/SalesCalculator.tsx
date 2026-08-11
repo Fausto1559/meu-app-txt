@@ -37,7 +37,7 @@ export default function SalesCalculator({ plan, onSaleBooked }: SalesCalculatorP
 
       {plan === 'gratis' ? (
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-xs text-amber-300">
-          O registro de vendas via calculadora está habilitado nos planos Copiloto e Alta Performance.
+          O registro de vendas via calculadora está habilitado nos planos Copiloto e Copiloto Pro.
         </div>
       ) : (
         <form onSubmit={handleRegister} className="flex flex-col gap-4">

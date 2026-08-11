@@ -40,7 +40,7 @@ export default function Conexao({
 
         {plan === 'gratis' ? (
           <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-xs text-amber-300">
-            A conexão de maquininhas está disponível nos planos Copiloto e Alta Performance. Alterne o plano no cabeçalho para testar.
+            A conexão de maquininhas está disponível nos planos Copiloto e Copiloto Pro. Alterne o plano no cabeçalho para testar.
           </div>
         ) : (
           <div className="flex flex-col gap-6">
