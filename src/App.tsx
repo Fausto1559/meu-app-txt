@@ -137,7 +137,7 @@ export default function App() {
 
       </div>
 
-      <div className="px-6 py-2 flex items-center justify-between text-xs text-slate-300 border-b border-slate-800 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
+      <div className="relative px-6 py-2 flex items-center justify-between text-xs text-slate-300 border-b border-slate-800 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
         <span>Logado como: <strong className="text-white">{user?.email || user?.displayName}</strong></span>
         <button
           onClick={() => auth.signOut()}
@@ -147,10 +147,10 @@ export default function App() {
         </button>
       </div>
 
-      <header className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
+      <header className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
+            <div className="relative w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
               <Crown className="w-4 h-4" />
             </div>
             <div>
@@ -172,7 +172,7 @@ export default function App() {
 
             <button
               onClick={() => setIsCalculadoraOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:bg-slate-800 transition-all cursor-pointer"
+              className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:bg-slate-800 transition-all cursor-pointer"
             >
               <Calculator className="w-3.5 h-3.5 text-amber-400" />
               <span>Calculadora</span>
@@ -226,7 +226,7 @@ export default function App() {
             </button>
 
             {isUpgradeOpen && (
-              <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
+              <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
                 <div className="flex justify-between items-center mb-4">
                   <div>
                     <h3 className="text-sm font-bold text-amber-400">SEJA COPILOTO PRO</h3>
@@ -238,8 +238,8 @@ export default function App() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 w-full">
-                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
-                    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
+                    <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
                       Trial 30 Dias (Grátis)
                     </div>
                     <div className="space-y-2 pt-1">
@@ -258,13 +258,13 @@ export default function App() {
                     </div>
                     <button 
                       onClick={() => selecionarPlano('essencial', 'FREEMIUM / ESSENCIAL', 'R$ 19,90')} 
-                      className="w-full bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                      className="relative w-full bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-lg text-xs font-bold transition-all cursor-pointer"
                     >
                       Ativar Grátis (30 Dias)
                     </button>
                   </div>
 
-                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
+                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
                     <div className="space-y-2">
                       <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
                         <Crown className="w-4 h-4" />
@@ -287,8 +287,8 @@ export default function App() {
                     </button>
                   </div>
 
-                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
-                    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
+                    <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
                       Recomendado
                     </div>
                     <div className="space-y-2">
@@ -319,7 +319,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
+      <main className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
         {activeTab === 'painel' && (
           <div className="space-y-5">
             <div className="space-y-1">
@@ -390,7 +390,7 @@ export default function App() {
                 <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
                 <p className="text-xs text-slate-300">Conecte suas contas via Open Finance para automatizar o fluxo de vendas diárias.</p>
               </div>
-              <button onClick={() => setActiveTab('conexao')} className="bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
+              <button onClick={() => setActiveTab('conexao')} className="relative bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
                 Conectar
               </button>
             </div>
@@ -403,7 +403,7 @@ export default function App() {
                 <div className="space-y-2.5">
                   {contasReceber.length > 0 ? (
                     contasReceber.map((item) => (
-                      <div key={item.id} className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
+                      <div key={item.id} className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
                         <div>
                           <p className="text-xs font-bold text-white">{item.cliente}</p>
                           <p className="text-[10px] text-slate-400">Vencimento: {item.vencimento}</p>
@@ -432,7 +432,7 @@ export default function App() {
                 <div className="space-y-2.5">
                   {contasPagar.length > 0 ? (
                     contasPagar.map((item) => (
-                      <div key={item.id} className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
+                      <div key={item.id} className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
                         <div>
                           <p className="text-xs font-bold text-white">{item.fornecedor}</p>
                           <p className="text-[10px] text-slate-400">Vencimento: {item.vencimento}</p>
@@ -463,15 +463,15 @@ export default function App() {
             <div className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
               <p className="text-xs text-slate-400">Resumo consolidado das operações diárias para controle interno da caixa.</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 w-full">
-                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
+                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
                   <span className="text-xs text-slate-400">Entradas Totais</span>
                   <div className="text-base font-bold text-emerald-400 font-mono">R$ 442,06</div>
                 </div>
-                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
+                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
                   <span className="text-xs text-slate-400">Saídas Totais</span>
                   <div className="text-base font-bold text-red-400 font-mono">R$ 4.080,00</div>
                 </div>
-                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
+                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
                   <span className="text-xs text-slate-400">Resultado Líquido</span>
                   <div className="text-base font-bold text-red-400 font-mono">R$ -3.637,94</div>
                 </div>
@@ -496,16 +496,16 @@ export default function App() {
               <div className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
                 <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Resumo Faturamento Mensal</h3>
                 <div className="space-y-2 text-xs text-slate-300">
-                  <div className="flex justify-between py-1 border-b border-slate-800 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg"><span>Faturamento Bruto:</span> <strong className="font-mono text-white">R$ 14.580,00</strong></div>
-                  <div className="flex justify-between py-1 border-b border-slate-800 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg"><span>Total Descontos:</span> <strong className="font-mono text-white">R$ 19,90</strong></div>
+                  <div className="relative flex justify-between py-1 border-b border-slate-800 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg"><span>Faturamento Bruto:</span> <strong className="font-mono text-white">R$ 14.580,00</strong></div>
+                  <div className="relative flex justify-between py-1 border-b border-slate-800 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg"><span>Total Descontos:</span> <strong className="font-mono text-white">R$ 19,90</strong></div>
                   <div className="flex justify-between py-1"><span>Líquido Apurado:</span> <strong className="font-mono text-emerald-400">R$ 14.580,00</strong></div>
                 </div>
               </div>
               <div className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
                 <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Obrigações e Guias</h3>
                 <div className="space-y-2 text-xs text-slate-300">
-                  <div className="flex justify-between py-1 border-b border-slate-800 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg"><span>Contas Pagas no MÃªs:</span> <strong className="font-mono text-white">R$ 12.200,00</strong></div>
-                  <div className="flex justify-between py-1 border-b border-slate-800 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg"><span>Provisão Impostos (DAS):</span> <strong className="font-mono text-red-400">R$ 874,80</strong></div>
+                  <div className="relative flex justify-between py-1 border-b border-slate-800 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg"><span>Contas Pagas no MÃªs:</span> <strong className="font-mono text-white">R$ 12.200,00</strong></div>
+                  <div className="relative flex justify-between py-1 border-b border-slate-800 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg"><span>Provisão Impostos (DAS):</span> <strong className="font-mono text-red-400">R$ 874,80</strong></div>
                   <div className="flex justify-between py-1"><span>Balanço Operacional:</span> <strong className="font-mono text-emerald-400">Positivo</strong></div>
                 </div>
               </div>
@@ -527,7 +527,7 @@ export default function App() {
                   return (
                     <div key={idx} className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-xs relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
+                        <div className="relative w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-xs relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
                           {operadora.charAt(0)}
                         </div>
                         <div>
@@ -558,7 +558,7 @@ export default function App() {
                   return (
                     <div key={idx} className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-xs relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
+                        <div className="relative w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-xs relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
                           {operadora.charAt(0)}
                         </div>
                         <div>
