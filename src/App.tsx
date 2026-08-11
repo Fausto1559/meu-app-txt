@@ -147,7 +147,7 @@ export default function App() {
         </button>
       </div>
 
-      <header className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl z-10 text-white max-h-[88vh] overflow-y-auto">
+      <header className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
             <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
@@ -211,7 +211,7 @@ export default function App() {
         </div>
 
         <div className="flex flex-col-reverse md:flex-col md:flex-col md:flex-row items-center gap-4">
-          <div className="relative flex flex-col justify-between rounded-xl p-6 pt-8 bg-slate-800 border border-slate-700 text-white shadow-lg">
+          <div className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md">
             <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
             <span className="text-slate-300">Plano Atual: <strong className="text-emerald-400">{userPlanName} ({userPlanPrice})</strong></span>
           </div>
@@ -226,7 +226,7 @@ export default function App() {
             </button>
 
             {isUpgradeOpen && (
-              <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl z-10 text-white max-h-[88vh] overflow-y-auto">
+              <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
                 <div className="flex justify-between items-center mb-4">
                   <div>
                     <h3 className="text-sm font-bold text-amber-400">SEJA COPILOTO PRO</h3>
@@ -238,8 +238,8 @@ export default function App() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 w-full">
-                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl z-10 text-white max-h-[88vh] overflow-y-auto">
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
+                    <div className="fixed inset-0 z-[999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
                       Trial 30 Dias (Grátis)
                     </div>
                     <div className="space-y-2 pt-1">
@@ -264,7 +264,7 @@ export default function App() {
                     </button>
                   </div>
 
-                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl z-10 text-white max-h-[88vh] overflow-y-auto">
+                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
                     <div className="space-y-2">
                       <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
                         <Crown className="w-4 h-4" />
@@ -287,8 +287,8 @@ export default function App() {
                     </button>
                   </div>
 
-                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl z-10 text-white max-h-[88vh] overflow-y-auto">
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
+                    <div className="fixed inset-0 z-[999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
                       Recomendado
                     </div>
                     <div className="space-y-2">
@@ -319,7 +319,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl z-10 text-white max-h-[88vh] overflow-y-auto">
+      <main className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
         {activeTab === 'painel' && (
           <div className="space-y-5">
             <div className="space-y-1">
@@ -328,7 +328,7 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 w-full">
-              <div className="relative flex flex-col justify-between rounded-xl p-6 pt-8 bg-slate-800 border border-slate-700 text-white shadow-lg">
+              <div className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md">
                 <div className="flex justify-between items-center text-slate-400 text-xs">
                   <span>Vendas Hoje</span>
                   <div className="flex items-center gap-1.5">
@@ -342,7 +342,7 @@ export default function App() {
                 <div className="text-[10px] text-slate-400">Nenhuma maquininha</div>
               </div>
 
-              <div className="relative flex flex-col justify-between rounded-xl p-6 pt-8 bg-slate-800 border border-slate-700 text-white shadow-lg">
+              <div className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md">
                 <div className="flex justify-between items-center text-slate-400 text-xs">
                   <span>A Receber</span>
                   <div className="flex items-center gap-1.5">
@@ -356,7 +356,7 @@ export default function App() {
                 <div className="text-[10px] text-slate-400">Valores pendentes</div>
               </div>
 
-              <div className="relative flex flex-col justify-between rounded-xl p-6 pt-8 bg-slate-800 border border-slate-700 text-white shadow-lg">
+              <div className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md">
                 <div className="flex justify-between items-center text-slate-400 text-xs">
                   <span>A Pagar</span>
                   <div className="flex items-center gap-1.5">
@@ -370,7 +370,7 @@ export default function App() {
                 <div className="text-[10px] text-slate-400">Contas em aberto</div>
               </div>
 
-              <div className="relative flex flex-col justify-between rounded-xl p-6 pt-8 bg-slate-800 border border-slate-700 text-white shadow-lg">
+              <div className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md">
                 <div className="flex justify-between items-center text-slate-400 text-xs">
                   <span>Saldo Previsto</span>
                   <div className="flex items-center gap-1.5">
@@ -385,7 +385,7 @@ export default function App() {
               </div>
             </div>
 
-            <div className="relative flex flex-col justify-between rounded-xl p-6 pt-8 bg-slate-800 border border-slate-700 text-white shadow-lg">
+            <div className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md">
               <div className="flex items-center gap-2.5">
                 <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
                 <p className="text-xs text-slate-300">Conecte suas contas via Open Finance para automatizar o fluxo de vendas diárias.</p>
@@ -396,14 +396,14 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 w-full">
-              <div className="relative flex flex-col justify-between rounded-xl p-6 pt-8 bg-slate-800 border border-slate-700 text-white shadow-lg">
+              <div className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md">
                 <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
                   <ArrowUpRight className="w-3.5 h-3.5" /> Contas a Receber Pendentes
                 </h3>
                 <div className="space-y-2.5">
                   {contasReceber.length > 0 ? (
                     contasReceber.map((item) => (
-                      <div key={item.id} className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl z-10 text-white max-h-[88vh] overflow-y-auto">
+                      <div key={item.id} className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
                         <div>
                           <p className="text-xs font-bold text-white">{item.cliente}</p>
                           <p className="text-[10px] text-slate-400">Vencimento: {item.vencimento}</p>
@@ -425,14 +425,14 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="relative flex flex-col justify-between rounded-xl p-6 pt-8 bg-slate-800 border border-slate-700 text-white shadow-lg">
+              <div className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md">
                 <h3 className="text-xs font-bold text-red-400 uppercase tracking-wider flex items-center gap-2">
                   <ArrowDownRight className="w-3.5 h-3.5" /> Contas a Pagar em Aberto
                 </h3>
                 <div className="space-y-2.5">
                   {contasPagar.length > 0 ? (
                     contasPagar.map((item) => (
-                      <div key={item.id} className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl z-10 text-white max-h-[88vh] overflow-y-auto">
+                      <div key={item.id} className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
                         <div>
                           <p className="text-xs font-bold text-white">{item.fornecedor}</p>
                           <p className="text-[10px] text-slate-400">Vencimento: {item.vencimento}</p>
@@ -460,18 +460,18 @@ export default function App() {
         {activeTab === 'fechamento_diario' && (
           <div className="space-y-4">
             <h2 className="text-sm font-bold text-white">Fechamento de Caixa Diário (Interno)</h2>
-            <div className="relative flex flex-col justify-between rounded-xl p-6 pt-8 bg-slate-800 border border-slate-700 text-white shadow-lg">
+            <div className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md">
               <p className="text-xs text-slate-400">Resumo consolidado das operações diárias para controle interno da caixa.</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 w-full">
-                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl z-10 text-white max-h-[88vh] overflow-y-auto">
+                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
                   <span className="text-xs text-slate-400">Entradas Totais</span>
                   <div className="text-base font-bold text-emerald-400 font-mono">R$ 442,06</div>
                 </div>
-                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl z-10 text-white max-h-[88vh] overflow-y-auto">
+                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
                   <span className="text-xs text-slate-400">Saídas Totais</span>
                   <div className="text-base font-bold text-red-400 font-mono">R$ 4.080,00</div>
                 </div>
-                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl z-10 text-white max-h-[88vh] overflow-y-auto">
+                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
                   <span className="text-xs text-slate-400">Resultado Líquido</span>
                   <div className="text-base font-bold text-red-400 font-mono">R$ -3.637,94</div>
                 </div>
@@ -493,7 +493,7 @@ export default function App() {
               </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 w-full">
-              <div className="relative flex flex-col justify-between rounded-xl p-6 pt-8 bg-slate-800 border border-slate-700 text-white shadow-lg">
+              <div className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md">
                 <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Resumo Faturamento Mensal</h3>
                 <div className="space-y-2 text-xs text-slate-300">
                   <div className="flex justify-between py-1 border-b border-slate-800"><span>Faturamento Bruto:</span> <strong className="font-mono text-white">R$ 14.580,00</strong></div>
@@ -501,7 +501,7 @@ export default function App() {
                   <div className="flex justify-between py-1"><span>Líquido Apurado:</span> <strong className="font-mono text-emerald-400">R$ 14.580,00</strong></div>
                 </div>
               </div>
-              <div className="relative flex flex-col justify-between rounded-xl p-6 pt-8 bg-slate-800 border border-slate-700 text-white shadow-lg">
+              <div className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md">
                 <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Obrigações e Guias</h3>
                 <div className="space-y-2 text-xs text-slate-300">
                   <div className="flex justify-between py-1 border-b border-slate-800"><span>Contas Pagas no MÃªs:</span> <strong className="font-mono text-white">R$ 12.200,00</strong></div>
@@ -525,7 +525,7 @@ export default function App() {
                 {['Stone / Ton', 'Redecard', 'Getnet'].map((operadora, idx) => {
                   const conectado = conexoes[operadora];
                   return (
-                    <div key={idx} className="relative flex flex-col justify-between rounded-xl p-6 pt-8 bg-slate-800 border border-slate-700 text-white shadow-lg">
+                    <div key={idx} className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md">
                       <div className="flex items-center gap-2.5">
                         <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-xs">
                           {operadora.charAt(0)}
@@ -556,7 +556,7 @@ export default function App() {
                 {['Cielo', 'PagSeguro / PagBank'].map((operadora, idx) => {
                   const conectado = conexoes[operadora];
                   return (
-                    <div key={idx} className="relative flex flex-col justify-between rounded-xl p-6 pt-8 bg-slate-800 border border-slate-700 text-white shadow-lg">
+                    <div key={idx} className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md">
                       <div className="flex items-center gap-2.5">
                         <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-xs">
                           {operadora.charAt(0)}
