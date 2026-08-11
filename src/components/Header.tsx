@@ -8,7 +8,7 @@ export default function Header({ onOpenUpgrade }: HeaderProps) {
     <div className="flex flex-col-reverse sm:flex-col md:flex-row items-center gap-2">
       
       {/* Texto do Plano Atual */}
-      <div className="px-3 py-1 rounded-full bg-slate-900 relative border border-slate-800 bg-slate-800/80 rounded-xl p-5 pt-8 text-white text-[10px] sm:text-xs text-emerald-400">
+      <div className="relative flex flex-col justify-between rounded-xl p-6 pt-8 bg-slate-800 border border-slate-700 text-white shadow-lg">
         Plano Atual: <span className="font-bold">FREEMIUM / ESSENCIAL (R$ 0,00)</span>
       </div>
 
