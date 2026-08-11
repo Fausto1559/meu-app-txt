@@ -11,9 +11,9 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
       <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
-        <button onClick={onClose} className="fixed inset-0 z-[999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+        <button onClick={onClose} className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
           <X className="w-5 h-5" />
         </button>
 
@@ -71,7 +71,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
 
           {/* Card 3: Copiloto Pro */}
           <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 my-auto shadow-2xl text-white max-h-[85vh] overflow-y-auto z-10">
-            <span className="fixed inset-0 z-[999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">Recomendado</span>
+            <span className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">Recomendado</span>
             <div>
               <h3 className="text-base font-bold text-white flex items-center gap-2"><Zap className="w-4 h-4 text-amber-400" /> Copiloto Pro</h3>
               
