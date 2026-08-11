@@ -147,7 +147,7 @@ export default function App() {
         </button>
       </div>
 
-      <header className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
+      <header className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
             <div className="relative w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
@@ -226,7 +226,7 @@ export default function App() {
             </button>
 
             {isUpgradeOpen && (
-              <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
+              <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-4">
                   <div>
                     <h3 className="text-sm font-bold text-amber-400">SEJA COPILOTO PRO</h3>
@@ -238,8 +238,8 @@ export default function App() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 w-full">
-                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
-                    <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
+                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
+                    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
                       Trial 30 Dias (Grátis)
                     </div>
                     <div className="space-y-2 pt-1">
@@ -264,7 +264,7 @@ export default function App() {
                     </button>
                   </div>
 
-                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
+                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
                     <div className="space-y-2">
                       <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
                         <Crown className="w-4 h-4" />
@@ -287,8 +287,8 @@ export default function App() {
                     </button>
                   </div>
 
-                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
-                    <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
+                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
+                    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
                       Recomendado
                     </div>
                     <div className="space-y-2">
@@ -319,7 +319,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
+      <main className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
         {activeTab === 'painel' && (
           <div className="space-y-5">
             <div className="space-y-1">
@@ -403,7 +403,7 @@ export default function App() {
                 <div className="space-y-2.5">
                   {contasReceber.length > 0 ? (
                     contasReceber.map((item) => (
-                      <div key={item.id} className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
+                      <div key={item.id} className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
                         <div>
                           <p className="text-xs font-bold text-white">{item.cliente}</p>
                           <p className="text-[10px] text-slate-400">Vencimento: {item.vencimento}</p>
@@ -432,7 +432,7 @@ export default function App() {
                 <div className="space-y-2.5">
                   {contasPagar.length > 0 ? (
                     contasPagar.map((item) => (
-                      <div key={item.id} className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
+                      <div key={item.id} className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
                         <div>
                           <p className="text-xs font-bold text-white">{item.fornecedor}</p>
                           <p className="text-[10px] text-slate-400">Vencimento: {item.vencimento}</p>
@@ -463,15 +463,15 @@ export default function App() {
             <div className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
               <p className="text-xs text-slate-400">Resumo consolidado das operações diárias para controle interno da caixa.</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 w-full">
-                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
+                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
                   <span className="text-xs text-slate-400">Entradas Totais</span>
                   <div className="text-base font-bold text-emerald-400 font-mono">R$ 442,06</div>
                 </div>
-                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
+                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
                   <span className="text-xs text-slate-400">Saídas Totais</span>
                   <div className="text-base font-bold text-red-400 font-mono">R$ 4.080,00</div>
                 </div>
-                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[90vh] overflow-y-auto z-50">
+                <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
                   <span className="text-xs text-slate-400">Resultado Líquido</span>
                   <div className="text-base font-bold text-red-400 font-mono">R$ -3.637,94</div>
                 </div>
