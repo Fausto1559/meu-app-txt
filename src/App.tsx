@@ -146,7 +146,7 @@ export default function App() {
       </div>
 
       <header className="bg-slate-900 border-b border-slate-800 px-6 py-3 flex items-center justify-between shadow-md relative z-20">
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
             <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
               <Crown className="w-4 h-4" />
@@ -224,7 +224,7 @@ export default function App() {
             </button>
 
             {isUpgradeOpen && (
-              <div className="absolute right-0 top-full mt-2 w-[840px] bg-[#0A1428] border border-slate-700 rounded-2xl p-6 shadow-2xl z-50">
+              <div className="absolute right-0 top-full mt-2 w-[840px] bg-[#0A1428] border border-slate-700 rounded-2xl p-4 shadow-2xl z-50">
                 <div className="flex justify-between items-center mb-4">
                   <div>
                     <h3 className="text-sm font-bold text-amber-400">SEJA COPILOTO PRO</h3>
@@ -245,7 +245,7 @@ export default function App() {
                         <Flame className="w-4 h-4" />
                       </div>
                       <h4 className="text-sm font-bold text-white">Freemium / Essencial</h4>
-                      <div className="text-lg font-bold text-emerald-400 font-mono">R$ 19,90<span className="text-[10px] text-slate-400 font-normal">/30 dias</span></div>
+                      <div className="text-lg font-bold text-emerald-400 font-mono">R$ 19,90<span className="text-[10px] text-slate-400 font-normal">/mês</span></div>
                       <p className="text-[10px] text-emerald-400 font-medium bg-emerald-500/10 px-2 py-1 rounded">Totalmente Gratuito no perÃ­odo de teste!</p>
                       <ul className="space-y-1.5 text-xs text-slate-300 pt-1">
                         <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Painel manual de prioridades</li>
@@ -317,7 +317,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="flex-1 p-6 space-y-5 max-w-4xl mx-auto w-full">
+      <main className="flex-1 p-4 space-y-5 max-w-4xl mx-auto w-full">
         {activeTab === 'painel' && (
           <div className="space-y-5">
             <div className="space-y-1">
@@ -596,4 +596,5 @@ export default function App() {
     </div>
   );
 }
+
 
