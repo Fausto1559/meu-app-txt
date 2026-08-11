@@ -22,7 +22,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
           <p className="text-xs text-slate-400 mt-1">Escolha o plano ideal para o seu negócio. Cancele quando quiser, sem burocracia.</p>
         </div>
 
-        <div className="flex flex-col md:grid md:grid-cols-3 gap-4">
+        <div className="flex flex-col md:grid md:grid-cols-1 md:grid-cols-3 gap-4">
           {/* Card 1: Freemium / Essencial */}
           <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
             <div>
@@ -96,3 +96,4 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan }: PricingM
     </div>
   );
 }
+
