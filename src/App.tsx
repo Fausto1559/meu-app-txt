@@ -41,6 +41,7 @@ export default function App() {
 
     return () => clearInterval(timer);
   }, []);
+  
   const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
 
   const [vendasHoje, setVendasHoje] = useState('R$ 19,90');
@@ -137,20 +138,22 @@ export default function App() {
 
       </div>
 
-      <div className="relative px-6 py-2 flex items-center justify-between text-xs text-slate-300 border-b border-slate-800 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
+      {/* Barra de Perfil e Sair */}
+      <div className="px-6 py-3 flex items-center justify-between text-xs bg-slate-800/90 text-white border-b border-slate-700 shadow-md">
         <span>Logado como: <strong className="text-white">{user?.email || user?.displayName}</strong></span>
         <button
           onClick={() => auth.signOut()}
-          className="bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/40 px-2 py-0.5 rounded"
+          className="bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/40 px-3 py-1 rounded transition-all cursor-pointer"
         >
           Sair
         </button>
       </div>
 
-      <header className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
-        <div className="flex items-center gap-4">
+      {/* Menu Superior (Topbar) */}
+       <header className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl">
+        <div className="w-full bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shadow-lg">
           <div className="flex items-center gap-3">
-            <div className="relative w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
               <Crown className="w-4 h-4" />
             </div>
             <div>
@@ -189,26 +192,23 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => setActiveTab('fechamento_contador')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'fechamento_contador' ? 'bg-amber-500 text-slate-950' : 'text-slate-300 hover:bg-slate-800'
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Central Contador</span>
-            </button>
+            onClick={() => setActiveTab('fechamento_contador')}
+            className={"flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer " + (activeTab === 'fechamento_contador' ? "bg-amber-500 text-slate-950" : "text-slate-300 hover:bg-slate-800")}
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Central Contador</span>
+          </button>
 
-            <button
-              onClick={() => setActiveTab('conexao')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'conexao' ? 'bg-amber-500 text-slate-950' : 'text-slate-300 hover:bg-slate-800'
-              }`}
-            >
-              <Network className="w-3.5 h-3.5 text-amber-400" />
-              <span>Open Finance</span>
-            </button>
-          </nav>
-        </div>
+          <button
+            onClick={() => setActiveTab('conexao')}
+            className={"flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer " + (activeTab === 'conexao' ? "bg-amber-500 text-slate-950" : "text-slate-300 hover:bg-slate-800")}
+          >
+            <Network className="w-3.5 h-3.5 text-amber-400" />
+            <span>Open Finance</span>
+          </button>
+        </nav>
+      </div>
+    </header>
 
         <div className="flex flex-col-reverse md:flex-col md:flex-col md:flex-row items-center gap-4">
           <div className="relative flex flex-col justify-between rounded-xl p-6 pt-10 bg-slate-800 border border-slate-700 text-white shadow-md relative bg-slate-800/90 text-white p-6 rounded-xl border border-slate-700 shadow-lg">
@@ -224,24 +224,47 @@ export default function App() {
               <span>Seja Copiloto Pro</span>
               <ChevronDown className="w-3 h-3" />
             </button>
+          </div>
+        </div>
 
             {isUpgradeOpen && (
-              <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
-                <div className="flex justify-between items-center mb-4">
-                  <div>
-                    <h3 className="text-sm font-bold text-amber-400">SEJA COPILOTO PRO</h3>
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 overflow-y-auto">
+                <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+                  <button 
+                    onClick={() => setIsUpgradeOpen(false)}
+                    className="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer"
+                  >
+                    ✕
+                  </button>
+
+                  <div className="mb-6">
+                    <h2 className="text-lg font-bold text-white">SEJA COPILOTO PRO</h2>
                     <p className="text-xs text-slate-400">Escolha o plano ideal para o seu negócio. Cancele quando quiser, sem burocracia.</p>
                   </div>
-                  <button onClick={() => setIsUpgradeOpen(false)} className="text-slate-400 hover:text-white cursor-pointer">
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 w-full">
-                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 overflow-y-auto">
-                      Trial 30 Dias (Grátis)
+      
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                    <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+                      <div>
+                        <span className="text-xs text-slate-400">Freemium / Essencial</span>
+                        <div className="text-xl font-bold text-white mt-2">R$ 19,90<span className="text-xs font-normal text-slate-400">/mês</span></div>
+                      </div>
                     </div>
+
+                    <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+                      <div>
+                        <span className="text-xs text-slate-400">Copiloto</span>
+                        <div className="text-xl font-bold text-white mt-2">R$ 29,90<span className="text-xs font-normal text-slate-400">/mês</span></div>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+                      <div>
+                        <span className="text-xs text-slate-400">Copiloto Pro</span>
+                        <div className="text-xl font-bold text-white mt-2">R$ 39,90<span className="text-xs font-normal text-slate-400">/mês</span></div>
+                      </div>
+                    </div>
+                  </div>
+                <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
                     <div className="space-y-2 pt-1">
                       <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
                         <Flame className="w-4 h-4" />
@@ -314,11 +337,8 @@ export default function App() {
                   </div>
                 </div>
               </div>
-            )}
-          </div>
-        </div>
-      </header>
-
+             )}
+          
       <main className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
         {activeTab === 'painel' && (
           <div className="space-y-5">
@@ -598,6 +618,3 @@ export default function App() {
     </div>
   );
 }
-
-
-
