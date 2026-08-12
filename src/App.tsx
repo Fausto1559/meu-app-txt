@@ -228,116 +228,93 @@ export default function App() {
         </div>
 
             {isUpgradeOpen && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
-                <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-700 rounded-2xl p-6 max-h-[90vh] overflow-y-auto text-slate-100 shadow-2xl">
-                  <button 
-                    onClick={() => setIsUpgradeOpen(false)}
-                    className="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer"
-                  >
-                    ✕
-                  </button>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
+        <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-700 rounded-2xl p-6 max-h-[90vh] overflow-y-auto text-slate-100 shadow-2xl">
+          <button
+            onClick={() => setIsUpgradeOpen(false)}
+            className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold cursor-pointer z-10"
+          >
+            ✕
+          </button>
 
-                  <div className="mb-6">
-                    <h2 className="text-lg font-bold text-white">SEJA COPILOTO PRO</h2>
-                    <p className="text-xs text-slate-400">Escolha o plano ideal para o seu negócio. Cancele quando quiser, sem burocracia.</p>
-                  </div>
-      
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-                    <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
-                      <div>
-                        <span className="text-xs text-slate-400">Freemium / Essencial</span>
-                        <div className="text-xl font-bold text-white mt-2">R$ 19,90<span className="text-xs font-normal text-slate-400">/mês</span></div>
-                      </div>
-                    </div>
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-amber-400">SEJA COPILOTO PRO</h2>
+            <p className="text-sm text-slate-300 mt-1">Escolha o plano ideal para o seu negócio. Cancele quando quiser.</p>
+          </div>
 
-                    <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
-                      <div>
-                        <span className="text-xs text-slate-400">Copiloto</span>
-                        <div className="text-xl font-bold text-white mt-2">R$ 29,90<span className="text-xs font-normal text-slate-400">/mês</span></div>
-                      </div>
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div
+              onClick={() => selecionarPlano('essencial', 'Essencial', '19,90')}
+              className={`p-5 rounded-xl border cursor-pointer transition-all ${
+                userPlan === 'essencial'
+                  ? 'border-emerald-500 bg-slate-800'
+                  : 'border-slate-700 bg-slate-800/80 hover:border-slate-500'
+              }`}
+            >
+              <h3 className="font-bold text-lg text-white">Essencial</h3>
+              <p className="text-2xl font-extrabold text-emerald-400 mt-2">R$ 19,90<span className="text-xs font-normal text-slate-300">/mês</span></p>
+              <ul className="mt-4 text-xs text-slate-200 space-y-2">
+                <li>✓ Painel manual de prioridades</li>
+                <li>✓ Calculadora de balcão digital</li>
+                <li>✓ Fluxo de caixa básico</li>
+              </ul>
+              <button className="w-full mt-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs">
+                {userPlan === 'essencial' ? 'Plano Atual' : 'Ativar Essencial'}
+              </button>
+            </div>
 
-                    <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
-                      <div>
-                        <span className="text-xs text-slate-400">Copiloto Pro</span>
-                        <div className="text-xl font-bold text-white mt-2">R$ 39,90<span className="text-xs font-normal text-slate-400">/mês</span></div>
-                      </div>
-                    </div>
-                  </div>
-                <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
-                    <div className="space-y-2 pt-1">
-                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-                        <Flame className="w-4 h-4" />
-                      </div>
-                      <h4 className="text-sm font-bold text-white">Freemium / Essencial</h4>
-                      <div className="text-lg font-bold text-emerald-400 font-mono">R$ 19,90<span className="text-[10px] text-slate-400 font-normal">/mês</span></div>
-                      <p className="text-[10px] text-emerald-400 font-medium bg-emerald-500/10 px-2 py-1 rounded">Totalmente Gratuito no período de teste!</p>
-                      <ul className="space-y-1.5 text-xs text-slate-300 pt-1">
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Painel manual de prioridades</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Calculadora de balcão digital</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Fluxo de caixa básico</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Peça por e-mail</li>
-                      </ul>
-                    </div>
-                    <button 
-                      onClick={() => selecionarPlano('essencial', 'FREEMIUM / ESSENCIAL', 'R$ 19,90')} 
-                      className="relative w-full bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-lg text-xs font-bold transition-all cursor-pointer"
-                    >
-                      Ativar Grátis (30 Dias)
-                    </button>
-                  </div>
+            <div
+              onClick={() => selecionarPlano('copiloto', 'Copiloto', '29,90')}
+              className={`p-5 rounded-xl border cursor-pointer transition-all ${
+                userPlan === 'copiloto'
+                  ? 'border-amber-500 bg-slate-800'
+                  : 'border-slate-700 bg-slate-800/80 hover:border-slate-500'
+              }`}
+            >
+              <h3 className="font-bold text-lg text-white">Copiloto</h3>
+              <p className="text-2xl font-extrabold text-amber-400 mt-2">R$ 29,90<span className="text-xs font-normal text-slate-300">/mês</span></p>
+              <ul className="mt-4 text-xs text-slate-200 space-y-2">
+                <li>✓ Tudo do Essencial</li>
+                <li>✓ Finanças Abertas</li>
+                <li>✓ Auditoria automática de taxas</li>
+              </ul>
+              <button className="w-full mt-6 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs">
+                {userPlan === 'copiloto' ? 'Plano Atual' : 'Assinar Copiloto'}
+              </button>
+            </div>
 
-                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
-                    <div className="space-y-2">
-                      <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
-                        <Crown className="w-4 h-4" />
-                      </div>
-                      <h4 className="text-sm font-bold text-white">Copiloto</h4>
-                      <div className="text-lg font-bold text-amber-400 font-mono">R$ 29,90<span className="text-[10px] text-slate-400 font-normal">/mÃªs</span></div>
-                      <ul className="space-y-1.5 text-xs text-slate-300 pt-2">
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Tudo do Essencial</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Finanças Abertas</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Auditoria automática de taxas</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Comandos de voz</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Cobrança via WhatsApp</li>
-                      </ul>
-                    </div>
-                    <button 
-                      onClick={() => selecionarPlano('copiloto', 'COPILOTO', 'R$ 29,90')} 
-                      className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer"
-                    >
-                      Assinar Copiloto
-                    </button>
-                  </div>
+            <div
+              onClick={() => selecionarPlano('alta_performance', 'Alta Performance', '39,90')}
+              className={`p-5 rounded-xl border cursor-pointer transition-all ${
+                userPlan === 'alta_performance'
+                  ? 'border-indigo-500 bg-slate-800'
+                  : 'border-slate-700 bg-slate-800/80 hover:border-slate-500'
+              }`}
+            >
+              <h3 className="font-bold text-lg text-white">Alta Performance</h3>
+              <p className="text-2xl font-extrabold text-indigo-400 mt-2">R$ 39,90<span className="text-xs font-normal text-slate-300">/mês</span></p>
+              <ul className="mt-4 text-xs text-slate-200 space-y-2">
+                <li>✓ Tudo do Copiloto</li>
+                <li>✓ Relatórios executivos automatizados</li>
+                <li>✓ Suporte prioritário dedicado</li>
+              </ul>
+              <button className="w-full mt-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-xs">
+                {userPlan === 'alta_performance' ? 'Plano Atual' : 'Assinar Alta Performance'}
+              </button>
+            </div>
+          </div>
 
-                  <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 overflow-y-auto">
-                      
-                    </div>
-                    <div className="space-y-2">
-                      <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400">
-                        <Crown className="w-4 h-4" />
-                      </div>
-                      <h4 className="text-sm font-bold text-white">Copiloto Pro</h4>
-                      <div className="text-lg font-bold text-amber-400 font-mono">R$ 39,90<span className="text-[10px] text-slate-400 font-normal">/mÃªs</span></div>
-                      <ul className="space-y-1.5 text-xs text-slate-300 pt-2">
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Tudo do Copiloto</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Fluxos automatizados do WhatsApp</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Pix 1-Clique</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Central do Contador</li>
-                        <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Relatórios avançados</li>
-                      </ul>
-                    </div>
-                    <button 
-                      onClick={() => selecionarPlano('alta_performance', 'Copiloto Pro', 'R$ 39,90')} 
-                      className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-md"
-                    >
-                      Assinar Copiloto Pro
-                    </button>
-                  </div>
-                </div>
-              </div>
-             )}
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={() => setIsUpgradeOpen(false)}
+              className="px-5 py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg text-xs cursor-pointer"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
           
       <main className="relative w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-white max-h-[85vh] overflow-y-auto">
         {activeTab === 'painel' && (
