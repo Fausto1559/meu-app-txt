@@ -4,7 +4,7 @@ import {
   isSignInWithEmailLink, 
   signInWithEmailLink, 
   GoogleAuthProvider, 
-  signInWithRedirect 
+  signInWithPopup 
 } from 'firebase/auth';
 import { auth } from '../services/firebaseConfig';
 import { Crown } from 'lucide-react';
@@ -64,7 +64,7 @@ export default function LoginScreen() {
     setError('');
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithRedirect(auth, provider);
+      await signInWithPopup(auth, provider);
     } catch (err: any) {
       setError(`Erro no login com Google: ${err.message}`);
     }
