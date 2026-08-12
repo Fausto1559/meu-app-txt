@@ -277,6 +277,8 @@ export default function App() {
                 <li>✓ Tudo do Essencial</li>
                 <li>✓ Finanças Abertas</li>
                 <li>✓ Auditoria automática de taxas</li>
+                <li>✓ Comandos de voz</li>
+                <li>✓ Cobrança via WhatsApp</li>
               </ul>
               <button className="w-full mt-6 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs">
                 {userPlan === 'copiloto' ? 'Plano Atual' : 'Assinar Copiloto'}
@@ -284,7 +286,7 @@ export default function App() {
             </div>
 
             <div
-              onClick={() => selecionarPlano('alta_performance', 'Alta Performance', '39,90')}
+              onClick={() => selecionarPlano('alta_performance', 'Copiloto Pro', '39,90')}
               className={`p-5 rounded-xl border cursor-pointer transition-all ${
                 userPlan === 'alta_performance'
                   ? 'border-indigo-500 bg-slate-800'
@@ -297,6 +299,7 @@ export default function App() {
                 <li>✓ Tudo do Copiloto</li>
                 <li>✓ Relatórios executivos automatizados</li>
                 <li>✓ Suporte prioritário dedicado</li>
+                <li>✓ Central do Contador</li>
               </ul>
               <button className="w-full mt-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-xs">
                 {userPlan === 'alta_performance' ? 'Plano Atual' : 'Assinar Copiloto Pro'}
