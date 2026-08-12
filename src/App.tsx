@@ -291,7 +291,7 @@ export default function App() {
                   : 'border-slate-700 bg-slate-800/80 hover:border-slate-500'
               }`}
             >
-              <h3 className="font-bold text-lg text-white">Alta Performance</h3>
+              <h3 className="font-bold text-lg text-white">Copiloto Pro</h3>
               <p className="text-2xl font-extrabold text-indigo-400 mt-2">R$ 39,90<span className="text-xs font-normal text-slate-300">/mês</span></p>
               <ul className="mt-4 text-xs text-slate-200 space-y-2">
                 <li>✓ Tudo do Copiloto</li>
@@ -299,7 +299,7 @@ export default function App() {
                 <li>✓ Suporte prioritário dedicado</li>
               </ul>
               <button className="w-full mt-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-xs">
-                {userPlan === 'alta_performance' ? 'Plano Atual' : 'Assinar Alta Performance'}
+                {userPlan === 'alta_performance' ? 'Plano Atual' : 'Assinar Copiloto Pro'}
               </button>
             </div>
           </div>
