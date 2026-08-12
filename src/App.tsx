@@ -251,7 +251,7 @@ export default function App() {
                   : 'border-slate-700 bg-slate-800/80 hover:border-slate-500'
               }`}
             >
-              <h3 className="font-bold text-lg text-white">Essencial</h3>
+              <h3 className="font-bold text-base text-white">Freemium (30 Dias) / Essencial</h3>
               <p className="text-2xl font-extrabold text-emerald-400 mt-2">R$ 19,90<span className="text-xs font-normal text-slate-300">/mês</span></p>
               <ul className="mt-4 text-xs text-slate-200 space-y-2">
                 <li>✓ Painel manual de prioridades</li>
