@@ -392,7 +392,12 @@ export default function App() {
           <DollarSign className="w-3.5 h-3.5 text-amber-400" />
         </div>
                 </div>
-                <div className="text-base font-bold text-white font-mono">{vendasHoje}</div>
+                <input
+  type="text"
+  value={vendasHoje}
+  onChange={(e) => setVendasHoje(e.target.value)}
+  className="bg-transparent text-base font-bold text-white font-mono outline-none border-b border-transparent focus:border-amber-400 w-full"
+/>
                 <div className="text-[10px] text-slate-400">Nenhuma maquininha</div>
               </div>
 
