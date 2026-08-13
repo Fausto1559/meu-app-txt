@@ -364,11 +364,23 @@ export default function App() {
                 <div className="flex justify-between items-center text-slate-400 text-xs">
                   <span>Vendas Hoje</span>
                   <div className="flex items-center gap-1.5">
-                    <button onClick={() => setVendasHoje('R$ 19,90')} className="text-slate-500 hover:text-amber-400 cursor-pointer" title="Zerar campo">
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                    <DollarSign className="w-3.5 h-3.5 text-amber-400" />
-                  </div>
+          <button
+            type="button"
+            onClick={() => handleVoiceInput('vendasHoje', (valor) => setVendasHoje(valor))}
+            className={`p-1 rounded-md transition-colors ${
+              listeningField === 'vendasHoje'
+                ? 'bg-red-500/20 text-red-400 animate-pulse'
+                : 'text-slate-400 hover:text-white hover:bg-slate-700'
+            }`}
+            title="Digitar por voz"
+          >
+            <Mic className="w-3.5 h-3.5" />
+          </button>
+          <button onClick={() => setVendasHoje('R$ 19,90')} className="text-slate-500 hover:text-amber-400">
+            <X className="w-3.5 h-3.5" />
+          </button>
+          <DollarSign className="w-3.5 h-3.5 text-amber-400" />
+        </div>
                 </div>
                 <div className="text-base font-bold text-white font-mono">{vendasHoje}</div>
                 <div className="text-[10px] text-slate-400">Nenhuma maquininha</div>
