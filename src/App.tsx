@@ -53,6 +53,16 @@ export default function App() {
       setListeningField(null);
     };
 
+    recognition.onresult = (event: any) => {
+    let transcript = event.results[0][0].transcript.trim();
+    if (!transcript.toUpperCase().startsWith('R$')) {
+      transcript = `R$ ${transcript}`;
+    }
+    callback(transcript);
+  };
+
+  recognition.start();
+
     recognition.onerror = () => {
       setListeningField(null);
     };
