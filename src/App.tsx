@@ -454,7 +454,12 @@ export default function App() {
           <ArrowDownRight className="w-3.5 h-3.5 text-red-400" />
         </div>
                 </div>
-                <div className="text-base font-bold text-red-400 font-mono">{aPagar}</div>
+                <input
+  type="text"
+  value={aPagar}
+  onChange={(e) => setAPagar(e.target.value)}
+  className="bg-transparent text-base font-bold text-red-400 font-mono outline-none border-b border-transparent focus:border-red-400 w-full"
+/>
                 <div className="text-[10px] text-slate-400">Contas em aberto</div>
               </div>
 
