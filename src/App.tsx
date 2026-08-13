@@ -485,7 +485,12 @@ export default function App() {
           <RefreshCw className="w-3.5 h-3.5 text-amber-400" />
         </div>
                 </div>
-                <div className="text-base font-bold text-red-400 font-mono">{saldoPrevisto}</div>
+                <input
+                  type="text"
+                  value={saldoPrevisto}
+                  onChange={(e) => setSaldoPrevisto(e.target.value)}
+                  className="bg-transparent text-base font-bold text-red-400 font-mono outline-none border-b border-transparent focus:border-red-400 w-full"
+                />
                 <div className="text-[10px] text-slate-400">Balanço geral</div>
               </div>
             </div>
