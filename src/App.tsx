@@ -423,7 +423,12 @@ export default function App() {
           <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
         </div>
                 </div>
-                <div className="text-base font-bold text-emerald-400 font-mono">{aReceber}</div>
+                <input
+          type="text"
+          value={aReceber}
+          onChange={(e) => setAReceber(e.target.value)}
+          className="bg-transparent text-base font-bold text-emerald-400 font-mono outline-none border-b border-transparent focus:border-emerald-400 w-full"
+        />
                 <div className="text-[10px] text-slate-400">Valores pendentes</div>
               </div>
 
