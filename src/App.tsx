@@ -416,11 +416,23 @@ export default function App() {
                 <div className="flex justify-between items-center text-slate-400 text-xs">
                   <span>A Pagar</span>
                   <div className="flex items-center gap-1.5">
-                    <button onClick={() => setAPagar('R$ 19,90')} className="text-slate-500 hover:text-red-400 cursor-pointer" title="Zerar campo">
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                    <ArrowDownRight className="w-3.5 h-3.5 text-red-400" />
-                  </div>
+          <button
+            type="button"
+            onClick={() => handleVoiceInput('aPagar', (valor) => setAPagar(valor))}
+            className={`p-1 rounded-md transition-colors ${
+              listeningField === 'aPagar'
+                ? 'bg-red-500/20 text-red-400 animate-pulse'
+                : 'text-slate-400 hover:text-white hover:bg-slate-700'
+            }`}
+            title="Digitar por voz"
+          >
+            <Mic className="w-3.5 h-3.5" />
+          </button>
+          <button onClick={() => setAPagar('R$ 0,00')} className="text-slate-500 hover:text-red-400">
+            <X className="w-3.5 h-3.5" />
+          </button>
+          <ArrowDownRight className="w-3.5 h-3.5 text-red-400" />
+        </div>
                 </div>
                 <div className="text-base font-bold text-red-400 font-mono">{aPagar}</div>
                 <div className="text-[10px] text-slate-400">Contas em aberto</div>
