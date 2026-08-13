@@ -390,11 +390,23 @@ export default function App() {
                 <div className="flex justify-between items-center text-slate-400 text-xs">
                   <span>A Receber</span>
                   <div className="flex items-center gap-1.5">
-                    <button onClick={() => setAReceber('R$ 19,90')} className="text-slate-500 hover:text-emerald-400 cursor-pointer" title="Zerar campo">
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                    <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
-                  </div>
+          <button
+            type="button"
+            onClick={() => handleVoiceInput('aReceber', (valor) => setAReceber(valor))}
+            className={`p-1 rounded-md transition-colors ${
+              listeningField === 'aReceber'
+                ? 'bg-red-500/20 text-red-400 animate-pulse'
+                : 'text-slate-400 hover:text-white hover:bg-slate-700'
+            }`}
+            title="Digitar por voz"
+          >
+            <Mic className="w-3.5 h-3.5" />
+          </button>
+          <button onClick={() => setAReceber('R$ 0,00')} className="text-slate-500 hover:text-emerald-400">
+            <X className="w-3.5 h-3.5" />
+          </button>
+          <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
+        </div>
                 </div>
                 <div className="text-base font-bold text-emerald-400 font-mono">{aReceber}</div>
                 <div className="text-[10px] text-slate-400">Valores pendentes</div>
