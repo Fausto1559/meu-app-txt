@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { 
-  Calculator, LayoutDashboard, FileText, Network, DollarSign, 
-  ArrowUpRight, ArrowDownRight, RefreshCw, AlertCircle, Crown, 
-  Flame, X, ShieldCheck, Download, CheckCircle2, ChevronDown 
+import {
+  Calculator, LayoutDashboard, FileText, Network, DollarSign,
+  ArrowUpRight, ArrowDownRight, RefreshCw, AlertCircle, Crown,
+  Flame, X, ShieldCheck, Download, CheckCircle2, ChevronDown, Mic
 } from 'lucide-react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from './services/firebaseConfig';
