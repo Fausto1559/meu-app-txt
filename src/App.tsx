@@ -33,6 +33,38 @@ export default function App() {
   const [userPlanPrice, setUserPlanPrice] = useState('R$ 19,90');
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
+  const [listeningField, setListeningField] = useState<string | null>(null);
+
+  const handleVoiceInput = (fieldKey: string, callback: (valor: string) => void) => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Navegador não suporta reconhecimento de voz.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+
+    recognition.onstart = () => {
+      setListeningField(fieldKey);
+    };
+
+    recognition.onend = () => {
+      setListeningField(null);
+    };
+
+    recognition.onerror = () => {
+      setListeningField(null);
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      callback(transcript);
+    };
+
+    recognition.start();
+  };
+
   useEffect(() => {
     const loadingTimer = setTimeout(() => { setLoading(false); }, 3000);
     const timer = setInterval(() => {
