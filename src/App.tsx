@@ -376,7 +376,7 @@ export default function App() {
           >
             <Mic className="w-3.5 h-3.5" />
           </button>
-          <button onClick={() => setVendasHoje('R$ 19,90')} className="text-slate-500 hover:text-amber-400">
+          <button onClick={() => setVendasHoje('R$ 0,00')} className="text-slate-500 hover:text-amber-400">
             <X className="w-3.5 h-3.5" />
           </button>
           <DollarSign className="w-3.5 h-3.5 text-amber-400" />
