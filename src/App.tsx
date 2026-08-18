@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Calculator, LayoutDashboard, FileText, Network, DollarSign,
   ArrowUpRight, ArrowDownRight, RefreshCw, AlertCircle, Crown,
@@ -9,170 +9,69 @@ import { auth } from './services/firebaseConfig';
 import LoginScreen from './screens/LoginScreen';
 import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
 // Função de cálculo do tempo restante do trial
-  const calculateTimeLeft = () => {
-    // Define a data final do trial (exemplo: 27 dias a partir do registro)
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + 27);
-    targetDate.setHours(23, 59, 59);
+  export default function App() {
+  // 1. ESTADOS DE NAVEGAÇÃO E MODAIS
+  const [activeTab, setActiveTab] = useState<string>('painel');
+  const [isCalculadoraOpen, setIsCalculadoraOpen] = useState<boolean>(false);
+  const [isUpgradeOpen, setIsUpgradeOpen] = useState<boolean>(false);
+  const [isTrialExpired, setIsTrialExpired] = useState<boolean>(false);
 
-    const difference = +targetDate - +new Date();
-    if (difference > 0) {
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((difference / 1000 / 60) % 60);
-      const seconds = Math.floor((difference / 1000) % 60);
-      return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-    }
-    return '0d 0h 0m 0s';
-  };
+  // 2. ESTADOS DO USUÁRIO E PLANOS
+  const [user, setUser] = useState<any>(null);
+  const [userPlan, setUserPlan] = useState<string>('copiloto');
+  const [userPlanName, setUserPlanName] = useState<string>('Copiloto');
+  const [userPlanPrice, setUserPlanPrice] = useState<string>('R$ 29,90/mês');
 
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
-
-  // Atualiza o contador a cada 1 segundo sem travar
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-export default function App() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const [activeTab, setActiveTab] = useState<'painel' | 'fechamento_diario' | 'fechamento_contador' | 'conexao'>('painel');
-  const [isCalculadoraOpen, setIsCalculadoraOpen] = useState(false);
-  
-  const [userPlan, setUserPlan] = useState<'gratis' | 'essencial' | 'copiloto' | 'alta_performance'>('essencial');
-  const [userPlanName, setUserPlanName] = useState('FREEMIUM / ESSENCIAL');
-  const [userPlanPrice, setUserPlanPrice] = useState('R$ 19,90');
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
-
+  // 3. ESTADOS FINANCEIROS
+  const [vendasHoje, setVendasHoje] = useState<string>('R$ 0,00');
+  const [aReceber, setAReceber] = useState<string>('R$ 0,00');
+  const [aPagar, setAPagar] = useState<string>('R$ 0,00');
+  const [saldoPrevisto, setSaldoPrevisto] = useState<string>('R$ 0,00');
   const [listeningField, setListeningField] = useState<string | null>(null);
 
-  const handleVoiceInput = (fieldKey: string, callback: (valor: string) => void) => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert('Navegador não suporta reconhecimento de voz.');
-      return;
+  // 4. TEMPORIZADOR TRIAL
+  const calculateTimeLeft = () => {
+    let trialStart = localStorage.getItem('copiloto_trial_start');
+    if (!trialStart) {
+      trialStart = new Date().toISOString();
+      localStorage.setItem('copiloto_trial_start', trialStart);
     }
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'pt-BR';
+    const targetDate = new Date(trialStart);
+    targetDate.setDate(targetDate.getDate() + 30);
+    const difference = +targetDate - +new Date();
 
-    recognition.onstart = () => {
-      setListeningField(fieldKey);
-    };
+    if (difference <= 0) {
+      setIsTrialExpired(true);
+      return '0d 0h 0m 0s';
+    }
 
-    recognition.onend = () => {
-      setListeningField(null);
-    };
-
-    recognition.onresult = (event: any) => {
-      let transcript = event.results[0][0].transcript.trim();
-      transcript = transcript.replace(/reais|real/gi, '').trim();
-
-      // Formatação para garantir separador de milhar (.) e centavos (,00)
-      if (!transcript.includes(',')) {
-        let cleanNum = transcript.replace(/\./g, '').trim();
-        if (!isNaN(Number(cleanNum)) && cleanNum !== '') {
-          let num = parseInt(cleanNum, 10);
-          transcript = num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-      } else {
-        let parts = transcript.split(',');
-        let integerPart = parts[0].replace(/\./g, '');
-        let decimalPart = parts[1].trim();
-        if (decimalPart.length === 1) decimalPart += '0';
-        if (!isNaN(Number(integerPart))) {
-          let num = parseInt(integerPart, 10);
-          transcript = `${num.toLocaleString('pt-BR')},${decimalPart}`;
-        }
-      }
-
-      if (!transcript.toUpperCase().startsWith('R$')) {
-        transcript = `R$ ${transcript}`;
-      }
-      callback(transcript);
-    };
-
-    recognition.start();
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((difference / 1000 / 60) % 60);
+    const seconds = Math.floor((difference / 1000) % 60);
+    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
   };
 
+  const [timeLeft, setTimeLeft] = useState<string>(calculateTimeLeft());
+
   useEffect(() => {
-    const loadingTimer = setTimeout(() => { setLoading(false); }, 3000);
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
-  
-  const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
 
-  const [vendasHoje, setVendasHoje] = useState('R$ 19,90');
-  const [aReceber, setAReceber] = useState('R$ 442,06');
-  const [aPagar, setAPagar] = useState('R$ 4.080,00');
-  const [saldoPrevisto, setSaldoPrevisto] = useState('R$ -3.637,94');
-
-  const [contasReceber, setContasReceber] = useState([
-    { id: 1, cliente: 'Cliente João Silva', vencimento: '2026-07-28', valor: 'R$ 262,06' },
-    { id: 2, cliente: 'Pedido #1042', vencimento: '2026-08-05', valor: 'R$ 180,00' }
-  ]);
-
-  const [contasPagar, setContasPagar] = useState([
-    { id: 1, fornecedor: 'Fornecedor ABC', vencimento: '2026-07-30', valor: 'R$ 1.200,00' },
-    { id: 2, fornecedor: 'Aluguel Comercial', vencimento: '2026-08-10', valor: 'R$ 2.880,00' }
-  ]);
-
-  const [conexoes, setConexoes] = useState<Record<string, boolean>>({
-    'Stone / Ton': false,
-    'Redecard': false,
-    'Getnet': false,
-    'Cielo': false,
-    'PagSeguro / PagBank': false
-  });
-
-  useEffect(() => {
-    const loadingTimer = setTimeout(() => { setLoading(false); }, 3000);
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  if (loading) {
-    return <div style={{ textAlign: 'center', marginTop: '50px', color: '#fff', background: '#050B14', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Carregando...</div>;
-  }
-
-  if (!user) {
-    return <LoginScreen />;
-  }
-
-  const toggleConexao = (operadora: string) => {
-    setConexoes(prev => ({
-      ...prev,
-      [operadora]: !prev[operadora]
-    }));
+  // 5. FUNÇÕES AUXILIARES
+  const handleVoiceInput = (fieldName: string, setter: (val: string) => void) => {
+    setListeningField(fieldName);
+    setTimeout(() => setListeningField(null), 3000);
   };
 
-  const marcarRecebido = (id: number) => {
-    setContasReceber(prev => prev.filter(item => item.id !== id));
-    setAReceber('R$ 19,90');
-  };
-
-  const marcarPago = (id: number) => {
-    setContasPagar(prev => prev.filter(item => item.id !== id));
-    setAPagar('R$ 19,90');
-  };
-
-  const isTrialExpired = false; // Altere para true para testar o bloqueio de tela
-  
-  const selecionarPlano = (tipo: 'gratis' | 'essencial' | 'copiloto' | 'alta_performance', nome: string, preco: string) => {
-    setUserPlan(tipo);
-    setUserPlanName(nome);
-    setUserPlanPrice(preco);
+  const selecionarPlano = (id: string, name: string, price: string) => {
+    setUserPlan(id);
+    setUserPlanName(name);
+    setUserPlanPrice(`R$ ${price}/mês`);
     setIsUpgradeOpen(false);
   };
 
