@@ -18,10 +18,7 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
 
   // 2. ESTADOS DO USUÁRIO E PLANOS
   const [user, setUser] = useState<any>(null);
-  const [userPlan, setUserPlan] = useState<string>('copiloto');
-  const [userPlanName, setUserPlanName] = useState<string>('Copiloto');
-  const [userPlanPrice, setUserPlanPrice] = useState<string>('R$ 29,90/mês');
-
+  
   // 3. ESTADOS FINANCEIROS
   const [vendasHoje, setVendasHoje] = useState<string>('R$ 0,00');
   const [aReceber, setAReceber] = useState<string>('R$ 0,00');
@@ -68,33 +65,46 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
     setTimeout(() => setListeningField(null), 3000);
   };
 
+  // 2. ESTADOS DO USUÁRIO E PLANOS (Ajustado para Freemium por padrão)
+  const [userPlan, setUserPlan] = useState<string>('freemium');
+  const [userPlanName, setUserPlanName] = useState<string>('Freemium / Essencial');
+  const [userPlanPrice, setUserPlanPrice] = useState<string>('Gratuito');
+
+// Função de seleção atualizada para tratar o valor zero/gratuito
   const selecionarPlano = (id: string, name: string, price: string) => {
-    setUserPlan(id);
-    setUserPlanName(name);
+  setUserPlan(id);
+  setUserPlanName(name);
+  if (price === '0' || price === '0,00' || price.toLowerCase().includes('gratuit')) {
+    setUserPlanPrice('Gratuito');
+  } else {
     setUserPlanPrice(`R$ ${price}/mês`);
-    setIsUpgradeOpen(false);
-  };
+  }
+  setIsUpgradeOpen(false);
+};
 
   return (
     <div className="min-h-screen bg-[#050B14] text-slate-100 flex flex-col font-sans relative antialiased">
       
       {/* 1. BARRA SUPERIOR - 3 COLUNAS */}
-      <div className="bg-red-900/90 text-white px-6 py-2 grid grid-cols-1 md:grid-cols-3 items-center text-xs gap-2 border-b border-red-800">
-        <div className="flex items-center gap-2 font-bold tracking-wide justify-start">
-          <Flame className="w-4 h-4 text-amber-400 animate-pulse" />
-          <span>MODO APAGA INCÊNDIO</span>
-        </div>
+      {/* BARRA APAGA INCÊNDIO COM DEGRADÊ NAS PONTAS E EFEITO DE PISCAR */}
+<div className="relative w-full bg-gradient-to-r from-transparent via-red-900/90 to-transparent border-b border-red-600/40 py-2 px-6 flex flex-wrap items-center justify-between text-xs sm:text-sm animate-pulse shadow-[0_0_15px_rgba(220,38,38,0.3)]">
+  <div className="flex items-center gap-2 font-bold text-red-100 tracking-wide">
+    <span className="text-base animate-bounce">🔥</span>
+    <span>MODO APAGA INCÊNDIO</span>
+  </div>
 
-        <div className="text-center font-medium">
-          <span>Trial Gratuito: </span>
-          <strong className="text-amber-400 font-mono">{timeLeft}</strong>
-        </div>
-
-        <div className="flex items-center gap-2 justify-end">
-          <span>Status do caixa:</span>
-          <span className="bg-red-600 text-white font-bold px-2.5 py-0.5 rounded text-[10px] tracking-wider">VERMELHO</span>
-        </div>
-      </div>
+  <div className="flex items-center gap-6">
+    <div className="text-gray-200">
+      Trial Gratuito: <span className="font-mono text-amber-400 font-bold">{timeLeft}</span>
+    </div>
+    <div className="flex items-center gap-2">
+      <span className="text-gray-300">Status do caixa:</span>
+      <span className="bg-red-600 text-white font-bold px-2 py-0.5 rounded text-xs uppercase tracking-wider">
+        VERMELHO
+      </span>
+    </div>
+  </div>
+</div>
 
       {/* 2. BARRA DE USUÁRIO */}
       <div className="px-6 py-2.5 flex items-center justify-between text-xs bg-slate-900/80 text-slate-300 border-b border-slate-800">
