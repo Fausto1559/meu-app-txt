@@ -85,25 +85,28 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
   return (
     <div className="min-h-screen bg-[#050B14] text-slate-100 flex flex-col font-sans relative antialiased">
       
-      {/* 1. BARRA SUPERIOR - 3 COLUNAS */}
-      {/* BARRA APAGA INCÊNDIO COM DEGRADÊ NAS PONTAS E EFEITO DE PISCAR */}
-<div className="relative w-full bg-gradient-to-r from-transparent via-red-900/90 to-transparent border-b border-red-600/40 py-2 px-6 flex flex-wrap items-center justify-between text-xs sm:text-sm animate-pulse shadow-[0_0_15px_rgba(220,38,38,0.3)]">
-  <div className="flex items-center gap-2 font-bold text-red-100 tracking-wide">
+      {/* BARRA APAGA INCÊNDIO - CONTADOR CENTRALIZADO */}
+<div className="relative w-full bg-gradient-to-r from-transparent via-red-900/90 to-transparent border-b border-red-600/40 py-2 px-6 grid grid-cols-1 md:grid-cols-3 items-center text-xs sm:text-sm animate-pulse shadow-[0_0_15px_rgba(220,38,38,0.3)] gap-2">
+  
+  {/* ESQUERDA: MODO APAGA INCÊNDIO */}
+  <div className="flex items-center gap-2 font-bold text-red-100 tracking-wide justify-start">
     <span className="text-base animate-bounce">🔥</span>
     <span>MODO APAGA INCÊNDIO</span>
   </div>
 
-  <div className="flex items-center gap-6">
-    <div className="text-gray-200">
-      Trial Gratuito: <span className="font-mono text-amber-400 font-bold">{timeLeft}</span>
-    </div>
-    <div className="flex items-center gap-2">
-      <span className="text-gray-300">Status do caixa:</span>
-      <span className="bg-red-600 text-white font-bold px-2 py-0.5 rounded text-xs uppercase tracking-wider">
-        VERMELHO
-      </span>
-    </div>
+  {/* CENTRO: CONTADOR TRIAL */}
+  <div className="text-gray-200 text-center">
+    Trial Gratuito: <span className="font-mono text-amber-400 font-bold">{timeLeft}</span>
   </div>
+
+  {/* DIREITA: STATUS DO CAIXA */}
+  <div className="flex items-center gap-2 justify-end">
+    <span className="text-gray-300">Status do caixa:</span>
+    <span className="bg-red-600 text-white font-bold px-2 py-0.5 rounded text-xs uppercase tracking-wider">
+      VERMELHO
+    </span>
+  </div>
+
 </div>
 
       {/* 2. BARRA DE USUÁRIO */}
