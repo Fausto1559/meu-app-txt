@@ -54,21 +54,11 @@ export default function App() {
     };
 
     recognition.onresult = (event: any) => {
-    let transcript = event.results[0][0].transcript.trim();
-    if (!transcript.toUpperCase().startsWith('R$')) {
-      transcript = `R$ ${transcript}`;
-    }
-    callback(transcript);
-  };
-
-  recognition.start();
-
-    recognition.onerror = () => {
-      setListeningField(null);
-    };
-
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
+      let transcript = event.results[0][0].transcript.trim();
+      transcript = transcript.replace(/reais/gi, '').trim();
+      if (!transcript.toUpperCase().startsWith('R$')) {
+        transcript = `R$ ${transcript}`;
+      }
       callback(transcript);
     };
 
@@ -395,8 +385,14 @@ export default function App() {
                 <input
   type="text"
   value={vendasHoje}
-  onChange={(e) => setVendasHoje(e.target.value)}
-  className="bg-transparent text-base font-bold text-white font-mono outline-none border-b border-transparent focus:border-amber-400 w-full"
+  onChange={(e) => {
+    let val = e.target.value;
+    if (val && !val.toUpperCase().startsWith('R$')) {
+      val = `R$ ${val}`;
+    }
+    setVendasHoje(val);
+  }}
+  className="bg-transparent text-base font-bold text-white font-mono outline-none border-b border-slate-700 focus:border-amber-400 w-full"
 />
                 <div className="text-[10px] text-slate-400">Nenhuma maquininha</div>
               </div>
@@ -426,8 +422,14 @@ export default function App() {
                 <input
           type="text"
           value={aReceber}
-          onChange={(e) => setAReceber(e.target.value)}
-          className="bg-transparent text-base font-bold text-emerald-400 font-mono outline-none border-b border-transparent focus:border-emerald-400 w-full"
+          onChange={(e) => {
+            let val = e.target.value;
+            if (val && !val.toUpperCase().startsWith('R$')) {
+              val = `R$ ${val}`;
+            }
+            setAReceber(val);
+          }}
+          className="bg-transparent text-base font-bold text-emerald-400 font-mono outline-none border-b border-slate-700 focus:border-emerald-400 w-full"
         />
                 <div className="text-[10px] text-slate-400">Valores pendentes</div>
               </div>
@@ -457,8 +459,14 @@ export default function App() {
                 <input
   type="text"
   value={aPagar}
-  onChange={(e) => setAPagar(e.target.value)}
-  className="bg-transparent text-base font-bold text-red-400 font-mono outline-none border-b border-transparent focus:border-red-400 w-full"
+  onChange={(e) => {
+    let val = e.target.value;
+    if (val && !val.toUpperCase().startsWith('R$')) {
+      val = `R$ ${val}`;
+    }
+    setAPagar(val);
+  }}
+  className="bg-transparent text-base font-bold text-red-400 font-mono outline-none border-b border-slate-700 focus:border-red-400 w-full"
 />
                 <div className="text-[10px] text-slate-400">Contas em aberto</div>
               </div>
@@ -486,11 +494,17 @@ export default function App() {
         </div>
                 </div>
                 <input
-                  type="text"
-                  value={saldoPrevisto}
-                  onChange={(e) => setSaldoPrevisto(e.target.value)}
-                  className="bg-transparent text-base font-bold text-red-400 font-mono outline-none border-b border-transparent focus:border-red-400 w-full"
-                />
+  type="text"
+  value={saldoPrevisto}
+  onChange={(e) => {
+    let val = e.target.value;
+    if (val && !val.toUpperCase().startsWith('R$')) {
+      val = `R$ ${val}`;
+    }
+    setSaldoPrevisto(val);
+  }}
+  className="bg-transparent text-base font-bold text-red-400 font-mono outline-none border-b border-slate-700 focus:border-amber-400 w-full"
+/>
                 <div className="text-[10px] text-slate-400">Balanço geral</div>
               </div>
             </div>
