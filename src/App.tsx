@@ -55,7 +55,26 @@ export default function App() {
 
     recognition.onresult = (event: any) => {
       let transcript = event.results[0][0].transcript.trim();
-      transcript = transcript.replace(/reais/gi, '').trim();
+      transcript = transcript.replace(/reais|real/gi, '').trim();
+
+      // Formatação para garantir separador de milhar (.) e centavos (,00)
+      if (!transcript.includes(',')) {
+        let cleanNum = transcript.replace(/\./g, '').trim();
+        if (!isNaN(Number(cleanNum)) && cleanNum !== '') {
+          let num = parseInt(cleanNum, 10);
+          transcript = num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+      } else {
+        let parts = transcript.split(',');
+        let integerPart = parts[0].replace(/\./g, '');
+        let decimalPart = parts[1].trim();
+        if (decimalPart.length === 1) decimalPart += '0';
+        if (!isNaN(Number(integerPart))) {
+          let num = parseInt(integerPart, 10);
+          transcript = `${num.toLocaleString('pt-BR')},${decimalPart}`;
+        }
+      }
+
       if (!transcript.toUpperCase().startsWith('R$')) {
         transcript = `R$ ${transcript}`;
       }
@@ -376,7 +395,12 @@ export default function App() {
           >
             <Mic className="w-3.5 h-3.5" />
           </button>
-          <button onClick={() => setVendasHoje('R$ 0,00')} className="text-slate-500 hover:text-amber-400">
+          <button
+            type="button"
+            onClick={() => setVendasHoje('R$ 0,00')}
+            className="text-slate-500 hover:text-white p-1"
+            title="Zerar valor"
+          >
             <X className="w-3.5 h-3.5" />
           </button>
           <DollarSign className="w-3.5 h-3.5 text-amber-400" />
