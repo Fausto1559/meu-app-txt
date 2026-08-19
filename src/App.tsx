@@ -83,9 +83,9 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
 };
 
   return (
-    <div className="min-h-screen bg-[#050B14] text-slate-100 flex flex-col font-sans relative antialiased">
+    <div className="min-h-screen bg-[#0c1527] text-white font-sans">
       
-      {/* BARRA APAGA INCÊNDIO - CONTADOR CENTRALIZADO */}
+  {/* BARRA APAGA INCÊNDIO - CONTADOR CENTRALIZADO */}
 <div className="relative w-full bg-gradient-to-r from-transparent via-red-900/90 to-transparent border-b border-red-600/40 py-2 px-6 grid grid-cols-1 md:grid-cols-3 items-center text-xs sm:text-sm animate-pulse shadow-[0_0_15px_rgba(220,38,38,0.3)] gap-2">
   
   {/* ESQUERDA: MODO APAGA INCÊNDIO */}
@@ -110,7 +110,7 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
 </div>
 
       {/* 2. BARRA DE USUÁRIO */}
-      <div className="px-6 py-2.5 flex items-center justify-between text-xs bg-slate-900/80 text-slate-300 border-b border-slate-800">
+      <div className="px-6 py-2.5 flex items-center justify-between text-xs bg-[#14223c]/80 text-slate-300 border-b border-slate-800">
         <div>
           Logado como: <strong className="text-white">{user?.email || user?.displayName}</strong>
         </div>
@@ -147,7 +147,7 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1">
         
         {/* CABEÇALHO E NAVEGAÇÃO */}
-        <header className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-6 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-4">
+        <header className="w-full bg-[#14223c] border border-slate-800 rounded-2xl p-4 md:p-6 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
               <Crown className="w-5 h-5" />
@@ -210,7 +210,7 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
         </header>
 
         {/* BANNERS DE STATUS E BOTÃO DE UPGRADE */}
-        <div className="w-full bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="w-full bg-[#14223c]/80 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 text-xs text-slate-300">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <span>Plano Atual: <strong className="text-emerald-400 font-bold">{userPlanName} ({userPlanPrice})</strong></span>
@@ -239,7 +239,7 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               
               {/* CARD VENDAS HOJE */}
-              <div className="flex flex-col justify-between rounded-xl p-5 bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all">
+              <div className="flex flex-col justify-between rounded-xl p-5 bg-[#14223c] border border-slate-800 hover:border-slate-700 transition-all">
                 <div className="flex justify-between items-center text-slate-400 text-xs mb-3">
                   <span>Vendas Hoje</span>
                   <div className="flex items-center gap-1.5">
@@ -280,7 +280,7 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
               </div>
 
               {/* CARD A RECEBER */}
-              <div className="flex flex-col justify-between rounded-xl p-5 bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all">
+              <div className="flex flex-col justify-between rounded-xl p-5 bg-[#14223c] border border-slate-800 hover:border-slate-700 transition-all">
                 <div className="flex justify-between items-center text-slate-400 text-xs mb-3">
                   <span>A Receber</span>
                   <div className="flex items-center gap-1.5">
@@ -321,7 +321,7 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
               </div>
 
               {/* CARD A PAGAR */}
-              <div className="flex flex-col justify-between rounded-xl p-5 bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all">
+              <div className="flex flex-col justify-between rounded-xl p-5 bg-[#14223c] border border-slate-800 hover:border-slate-700 transition-all">
                 <div className="flex justify-between items-center text-slate-400 text-xs mb-3">
                   <span>A Pagar</span>
                   <div className="flex items-center gap-1.5">
@@ -362,7 +362,7 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
               </div>
 
               {/* CARD SALDO PREVISTO */}
-              <div className="flex flex-col justify-between rounded-xl p-5 bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all">
+              <div className="flex flex-col justify-between rounded-xl p-5 bg-[#14223c] border border-slate-800 hover:border-slate-700 transition-all">
                 <div className="flex justify-between items-center text-slate-400 text-xs mb-3">
                   <span>Saldo Previsto</span>
                   <div className="flex items-center gap-1.5">
@@ -410,7 +410,7 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
       {/* MODAL DE PLANOS */}
       {isUpgradeOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
-          <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-700 rounded-2xl p-6 max-h-[90vh] overflow-y-auto text-slate-100 shadow-2xl">
+          <div className="relative w-full max-w-4xl bg-[#14223c] border border-slate-700 rounded-2xl p-6 max-h-[90vh] overflow-y-auto text-slate-100 shadow-2xl">
             <button
               onClick={() => setIsUpgradeOpen(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold cursor-pointer z-10"
@@ -428,8 +428,8 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
                 onClick={() => selecionarPlano('essencial', 'Essencial', '19,90')}
                 className={`p-5 rounded-xl border cursor-pointer transition-all ${
                   userPlan === 'essencial'
-                    ? 'border-emerald-500 bg-slate-800'
-                    : 'border-slate-700 bg-slate-800/80 hover:border-slate-500'
+                    ? 'border-emerald-500 bg-[#14223c]'
+                    : 'border-slate-700 bg-[#14223c]/80 hover:border-slate-500'
                 }`}
               >
                 <h3 className="font-bold text-base text-white">Freemium (30 Dias) / Essencial</h3>
@@ -448,8 +448,8 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
                 onClick={() => selecionarPlano('copiloto', 'Copiloto', '29,90')}
                 className={`p-5 rounded-xl border cursor-pointer transition-all ${
                   userPlan === 'copiloto'
-                    ? 'border-amber-500 bg-slate-800'
-                    : 'border-slate-700 bg-slate-800/80 hover:border-slate-500'
+                    ? 'border-amber-500 bg-[#14223c]'
+                    : 'border-slate-700 bg-[#14223c]/80 hover:border-slate-500'
                 }`}
               >
                 <h3 className="font-bold text-lg text-white">Copiloto</h3>
@@ -470,8 +470,8 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
                 onClick={() => selecionarPlano('alta_performance', 'Copiloto Pro', '39,90')}
                 className={`p-5 rounded-xl border cursor-pointer transition-all ${
                   userPlan === 'alta_performance'
-                    ? 'border-indigo-500 bg-slate-800'
-                    : 'border-slate-700 bg-slate-800/80 hover:border-slate-500'
+                    ? 'border-indigo-500 bg-[#14223c]'
+                    : 'border-slate-700 bg-[#14223c]/80 hover:border-slate-500'
                 }`}
               >
                 <h3 className="font-bold text-lg text-white">Copiloto Pro</h3>
