@@ -18,6 +18,7 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
 
   // 2. ESTADOS DO USUÁRIO E PLANOS
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   
   // 3. ESTADOS FINANCEIROS
   const [vendasHoje, setVendasHoje] = useState<string>('R$ 0,00');
@@ -84,27 +85,42 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
 
 const handleLogout = async () => {
   try {
+    // 1. Limpa o estado local imediatamente
+    setUser(null);
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // 2. Desconecta do Firebase se a instância existir
     if (typeof auth !== 'undefined' && auth?.signOut) {
       await auth.signOut();
     }
   } catch (error) {
     console.error('Erro ao encerrar sessão:', error);
   } finally {
-    localStorage.clear();
-    setUser(null);
-    window.location.reload(); // Força a atualização imediata da tela
+    // 3. Força o redirecionamento limpo para a raiz
+    window.location.href = '/';
   }
 };
 
-<button
-  type="button"
-  onClick={handleLogout}
-  className="bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/40 px-3 py-1 rounded text-xs transition-all cursor-pointer"
->
-  Sair
-</button>
+// TRAVA DE SEGURANÇA
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#0c1527] flex items-center justify-center text-white p-4">
+        <div className="bg-[#14223c] p-8 rounded-xl border border-slate-700 max-w-md w-full text-center space-y-4">
+          <h2 className="text-2xl font-bold">Copiloto Financeiro</h2>
+          <p className="text-slate-400 text-sm">Você desconectou da sua conta.</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2 rounded transition-all cursor-pointer"
+          >
+            Fazer Login Novamente
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-  return (
+    return (
     <div className="min-h-screen bg-[#0c1527] text-white font-sans">
       
   {/* BARRA APAGA INCÊNDIO - CONTADOR CENTRALIZADO */}
