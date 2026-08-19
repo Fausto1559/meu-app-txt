@@ -16,6 +16,39 @@ import {
 import { auth } from './services/firebaseConfig';
 import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
 export default function App() {
+  // ESTADO E LÓGICA DE ATIVAÇÃO DO MICROFONE POR BOTÃO
+  const [listeningTab, setListeningTab] = useState<string | null>(null);
+
+  const toggleMic = (tabKey: string) => {
+    if (listeningTab === tabKey) {
+      setListeningTab(null);
+      return;
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Seu navegador não suporta reconhecimento de voz.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+    recognition.continuous = false;
+
+    setListeningTab(tabKey);
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      console.log(`Comando recebido para ${tabKey}:`, transcript);
+      setActiveTab(tabKey);
+      setListeningTab(null);
+    };
+
+    recognition.onerror = () => setListeningTab(null);
+    recognition.onend = () => setListeningTab(null);
+
+    recognition.start();
+  };
   // ESTADOS DE AUTENTICAÇÃO
   const [emailLogin, setEmailLogin] = useState<string>('');
   const [authLoading, setAuthLoading] = useState<boolean>(false);
@@ -309,73 +342,109 @@ const handleLogout = async () => {
       )}
 
       {/* 3. CONTEÚDO PRINCIPAL (FORMATADO PARA LAYOUT DE PC) */}
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1">
-        
-        {/* CABEÇALHO E NAVEGAÇÃO */}
-        <header className="w-full bg-[#14223c] border border-slate-800 rounded-2xl p-4 md:p-6 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-4">
+      {/* CONTAINER COPILOTO FINANCEIRO COM MICROFONE EM CADA BOTÃO */}
+        <div className="bg-[#1e293b] border border-slate-700 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-md">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-              <Crown className="w-5 h-5" />
+            <div className="bg-amber-500/20 p-2.5 rounded-lg border border-amber-500/30">
+              <Crown className="w-6 h-6 text-amber-400" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-white tracking-wide">Copiloto Financeiro</h1>
+              <h1 className="text-xl font-bold text-white">Copiloto Financeiro</h1>
               <p className="text-xs text-slate-400">Gestão inteligente para o seu negócio</p>
             </div>
           </div>
 
-          <nav className="flex items-center gap-2 flex-wrap justify-center">
-            <button
-              onClick={() => setActiveTab('painel')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'painel' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10' : 'text-slate-300 hover:bg-slate-800'
-              }`}
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              <span>Painel</span>
-            </button>
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              { key: 'painel', label: 'Painel', icon: LayoutDashboard },
+              { key: 'calculadora', label: 'Calculadora', icon: Calculator },
+              { key: 'fechamento', label: 'Fechamento Diário', icon: FileText },
+              { key: 'contador', label: 'Central Contador', icon: ShieldCheck },
+              { key: 'openfinance', label: 'Open Finance', icon: Network },
+            ].map((item) => {
+              const ItemIcon = item.icon;
+              const isActive = activeTab === item.key;
+              const isMicActive = listeningTab === item.key;
 
-            <button
-              onClick={() => setIsCalculadoraOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-800 transition-all cursor-pointer"
-            >
-              <Calculator className="w-4 h-4 text-amber-400" />
-              <span>Calculadora</span>
-            </button>
+              return (
+                <div key={item.key} className="flex items-center bg-[#0c1527] p-1 rounded-lg border border-slate-700/80">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab(item.key)}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                      isActive
+                        ? 'bg-amber-500 text-slate-950 shadow-md'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                    }`}
+                  >
+                    <ItemIcon className="w-4 h-4" />
+                    {item.label}
+                  </button>
 
-            <button
-              onClick={() => setActiveTab('fechamento_diario')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'fechamento_diario' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10' : 'text-slate-300 hover:bg-slate-800'
-              }`}
-            >
-              <FileText className="w-4 h-4" />
-              <span>Fechamento Diário</span>
-            </button>
+                  <button
+                    type="button"
+                    title={`Ativar microfone para ${item.label}`}
+                    onClick={() => toggleMic(item.key)}
+                    className={`p-1.5 rounded-md transition-all ml-1 ${
+                      isMicActive
+                        ? 'bg-amber-500 text-slate-950 shadow-md'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                    }`}
+                  >
+                    <Mic className="w-4 h-4" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
 
-            <button
-              onClick={() => setActiveTab('fechamento_contador')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'fechamento_contador' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10' : 'text-slate-300 hover:bg-slate-800'
-              }`}
-            >
-              <ShieldCheck className="w-4 h-4" />
-              <span>Central Contador</span>
-            </button>
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              { key: 'painel', label: 'Painel', icon: LayoutDashboard },
+              { key: 'calculadora', label: 'Calculadora', icon: Calculator },
+              { key: 'fechamento', label: 'Fechamento Diário', icon: FileText },
+              { key: 'contador', label: 'Central Contador', icon: ShieldCheck },
+              { key: 'openfinance', label: 'Open Finance', icon: Network },
+            ].map((item) => {
+              const ItemIcon = item.icon;
+              const isActive = activeTab === item.key;
+              const isMicActive = listeningTab === item.key;
 
-            <button
-              onClick={() => setActiveTab('conexao')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === 'conexao' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10' : 'text-slate-300 hover:bg-slate-800'
-              }`}
-            >
-              <Network className="w-4 h-4 text-amber-400" />
-              <span>Open Finance</span>
-            </button>
-          </nav>
-        </header>
+              return (
+                <div key={item.key} className="flex items-center bg-[#0c1527] p-1 rounded-lg border border-slate-700/80">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab(item.key)}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                      isActive
+                        ? 'bg-amber-500 text-slate-950 shadow-md'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                    }`}
+                  >
+                    <ItemIcon className="w-4 h-4" />
+                    {item.label}
+                  </button>
+
+                  <button
+                    type="button"
+                    title={`Ativar microfone para ${item.label}`}
+                    onClick={() => toggleMic(item.key)}
+                    className={`p-1.5 rounded-md transition-all ml-1 ${
+                      isMicActive
+                        ? 'bg-red-600 text-white animate-pulse'
+                        : 'text-slate-400 hover:text-amber-400 hover:bg-slate-800'
+                    }`}
+                  >
+                    <Mic className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
         {/* BANNERS DE STATUS E BOTÃO DE UPGRADE */}
-        <div className="w-full bg-[#14223c]/80 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="w-full bg-[#14223c]/80 border border-slate-700 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 text-xs text-slate-300">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <span>Plano Atual: <strong className="text-emerald-400 font-bold">{userPlanName} ({userPlanPrice})</strong></span>
@@ -404,7 +473,7 @@ const handleLogout = async () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               
               {/* CARD VENDAS HOJE */}
-              <div className="flex flex-col justify-between rounded-xl p-5 bg-[#14223c] border border-slate-800 hover:border-slate-700 transition-all">
+              <div className="flex flex-col justify-between rounded-xl p-5 bg-[#14223c] border border-slate-700 hover:border-slate-700 transition-all">
                 <div className="flex justify-between items-center text-slate-400 text-xs mb-3">
                   <span>Vendas Hoje</span>
                   <div className="flex items-center gap-1.5">
@@ -439,13 +508,13 @@ const handleLogout = async () => {
                     if (val && !val.toUpperCase().startsWith('R$')) val = `R$ ${val}`;
                     setVendasHoje(val);
                   }}
-                  className="bg-transparent text-base font-bold text-white font-mono outline-none border-b border-slate-800 focus:border-amber-400 w-full pb-1"
+                  className="bg-transparent text-base font-bold text-white font-mono outline-none border-b border-slate-700 focus:border-amber-400 w-full pb-1"
                 />
                 <div className="text-[10px] text-slate-400 mt-2">Nenhuma maquininha</div>
               </div>
 
               {/* CARD A RECEBER */}
-              <div className="flex flex-col justify-between rounded-xl p-5 bg-[#14223c] border border-slate-800 hover:border-slate-700 transition-all">
+              <div className="flex flex-col justify-between rounded-xl p-5 bg-[#14223c] border border-slate-700 hover:border-slate-700 transition-all">
                 <div className="flex justify-between items-center text-slate-400 text-xs mb-3">
                   <span>A Receber</span>
                   <div className="flex items-center gap-1.5">
@@ -480,13 +549,13 @@ const handleLogout = async () => {
                     if (val && !val.toUpperCase().startsWith('R$')) val = `R$ ${val}`;
                     setAReceber(val);
                   }}
-                  className="bg-transparent text-base font-bold text-emerald-400 font-mono outline-none border-b border-slate-800 focus:border-emerald-400 w-full pb-1"
+                  className="bg-transparent text-base font-bold text-emerald-400 font-mono outline-none border-b border-slate-700 focus:border-emerald-400 w-full pb-1"
                 />
                 <div className="text-[10px] text-slate-400 mt-2">Valores pendentes</div>
               </div>
 
               {/* CARD A PAGAR */}
-              <div className="flex flex-col justify-between rounded-xl p-5 bg-[#14223c] border border-slate-800 hover:border-slate-700 transition-all">
+              <div className="flex flex-col justify-between rounded-xl p-5 bg-[#14223c] border border-slate-700 hover:border-slate-700 transition-all">
                 <div className="flex justify-between items-center text-slate-400 text-xs mb-3">
                   <span>A Pagar</span>
                   <div className="flex items-center gap-1.5">
@@ -521,13 +590,13 @@ const handleLogout = async () => {
                     if (val && !val.toUpperCase().startsWith('R$')) val = `R$ ${val}`;
                     setAPagar(val);
                   }}
-                  className="bg-transparent text-base font-bold text-red-400 font-mono outline-none border-b border-slate-800 focus:border-red-400 w-full pb-1"
+                  className="bg-transparent text-base font-bold text-red-400 font-mono outline-none border-b border-slate-700 focus:border-red-400 w-full pb-1"
                 />
                 <div className="text-[10px] text-slate-400 mt-2">Contas em aberto</div>
               </div>
 
               {/* CARD SALDO PREVISTO */}
-              <div className="flex flex-col justify-between rounded-xl p-5 bg-[#14223c] border border-slate-800 hover:border-slate-700 transition-all">
+              <div className="flex flex-col justify-between rounded-xl p-5 bg-[#14223c] border border-slate-700 hover:border-slate-700 transition-all">
                 <div className="flex justify-between items-center text-slate-400 text-xs mb-3">
                   <span>Saldo Previsto</span>
                   <div className="flex items-center gap-1.5">
@@ -562,7 +631,7 @@ const handleLogout = async () => {
                     if (val && !val.toUpperCase().startsWith('R$')) val = `R$ ${val}`;
                     setSaldoPrevisto(val);
                   }}
-                  className="bg-transparent text-base font-bold text-red-400 font-mono outline-none border-b border-slate-800 focus:border-amber-400 w-full pb-1"
+                  className="bg-transparent text-base font-bold text-red-400 font-mono outline-none border-b border-slate-700 focus:border-amber-400 w-full pb-1"
                 />
                 <div className="text-[10px] text-slate-400 mt-2">Balanço geral</div>
               </div>
@@ -570,8 +639,7 @@ const handleLogout = async () => {
             </div>
           </div>
         )}
-      </main>
-
+      
       {/* MODAL DE PLANOS */}
       {isUpgradeOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
