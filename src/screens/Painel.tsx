@@ -29,11 +29,11 @@ export default function Painel({
   onNavigateToConexao,
 }: PainelProps) {
   const totalReceivables = receivables
-    .filter((r) => !r.received)
+    ?.filter((r) => !r.received)
     .reduce((acc, r) => acc + parseBRL(r.amount), 0);
 
   const totalPayables = payables
-    .filter((p) => !p.paid)
+    ?.filter((p) => !p.paid)
     .reduce((acc, p) => acc + parseBRL(p.amount), 0);
 
   const saldoPrevisto = totalReceivables + vendasHoje - totalPayables;

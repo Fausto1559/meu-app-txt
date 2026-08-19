@@ -396,7 +396,7 @@ const handleLogout = async () => {
         {/* ABA PAINEL */}
         {/* RENDERIZAÇÃO CONDICIONAL */}
         {activeTab === 'painel' && <Painel />}
-        {activeTab === 'fechamento_diario' && <FechamentoDiario />}
+        {activeTab === 'painel' && <Painel connectedMachines={[]} receivables={[]} />}
           <div className="space-y-6">
             <div className="space-y-1">
               <h2 className="text-sm font-bold text-amber-400">Suas prioridades de hoje</h2>
