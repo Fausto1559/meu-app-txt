@@ -90,9 +90,19 @@ const handleLogout = async () => {
   } catch (error) {
     console.error('Erro ao encerrar sessão:', error);
   } finally {
+    localStorage.clear();
     setUser(null);
+    window.location.reload(); // Força a atualização imediata da tela
   }
 };
+
+<button
+  type="button"
+  onClick={handleLogout}
+  className="bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/40 px-3 py-1 rounded text-xs transition-all cursor-pointer"
+>
+  Sair
+</button>
 
   return (
     <div className="min-h-screen bg-[#0c1527] text-white font-sans">
