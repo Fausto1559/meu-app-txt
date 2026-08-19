@@ -20,6 +20,15 @@ export default function App() {
   const [emailLogin, setEmailLogin] = useState<string>('');
   const [authLoading, setAuthLoading] = useState<boolean>(false);
   const [emailSent, setEmailSent] = useState<boolean>(false);
+  // ESCUTADOR DE AUTENTICAÇÃO DO FIREBASE (MANTÉM SESSÃO ATIVA)
+  useEffect(() => {
+    if (typeof auth !== 'undefined' && auth) {
+      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        setUser(currentUser);
+      });
+      return () => unsubscribe();
+    }
+  }, []);
   // VERIFICAÇÃO DO LINK DE EMAIL
   useEffect(() => {
     if (typeof auth !== 'undefined' && auth && isSignInWithEmailLink(auth, window.location.href)) {
