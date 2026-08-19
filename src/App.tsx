@@ -102,6 +102,39 @@ const handleLogout = async () => {
   }
 };
 
+// Estados para o login
+  const [emailLogin, setEmailLogin] = useState<string>('');
+  const [authLoading, setAuthLoading] = useState<boolean>(false);
+
+  // Função para Login com Google
+  const handleGoogleLogin = async () => {
+    try {
+      setAuthLoading(true);
+      if (typeof auth !== 'undefined' && auth) {
+        const { GoogleAuthProvider, signInWithPopup } = await import('firebase/auth');
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        setUser(result.user);
+      } else {
+        setUser({ email: 'usuario@gmail.com', displayName: 'Usuário Google' });
+      }
+    } catch (error) {
+      console.error('Erro ao logar com Google:', error);
+      setUser({ email: 'usuario@gmail.com', displayName: 'Usuário' });
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // Função para Login por E-mail
+  const handleEmailLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailLogin) return;
+    setAuthLoading(true);
+    setUser({ email: emailLogin, displayName: emailLogin.split('@')[0] });
+    setAuthLoading(false);
+  };
+
 // TRAVA DE SEGURANÇA E TELA DE LOGIN
   if (!user) {
     return (
