@@ -1,19 +1,20 @@
 // src/screens/Painel.tsx
-import type { Plan, ConnectedMachine, ReceivableItem, PayableItem } from '@/types';
-import { parseBRL } from '@/types';
+import { parseBRL, Plan, ConnectedMachine, ReceivableItem, PayableItem } from '../types/index';
+// Altere a segunda linha de acordo com a localização exata do arquivo de types (exemplo: '../types' ou '../types/index')
 import { DollarSign, ArrowUpRight, ArrowDownRight, RefreshCw, AlertCircle, X, CheckCircle2 } from 'lucide-react';
 
 interface PainelProps {
-  plan: Plan;
-  connectedMachines: ConnectedMachine[];
-  receivables: ReceivableItem[];
-  setReceivables: React.Dispatch<React.SetStateAction<ReceivableItem[]>>;
-  payables: PayableItem[];
-  setPayables: React.Dispatch<React.SetStateAction<PayableItem[]>>;
-  vendasHoje: number;
-  setVendasHoje: React.Dispatch<React.SetStateAction<number>>;
-  onSaleBooked: (amount: number) => void;
-  onNavigateToConexao: () => void;
+  plan?: Plan;
+  connectedMachines?: ConnectedMachine[];
+  receivables?: ReceivableItem[];
+  setReceivables?: React.Dispatch<React.SetStateAction<ReceivableItem[]>>;
+  payables?: PayableItem[];
+  setPayables?: React.Dispatch<React.SetStateAction<PayableItem[]>>;
+  vendasHoje?: number;
+  setVendasHoje?: React.Dispatch<React.SetStateAction<number>>;
+  onSaleBooked?: (amount: number) => void;
+  onNavigateToConexao?: () => void;
+
 }
 
 export default function Painel({

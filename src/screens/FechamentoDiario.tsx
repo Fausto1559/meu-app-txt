@@ -1,18 +1,8 @@
-import {
-  FileText,
-  CheckCircle,
-  Wallet,
-  Calculator,
-  CreditCard,
-  Smartphone,
-  Receipt,
-  AlertCircle
-} from 'lucide-react';
+import { FileText, CheckCircle, Wallet, Calculator, CreditCard, Smartphone, Receipt, AlertCircle } from 'lucide-react';
 
 export function FechamentoDiario() {
   return (
     <div className="flex flex-col gap-6 mt-6 w-full max-w-7xl mx-auto pb-10">
-      {/* CABEÇALHO DA TELA */}
       <div className="flex flex-wrap items-center justify-between gap-4 bg-[#1e293b] border border-slate-700 rounded-xl p-5 shadow-md">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -21,20 +11,18 @@ export function FechamentoDiario() {
           </h2>
           <p className="text-sm text-slate-400 mt-1">Conferência física, validação de maquininhas e encerramento de caixa.</p>
         </div>
-        <button className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg shadow-emerald-900/20">
+        <button className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg">
           <CheckCircle className="w-5 h-5" />
           Finalizar Fechamento
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* BLOCO 1: CAIXA FÍSICO (DINHEIRO) E CONFERÊNCIA */}
         <div className="bg-[#1e293b] border border-slate-700 rounded-xl p-5 shadow-md flex flex-col gap-4">
           <h3 className="text-lg font-bold text-white flex items-center gap-2 border-b border-slate-700 pb-3">
             <Wallet className="w-5 h-5 text-amber-400" />
             Caixa Físico (Dinheiro em Gaveta)
           </h3>
-
           <div className="flex justify-between items-center text-slate-300 mt-2">
             <span>Saldo Inicial (Abertura/Troco)</span>
             <span className="font-medium">R$ 0,00</span>
@@ -47,33 +35,24 @@ export function FechamentoDiario() {
             <span>(-) Saídas (Despesas miúdas/Sangria)</span>
             <span className="font-medium">R$ 0,00</span>
           </div>
-          
           <div className="flex justify-between items-center text-white bg-[#0c1527] p-4 rounded-lg border border-slate-700 mt-2">
             <span className="font-bold">Saldo Final Esperado</span>
             <span className="font-bold text-xl text-amber-400">R$ 0,00</span>
           </div>
-
           <div className="mt-4 bg-[#0c1527]/50 p-4 rounded-lg border border-slate-700 border-dashed">
             <label className="block text-sm font-medium text-slate-300 mb-2">Conferência Física Real (Gaveta)</label>
             <div className="relative">
               <span className="absolute left-3 top-2.5 text-slate-400 font-bold">R$</span>
-              <input
-                type="text"
-                placeholder="0,00"
-                className="w-full bg-[#1e293b] border border-slate-600 text-white font-bold rounded-lg pl-10 pr-4 py-2.5 focus:outline-none focus:border-amber-500 transition-colors"
-              />
+              <input type="text" placeholder="0,00" className="w-full bg-[#1e293b] border border-slate-600 text-white font-bold rounded-lg pl-10 pr-4 py-2.5 focus:outline-none focus:border-amber-500" />
             </div>
-            <p className="text-xs text-slate-500 mt-2">Conte as cédulas e moedas e insira o valor exato acima.</p>
           </div>
         </div>
 
-        {/* BLOCO 2: VALIDAÇÃO DE MAQUININHAS E EXTRATOS */}
         <div className="bg-[#1e293b] border border-slate-700 rounded-xl p-5 shadow-md flex flex-col gap-4">
           <h3 className="text-lg font-bold text-white flex items-center gap-2 border-b border-slate-700 pb-3">
             <Calculator className="w-5 h-5 text-amber-400" />
             Entradas (Validação de Maquininhas/Sistema)
           </h3>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
             <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
               <div className="flex items-center gap-2 text-slate-400 mb-2">
@@ -82,7 +61,6 @@ export function FechamentoDiario() {
               </div>
               <p className="text-2xl font-bold text-white">R$ 0,00</p>
             </div>
-
             <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
               <div className="flex items-center gap-2 text-slate-400 mb-2">
                 <CreditCard className="w-4 h-4 text-emerald-500" />
@@ -90,7 +68,6 @@ export function FechamentoDiario() {
               </div>
               <p className="text-2xl font-bold text-white">R$ 0,00</p>
             </div>
-
             <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
               <div className="flex items-center gap-2 text-slate-400 mb-2">
                 <Smartphone className="w-4 h-4 text-emerald-500" />
@@ -98,7 +75,6 @@ export function FechamentoDiario() {
               </div>
               <p className="text-2xl font-bold text-white">R$ 0,00</p>
             </div>
-
             <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
               <div className="flex items-center gap-2 text-slate-400 mb-2">
                 <Receipt className="w-4 h-4 text-emerald-500" />
@@ -107,30 +83,19 @@ export function FechamentoDiario() {
               <p className="text-2xl font-bold text-white">R$ 0,00</p>
             </div>
           </div>
-          
-          <div className="mt-auto pt-4 flex justify-between items-center text-slate-300 border-t border-slate-700/50">
-            <span className="text-sm">Total Eletrônico:</span>
-            <span className="font-bold text-emerald-400">R$ 0,00</span>
-          </div>
         </div>
       </div>
 
-      {/* BLOCO 3: REGISTROS AUTOMÁTICOS DO DIA */}
       <div className="bg-[#1e293b] border border-slate-700 rounded-xl p-5 shadow-md">
         <div className="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
           <h3 className="text-lg font-bold text-white flex items-center gap-2">
             <FileText className="w-5 h-5 text-amber-400" />
             Lançamentos Registrados pelo App
           </h3>
-          <span className="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">
-            Sincronizado
-          </span>
         </div>
-        
         <div className="flex flex-col items-center justify-center py-12 text-slate-400 border border-dashed border-slate-600 rounded-lg bg-[#0c1527]/50">
           <AlertCircle className="w-10 h-10 mb-3 text-slate-500" />
           <p className="font-medium text-slate-300">Nenhuma movimentação para exibir ainda.</p>
-          <p className="text-sm mt-1">Tudo que for gerado no app durante o dia será listado automaticamente aqui.</p>
         </div>
       </div>
     </div>

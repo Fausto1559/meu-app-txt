@@ -15,6 +15,8 @@ import {
 } from 'firebase/auth';
 import { auth } from './services/firebaseConfig';
 import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
+import { FechamentoDiario } from './screens/FechamentoDiario';
+import Painel from './screens/Painel';
 export default function App() {
   
   // ESTADOS DE AUTENTICAÇÃO
@@ -392,7 +394,9 @@ const handleLogout = async () => {
         </div>
 
         {/* ABA PAINEL */}
-        {activeTab === 'painel' && (
+        {/* RENDERIZAÇÃO CONDICIONAL */}
+        {activeTab === 'painel' && <Painel />}
+        {activeTab === 'fechamento_diario' && <FechamentoDiario />}
           <div className="space-y-6">
             <div className="space-y-1">
               <h2 className="text-sm font-bold text-amber-400">Suas prioridades de hoje</h2>
@@ -570,7 +574,7 @@ const handleLogout = async () => {
 
             </div>
           </div>
-        )}
+        )
       </main>
 
       {/* MODAL DE PLANOS */}
