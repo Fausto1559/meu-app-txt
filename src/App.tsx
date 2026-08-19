@@ -178,8 +178,8 @@ const handleLogout = async () => {
 // TRAVA DE SEGURANÇA E TELA DE LOGIN
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#0c1527] flex items-center justify-center text-white p-4">
-        <div className="bg-[#14223c] p-8 rounded-xl border border-slate-700 max-w-md w-full text-center space-y-6 shadow-2xl">
+      <div className="min-h-screen bg-[#111827] flex items-center justify-center text-white p-4">
+        <div className="bg-[#1e293b] p-8 rounded-xl border border-slate-700 max-w-md w-full text-center space-y-6 shadow-2xl">
           <div>
             <h2 className="text-2xl font-bold text-white">Copiloto Financeiro</h2>
             <p className="text-slate-400 text-sm mt-1">Acesse sua conta para continuar</p>
@@ -275,7 +275,7 @@ const handleLogout = async () => {
 </div>
 
       {/* 2. BARRA DE USUÁRIO */}
-      <div className="px-6 py-2.5 flex items-center justify-between text-xs bg-[#14223c]/80 text-slate-300 border-b border-slate-800">
+      <div className="px-6 py-2.5 flex items-center justify-between text-xs bg-[#14223c]/80 text-slate-300 border-b border-slate-700">
         <div>
           Logado como: <strong className="text-white">{user?.email || user?.displayName}</strong>
         </div>
