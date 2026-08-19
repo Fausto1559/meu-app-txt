@@ -82,6 +82,18 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
   setIsUpgradeOpen(false);
 };
 
+const handleLogout = async () => {
+  try {
+    if (typeof auth !== 'undefined' && auth?.signOut) {
+      await auth.signOut();
+    }
+  } catch (error) {
+    console.error('Erro ao encerrar sessão:', error);
+  } finally {
+    setUser(null);
+  }
+};
+
   return (
     <div className="min-h-screen bg-[#0c1527] text-white font-sans">
       
@@ -115,7 +127,7 @@ import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
           Logado como: <strong className="text-white">{user?.email || user?.displayName}</strong>
         </div>
         <button
-          onClick={() => auth.signOut()}
+          onClick={handleLogout}
           className="bg-red-500/20 hover:bg-red-500/40 text-red-300 border border-red-500/40 px-3 py-1 rounded text-xs transition-all cursor-pointer"
         >
           Sair
