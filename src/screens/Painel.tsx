@@ -6,15 +6,16 @@ import { DollarSign, ArrowUpRight, ArrowDownRight, RefreshCw, AlertCircle, X, Ch
 interface PainelProps {
   plan?: Plan;
   connectedMachines?: ConnectedMachine[];
-  receivables?: ReceivableItem[];
+  receivables?: Array<{ id: string; description: string; dueDate: string; amount: number; received: boolean }>;
+  [key: string]: any;
   setReceivables?: React.Dispatch<React.SetStateAction<ReceivableItem[]>>;
   payables?: PayableItem[];
   setPayables?: React.Dispatch<React.SetStateAction<PayableItem[]>>;
+  aReceber?: string | number;
   vendasHoje?: number;
   setVendasHoje?: React.Dispatch<React.SetStateAction<number>>;
   onSaleBooked?: (amount: number) => void;
   onNavigateToConexao?: () => void;
-
 }
 
 export default function Painel({
@@ -24,16 +25,17 @@ export default function Painel({
   setReceivables,
   payables,
   setPayables,
+  aReceber,
   vendasHoje,
   setVendasHoje,
   onNavigateToConexao,
 }: PainelProps) {
-  const totalReceivables = receivables
-    ?.filter((r) => !r.received)
-    .reduce((acc, r) => acc + parseBRL(r.amount), 0);
+  const totalReceivables = (receivables ?? [])
+    .filter((r) => !r.received)
+    .reduce((acc, r) => acc + r.amount, 0);
 
-  const totalPayables = payables
-    ?.filter((p) => !p.paid)
+  const totalPayables = (payables ?? [])
+    .filter((p) => !p.paid)
     .reduce((acc, p) => acc + parseBRL(p.amount), 0);
 
   const saldoPrevisto = totalReceivables + vendasHoje - totalPayables;
@@ -84,10 +86,10 @@ export default function Painel({
             </div>
           </div>
           <div className="text-2xl font-bold text-white">
-            R$ {vendasHoje.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            {typeof vendasHoje === 'number' ? vendasHoje.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : (vendasHoje || 'R$ 0,00')}
           </div>
           <p className="text-[11px] text-slate-500 mt-1">
-            {connectedMachines.length > 0 ? `${connectedMachines.length} maquininha(s) ativa(s)` : 'Nenhuma maquininha conectada'}
+            {connectedMachines?.length > 0 ? `${connectedMachines.length} maquininha(s) ativa(s)` : 'Nenhuma maquininha conectada'}
           </p>
         </div>
 
@@ -97,7 +99,7 @@ export default function Painel({
             <ArrowUpRight className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="text-2xl font-bold text-emerald-400">
-            R$ {totalReceivables.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            {Number(aReceber ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </div>
           <p className="text-[11px] text-slate-500 mt-1">Valores pendentes</p>
         </div>
@@ -108,7 +110,7 @@ export default function Painel({
             <ArrowDownRight className="w-4 h-4 text-red-400" />
           </div>
           <div className="text-2xl font-bold text-red-400">
-            R$ {totalPayables.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            {Number(totalPayables ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </div>
           <p className="text-[11px] text-slate-500 mt-1">Contas em aberto</p>
         </div>
@@ -119,7 +121,7 @@ export default function Painel({
             <RefreshCw className="w-4 h-4 text-[#E5C158]" />
           </div>
           <div className={`text-2xl font-bold ${saldoPrevisto >= 0 ? 'text-white' : 'text-red-400'}`}>
-            R$ {saldoPrevisto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            {Number(saldoPrevisto ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </div>
           <p className="text-[11px] text-slate-500 mt-1">Balanço geral</p>
         </div>
@@ -161,7 +163,7 @@ export default function Painel({
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-md">
           <h2 className="text-sm font-medium text-white mb-4">Contas a Receber</h2>
           <div className="flex flex-col gap-2.5">
-            {receivables.map((r) => (
+            {(receivables ?? []).map((r) => (
               <div key={r.id} className="flex items-center justify-between bg-slate-950/40 border border-slate-800/60 p-3 rounded-lg text-xs">
                 <div>
                   <p className="font-medium text-slate-200">{r.description}</p>
