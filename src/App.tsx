@@ -97,11 +97,11 @@ export default function App() {
   const [loading, setLoading] = useState<boolean>(false);
   
   // 3. ESTADOS FINANCEIROS
-  const [vendasHoje, setVendasHoje] = useState<string>('R$ 0,00');
-  const [aReceber, setAReceber] = useState<string>('R$ 0,00');
-  const [aPagar, setAPagar] = useState<string>('R$ 0,00');
-  const [saldoPrevisto, setSaldoPrevisto] = useState<string>('R$ 0,00');
+  const [vendasHoje, setVendasHoje] = useState<number>(0);
+  const [aReceber, setAReceber] = useState<number>(0);
+  const [aPagar, setAPagar] = useState<number>(0);
   const [listeningField, setListeningField] = useState<string | null>(null);
+  const saldoPrevisto = Number(vendasHoje) + Number(aReceber) - Number(aPagar);
 
   // 4. TEMPORIZADOR TRIAL
   const calculateTimeLeft = () => {
@@ -346,15 +346,17 @@ const handleLogout = async () => {
           </button>
 
           <button
-            onClick={() => setActiveTab('fechamento_diario')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-              activeTab === 'fechamento_diario' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10' : 'text-slate-300 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            <span>Fechamento Diário</span>
-          </button>
-
+  onClick={() => setActiveTab('fechamento')}
+  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+    activeTab === 'fechamento'
+      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+      : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+  }`}
+>
+  <FileText className="w-4 h-4" />
+  <span>Fechamento Diário</span>
+</button>
+          
           <button
             onClick={() => setActiveTab('fechamento_contador')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -395,186 +397,8 @@ const handleLogout = async () => {
 
         {/* ABA PAINEL */}
         {/* RENDERIZAÇÃO CONDICIONAL */}
-        {activeTab === 'painel' && <Painel />}
         {activeTab === 'painel' && <Painel connectedMachines={[]} receivables={[]} />}
-          <div className="space-y-6">
-            <div className="space-y-1">
-              <h2 className="text-sm font-bold text-amber-400">Suas prioridades de hoje</h2>
-              <p className="text-xs text-slate-400">
-                Selecionamos as ações mais urgentes para colocar dinheiro na caixa e evitar prejuízos. Resolva na ordem — cada minuto conta.
-              </p>
-            </div>
-
-            {/* CARDS FORMATADOS EM GRID EXPANSÍVEL */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              
-              {/* CARD VENDAS HOJE */}
-              <div className="flex flex-col justify-between rounded-xl p-5 bg-[#14223c] border border-slate-700 hover:border-slate-700 transition-all">
-                <div className="flex justify-between items-center text-slate-400 text-xs mb-3">
-                  <span>Vendas Hoje</span>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => handleVoiceInput('vendasHoje', (valor) => setVendasHoje(valor))}
-                      className={`p-1 rounded-md transition-colors ${
-                        listeningField === 'vendasHoje'
-                          ? 'bg-red-500/20 text-red-400 animate-pulse'
-                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                      }`}
-                      title="Digitar por voz"
-                    >
-                      <Mic className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setVendasHoje('R$ 0,00')}
-                      className="text-slate-500 hover:text-white p-1"
-                      title="Zerar valor"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                    <DollarSign className="w-3.5 h-3.5 text-amber-400" />
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  value={vendasHoje}
-                  onChange={(e) => {
-                    let val = e.target.value;
-                    if (val && !val.toUpperCase().startsWith('R$')) val = `R$ ${val}`;
-                    setVendasHoje(val);
-                  }}
-                  className="bg-transparent text-base font-bold text-white font-mono outline-none border-b border-slate-700 focus:border-amber-400 w-full pb-1"
-                />
-                <div className="text-[10px] text-slate-400 mt-2">Nenhuma maquininha</div>
-              </div>
-
-              {/* CARD A RECEBER */}
-              <div className="flex flex-col justify-between rounded-xl p-5 bg-[#14223c] border border-slate-700 hover:border-slate-700 transition-all">
-                <div className="flex justify-between items-center text-slate-400 text-xs mb-3">
-                  <span>A Receber</span>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => handleVoiceInput('aReceber', (valor) => setAReceber(valor))}
-                      className={`p-1 rounded-md transition-colors ${
-                        listeningField === 'aReceber'
-                          ? 'bg-red-500/20 text-red-400 animate-pulse'
-                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                      }`}
-                      title="Digitar por voz"
-                    >
-                      <Mic className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAReceber('R$ 0,00')}
-                      className="text-slate-500 hover:text-emerald-400 p-1"
-                      title="Zerar valor"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                    <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  value={aReceber}
-                  onChange={(e) => {
-                    let val = e.target.value;
-                    if (val && !val.toUpperCase().startsWith('R$')) val = `R$ ${val}`;
-                    setAReceber(val);
-                  }}
-                  className="bg-transparent text-base font-bold text-emerald-400 font-mono outline-none border-b border-slate-700 focus:border-emerald-400 w-full pb-1"
-                />
-                <div className="text-[10px] text-slate-400 mt-2">Valores pendentes</div>
-              </div>
-
-              {/* CARD A PAGAR */}
-              <div className="flex flex-col justify-between rounded-xl p-5 bg-[#14223c] border border-slate-700 hover:border-slate-700 transition-all">
-                <div className="flex justify-between items-center text-slate-400 text-xs mb-3">
-                  <span>A Pagar</span>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => handleVoiceInput('aPagar', (valor) => setAPagar(valor))}
-                      className={`p-1 rounded-md transition-colors ${
-                        listeningField === 'aPagar'
-                          ? 'bg-red-500/20 text-red-400 animate-pulse'
-                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                      }`}
-                      title="Digitar por voz"
-                    >
-                      <Mic className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAPagar('R$ 0,00')}
-                      className="text-slate-500 hover:text-red-400 p-1"
-                      title="Zerar valor"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                    <ArrowDownRight className="w-3.5 h-3.5 text-red-400" />
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  value={aPagar}
-                  onChange={(e) => {
-                    let val = e.target.value;
-                    if (val && !val.toUpperCase().startsWith('R$')) val = `R$ ${val}`;
-                    setAPagar(val);
-                  }}
-                  className="bg-transparent text-base font-bold text-red-400 font-mono outline-none border-b border-slate-700 focus:border-red-400 w-full pb-1"
-                />
-                <div className="text-[10px] text-slate-400 mt-2">Contas em aberto</div>
-              </div>
-
-              {/* CARD SALDO PREVISTO */}
-              <div className="flex flex-col justify-between rounded-xl p-5 bg-[#14223c] border border-slate-700 hover:border-slate-700 transition-all">
-                <div className="flex justify-between items-center text-slate-400 text-xs mb-3">
-                  <span>Saldo Previsto</span>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => handleVoiceInput('saldoPrevisto', (valor) => setSaldoPrevisto(valor))}
-                      className={`p-1 rounded-md transition-colors ${
-                        listeningField === 'saldoPrevisto'
-                          ? 'bg-red-500/20 text-red-400 animate-pulse'
-                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                      }`}
-                      title="Digitar por voz"
-                    >
-                      <Mic className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSaldoPrevisto('R$ 0,00')}
-                      className="text-slate-500 hover:text-amber-400 p-1"
-                      title="Zerar valor"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                    <RefreshCw className="w-3.5 h-3.5 text-amber-400" />
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  value={saldoPrevisto}
-                  onChange={(e) => {
-                    let val = e.target.value;
-                    if (val && !val.toUpperCase().startsWith('R$')) val = `R$ ${val}`;
-                    setSaldoPrevisto(val);
-                  }}
-                  className="bg-transparent text-base font-bold text-red-400 font-mono outline-none border-b border-slate-700 focus:border-amber-400 w-full pb-1"
-                />
-                <div className="text-[10px] text-slate-400 mt-2">Balanço geral</div>
-              </div>
-
-            </div>
-          </div>
-        )
+        {activeTab === 'fechamento' && <FechamentoDiario />}
       </main>
 
       {/* MODAL DE PLANOS */}

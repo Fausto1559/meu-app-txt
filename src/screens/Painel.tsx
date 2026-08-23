@@ -121,7 +121,7 @@ export default function Painel({
             <RefreshCw className="w-4 h-4 text-[#E5C158]" />
           </div>
           <div className={`text-2xl font-bold ${saldoPrevisto >= 0 ? 'text-white' : 'text-red-400'}`}>
-            {Number(saldoPrevisto ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            {isNaN(Number(saldoPrevisto)) ? 'R$ 0,00' : Number(saldoPrevisto).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </div>
           <p className="text-[11px] text-slate-500 mt-1">Balanço geral</p>
         </div>
@@ -190,7 +190,7 @@ export default function Painel({
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-md">
           <h2 className="text-sm font-medium text-white mb-4">Contas a Pagar</h2>
           <div className="flex flex-col gap-2.5">
-            {payables.map((p) => (
+            {(payables ?? []).map((p) => (
               <div key={p.id} className="flex items-center justify-between bg-slate-950/40 border border-slate-800/60 p-3 rounded-lg text-xs">
                 <div>
                   <p className="font-medium text-slate-200">{p.description}</p>
