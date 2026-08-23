@@ -4,6 +4,12 @@ import { FileText, CheckCircle, Wallet, Calculator, CreditCard, Smartphone, Rece
 export function FechamentoDiario() {
     const [conferenciaGaveta, setConferenciaGaveta] = useState('');
     const [entradasValue, setEntradasValue] = useState('');
+    const [saldoInicial, setSaldoInicial] = useState('');
+    const [entradasDinheiro, setEntradasDinheiro] = useState('');
+    const [saidasValue, setSaidasValue] = useState('');
+    const [debitoValue, setDebitoValue] = useState('');
+    const [pixValue, setPixValue] = useState('');
+    const [boletosValue, setBoletosValue] = useState('');
     const handleVoiceInput = (setter: (val: string) => void) => {
     const SpeechAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechAPI) {
@@ -44,11 +50,43 @@ export function FechamentoDiario() {
             <span className="font-medium">R$ 0,00</span>
           </div>
           <div className="flex justify-between items-center text-emerald-400">
-            <span>(+) Entradas em Dinheiro</span>
+            <div className="relative flex items-center mt-1">
+  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+  <input
+    type="text"
+    value={entradasDinheiro}
+    onChange={(e) => setEntradasDinheiro(e.target.value)}
+    placeholder="0,00"
+    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
+  />
+  <button
+    type="button"
+    onClick={() => handleVoiceInput(setEntradasDinheiro)}
+    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
+  >
+    <Mic className="w-4 h-4" />
+  </button>
+</div>
             <span className="font-medium">R$ 0,00</span>
           </div>
           <div className="flex justify-between items-center text-red-400">
-            <span>(-) Saídas (Despesas miúdas/Sangria)</span>
+            <div className="relative flex items-center mt-1">
+  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+  <input
+    type="text"
+    value={saidasValue}
+    onChange={(e) => setSaidasValue(e.target.value)}
+    placeholder="0,00"
+    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
+  />
+  <button
+    type="button"
+    onClick={() => handleVoiceInput(setSaidasValue)}
+    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
+  >
+    <Mic className="w-4 h-4" />
+  </button>
+</div>
             <span className="font-medium">R$ 0,00</span>
           </div>
           <div className="flex justify-between items-center text-white bg-[#0c1527] p-4 rounded-lg border border-slate-700 mt-2">
@@ -121,23 +159,119 @@ export function FechamentoDiario() {
             <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
               <div className="flex items-center gap-2 text-slate-400 mb-2">
                 <CreditCard className="w-4 h-4 text-emerald-500" />
-                <span className="text-sm font-medium">Cartão de Débito</span>
+                <div className="relative flex items-center mt-1">
+  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+  <input
+    type="text"
+    value={debitoValue}
+    onChange={(e) => setDebitoValue(e.target.value)}
+    placeholder="0,00"
+    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
+  />
+  <button
+    type="button"
+    onClick={() => handleVoiceInput(setDebitoValue)}
+    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
+  >
+    <Mic className="w-4 h-4" />
+  </button>
+</div>
               </div>
-              <p className="text-2xl font-bold text-white">R$ 0,00</p>
+              <div className="relative flex items-center mt-1">
+  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+  <input
+    type="text"
+    value={debitoValue}
+    onChange={(e) => setDebitoValue(e.target.value)}
+    placeholder="0,00"
+    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
+  />
+  <button
+    type="button"
+    onClick={() => handleVoiceInput(setDebitoValue)}
+    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
+  >
+    <Mic className="w-4 h-4" />
+  </button>
+</div>
             </div>
             <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
               <div className="flex items-center gap-2 text-slate-400 mb-2">
                 <Smartphone className="w-4 h-4 text-emerald-500" />
-                <span className="text-sm font-medium">PIX</span>
+                <div className="relative flex items-center mt-1">
+  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+  <input
+    type="text"
+    value={pixValue}
+    onChange={(e) => setPixValue(e.target.value)}
+    placeholder="0,00"
+    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
+  />
+  <button
+    type="button"
+    onClick={() => handleVoiceInput(setPixValue)}
+    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
+  >
+    <Mic className="w-4 h-4" />
+  </button>
+</div>
               </div>
-              <p className="text-2xl font-bold text-white">R$ 0,00</p>
+              <div className="relative flex items-center mt-1">
+  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+  <input
+    type="text"
+    value={pixValue}
+    onChange={(e) => setPixValue(e.target.value)}
+    placeholder="0,00"
+    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
+  />
+  <button
+    type="button"
+    onClick={() => handleVoiceInput(setPixValue)}
+    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
+  >
+    <Mic className="w-4 h-4" />
+  </button>
+</div>
             </div>
             <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
               <div className="flex items-center gap-2 text-slate-400 mb-2">
                 <Receipt className="w-4 h-4 text-emerald-500" />
-                <span className="text-sm font-medium">Boletos</span>
+                <div className="relative flex items-center mt-1">
+  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+  <input
+    type="text"
+    value={boletosValue}
+    onChange={(e) => setBoletosValue(e.target.value)}
+    placeholder="0,00"
+    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
+  />
+  <button
+    type="button"
+    onClick={() => handleVoiceInput(setBoletosValue)}
+    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
+  >
+    <Mic className="w-4 h-4" />
+  </button>
+</div>
               </div>
-              <p className="text-2xl font-bold text-white">R$ 0,00</p>
+              <div className="relative flex items-center mt-1">
+  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+  <input
+    type="text"
+    value={boletosValue}
+    onChange={(e) => setBoletosValue(e.target.value)}
+    placeholder="0,00"
+    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
+  />
+  <button
+    type="button"
+    onClick={() => handleVoiceInput(setBoletosValue)}
+    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
+  >
+    <Mic className="w-4 h-4" />
+  </button>
+</div>
             </div>
           </div>
         </div>
