@@ -68,6 +68,25 @@ export function FechamentoDiario() {
 
   const saldoFinalEsperado = nSaldoInicial + nEntradasDinheiro - nSaidas;
 
+  const handleFinalizar = () => {
+    const novoFechamento = {
+      id: Date.now(),
+      data: new Date().toLocaleDateString('pt-BR'),
+      saldoInicial,
+      entradasDinheiro,
+      saidasValue,
+      debitoValue,
+      credito3xValue,
+      credito12xValue,
+      pixValue,
+      boletosValue,
+      saldoFinalEsperado: saldoFinalEsperado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+    };
+    const salvos = JSON.parse(localStorage.getItem('copiloto_fechamentos') || '[]');
+    localStorage.setItem('copiloto_fechamentos', JSON.stringify([novoFechamento, ...salvos]));
+    alert('Fechamento finalizado e enviado para a Central do Contador com sucesso!');
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       <div className="bg-[#111c32] border border-slate-800 p-6 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -80,7 +99,7 @@ export function FechamentoDiario() {
           </p>
         </div>
         <button
-          onClick={() => alert('Fechamento finalizado com sucesso!')}
+          onClick={handleFinalizar}
           className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-5 py-2.5 rounded-lg flex items-center gap-2 transition-colors shadow-lg cursor-pointer"
         >
           <CheckCircle2 className="w-5 h-5" />
