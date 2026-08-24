@@ -43,7 +43,74 @@ export function FechamentoDiario() {
         <div className="bg-[#1e293b] border border-slate-700 rounded-xl p-5 shadow-md flex flex-col gap-4">
           <h3 className="text-lg font-bold text-white flex items-center gap-2 border-b border-slate-700 pb-3">
             <Wallet className="w-5 h-5 text-amber-400" />
-            Caixa Físico (Dinheiro em Gaveta)
+            {/* CAIXA FÍSICO */}
+<div className="space-y-4 mb-6">
+  {/* Saldo Inicial */}
+  <div>
+    <span className="text-sm text-slate-300">Saldo Inicial (Abertura/Troco)</span>
+    <div className="relative flex items-center mt-1">
+      <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+      <input
+        type="text"
+        value={saldoInicial}
+        onChange={(e) => setSaldoInicial(e.target.value)}
+        placeholder="0,00"
+        className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
+      />
+      <button
+        type="button"
+        onClick={() => handleVoiceInput(setSaldoInicial)}
+        className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
+      >
+        <Mic className="w-4 h-4" />
+      </button>
+    </div>
+  </div>
+
+  {/* Entradas em Dinheiro */}
+  <div>
+    <span className="text-sm text-emerald-400 font-medium">(+) Entradas em Dinheiro</span>
+    <div className="relative flex items-center mt-1">
+      <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+      <input
+        type="text"
+        value={entradasDinheiro}
+        onChange={(e) => setEntradasDinheiro(e.target.value)}
+        placeholder="0,00"
+        className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
+      />
+      <button
+        type="button"
+        onClick={() => handleVoiceInput(setEntradasDinheiro)}
+        className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
+      >
+        <Mic className="w-4 h-4" />
+      </button>
+    </div>
+  </div>
+
+  {/* Saídas */}
+  <div>
+    <span className="text-sm text-rose-400 font-medium">(-) Saídas (Despesas miúdas/Sangria)</span>
+    <div className="relative flex items-center mt-1">
+      <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+      <input
+        type="text"
+        value={saidasValue}
+        onChange={(e) => setSaidasValue(e.target.value)}
+        placeholder="0,00"
+        className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
+      />
+      <button
+        type="button"
+        onClick={() => handleVoiceInput(setSaidasValue)}
+        className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
+      >
+        <Mic className="w-4 h-4" />
+      </button>
+    </div>
+  </div>
+</div>
           </h3>
           <div className="flex justify-between items-center text-slate-300 mt-2">
             <span>Saldo Inicial (Abertura/Troco)</span>
