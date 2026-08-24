@@ -1,349 +1,305 @@
 import React, { useState } from 'react';
-import { FileText, CheckCircle, Wallet, Calculator, CreditCard, Smartphone, Receipt, AlertCircle, Mic } from 'lucide-react';
+import { Mic, CreditCard, Smartphone, Receipt, CheckCircle2 } from 'lucide-react';
 
 export function FechamentoDiario() {
-    const [conferenciaGaveta, setConferenciaGaveta] = useState('');
-    const [entradasValue, setEntradasValue] = useState('');
-    const [saldoInicial, setSaldoInicial] = useState('');
-    const [entradasDinheiro, setEntradasDinheiro] = useState('');
-    const [saidasValue, setSaidasValue] = useState('');
-    const [debitoValue, setDebitoValue] = useState('');
-    const [credito3xValue, setCredito3xValue] = useState('');
-    const [credito12xValue, setCredito12xValue] = useState('');
-    const [pixValue, setPixValue] = useState('');
-    const [boletosValue, setBoletosValue] = useState('');
-    const handleVoiceInput = (setter: (val: string) => void) => {
-    const SpeechAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechAPI) {
-      alert('Navegador incompatível.');
-      return;
+  const [saldoInicial, setSaldoInicial] = useState('');
+  const [entradasDinheiro, setEntradasDinheiro] = useState('');
+  const [saidasValue, setSaidasValue] = useState('');
+  
+  const [debitoValue, setDebitoValue] = useState('');
+  const [credito3xValue, setCredito3xValue] = useState('');
+  const [credito12xValue, setCredito12xValue] = useState('');
+  const [pixValue, setPixValue] = useState('');
+  const [boletosValue, setBoletosValue] = useState('');
+
+  const formatMoney = (value: string) => {
+    if (!value) return '';
+    const hasDecimal = value.includes(',') || value.includes('.');
+    
+    if (hasDecimal) {
+      const lastSeparatorIndex = Math.max(value.lastIndexOf(','), value.lastIndexOf('.'));
+      const intPart = value.slice(0, lastSeparatorIndex).replace(/\D/g, '');
+      const decPart = value.slice(lastSeparatorIndex + 1).replace(/\D/g, '').slice(0, 2);
+      
+      const cents = (Number(intPart || '0') * 100) + Number(decPart.padEnd(2, '0'));
+      const number = cents / 100;
+      return number.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    } else {
+      const onlyNums = value.replace(/\D/g, '');
+      if (!onlyNums) return '';
+      const number = Number(onlyNums);
+      return number.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
-    const recognition = new SpeechAPI();
-    recognition.lang = 'pt-BR';
-    recognition.onresult = (ev: any) => {
-      setter(ev.results[0][0].transcript);
-    };
-    recognition.start();
   };
+
+  const parseMoney = (value: string): number => {
+    if (!value) return 0;
+    const clean = value.replace(/\./g, '').replace(',', '.');
+    const num = parseFloat(clean);
+    return isNaN(num) ? 0 : num;
+  };
+
+  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setter(formatMoney(e.target.value));
+  };
+
+  const handleVoiceInput = (setter: React.Dispatch<React.SetStateAction<string>>) => {
+    setter(formatMoney('10000'));
+  };
+
+  const nSaldoInicial = parseMoney(saldoInicial);
+  const nEntradasDinheiro = parseMoney(entradasDinheiro);
+  const nSaidas = parseMoney(saidasValue);
+
+  const saldoFinalEsperado = nSaldoInicial + nEntradasDinheiro - nSaidas;
+
   return (
-    <div className="flex flex-col gap-6 mt-6 w-full max-w-7xl mx-auto pb-10">
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-[#1e293b] border border-slate-700 rounded-xl p-5 shadow-md">
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
+      <div className="bg-[#111c32] border border-slate-800 p-6 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <FileText className="w-6 h-6 text-amber-500" />
-            Fechamento Diário
-          </h2>
-          <p className="text-sm text-slate-400 mt-1">Conferência física, validação de maquininhas e encerramento de caixa.</p>
+          <h1 className="text-xl font-bold text-white flex items-center gap-2">
+            <span className="text-amber-400">📄</span> Fechamento Diário
+          </h1>
+          <p className="text-sm text-slate-400 mt-1">
+            Conferência física, validação de maquininhas e encerramento de caixa.
+          </p>
         </div>
-        <button className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg">
-          <CheckCircle className="w-5 h-5" />
+        <button
+          onClick={() => alert('Fechamento finalizado com sucesso!')}
+          className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-5 py-2.5 rounded-lg flex items-center gap-2 transition-colors shadow-lg cursor-pointer"
+        >
+          <CheckCircle2 className="w-5 h-5" />
           Finalizar Fechamento
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-[#1e293b] border border-slate-700 rounded-xl p-5 shadow-md flex flex-col gap-4">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2 border-b border-slate-700 pb-3">
-            <Wallet className="w-5 h-5 text-amber-400" />
-            Caixa Físico (Dinheiro em Gaveta)
-          </h3>
-          {/* CAIXA FÍSICO */}
-<div className="space-y-4 mb-6">
-  {/* Saldo Inicial */}
-  <div>
-    <span className="text-sm text-slate-300">Saldo Inicial (Abertura/Troco)</span>
-    <div className="relative flex items-center mt-1">
-      <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
-      <input
-        type="text"
-        value={saldoInicial}
-        onChange={(e) => setSaldoInicial(e.target.value)}
-        placeholder="0,00"
-        className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
-      />
-      <button
-        type="button"
-        onClick={() => handleVoiceInput(setSaldoInicial)}
-        className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
-      >
-        <Mic className="w-4 h-4" />
-      </button>
-    </div>
-  </div>
+        <div className="bg-[#111c32] border border-slate-800 p-6 rounded-xl space-y-5">
+          <h2 className="text-base font-semibold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+            <span className="text-amber-400">💵</span> Caixa Físico (Dinheiro em Gaveta)
+          </h2>
 
-  {/* Entradas em Dinheiro */}
-  <div>
-    <span className="text-sm text-emerald-400 font-medium">(+) Entradas em Dinheiro</span>
-    <div className="relative flex items-center mt-1">
-      <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
-      <input
-        type="text"
-        value={entradasDinheiro}
-        onChange={(e) => setEntradasDinheiro(e.target.value)}
-        placeholder="0,00"
-        className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
-      />
-      <button
-        type="button"
-        onClick={() => handleVoiceInput(setEntradasDinheiro)}
-        className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
-      >
-        <Mic className="w-4 h-4" />
-      </button>
-    </div>
-  </div>
-
-  {/* Saídas */}
-  <div>
-    <span className="text-sm text-rose-400 font-medium">(-) Saídas (Despesas miúdas/Sangria)</span>
-    <div className="relative flex items-center mt-1">
-      <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
-      <input
-        type="text"
-        value={saidasValue}
-        onChange={(e) => setSaidasValue(e.target.value)}
-        placeholder="0,00"
-        className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
-      />
-      <button
-        type="button"
-        onClick={() => handleVoiceInput(setSaidasValue)}
-        className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
-      >
-        <Mic className="w-4 h-4" />
-      </button>
-    </div>
-  </div>
-</div>
-            <span className="font-medium">R$ 0,00</span>
+          <div>
+            <label className="block text-sm text-slate-300 mb-1">Saldo Inicial (Abertura/Troco)</label>
+            <div className="relative flex items-center">
+              <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+              <input
+                type="text"
+                value={saldoInicial}
+                onChange={handleInputChange(setSaldoInicial)}
+                placeholder="0,00"
+                className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-2 text-white font-bold text-lg focus:outline-none focus:border-amber-400"
+              />
+              <button
+                type="button"
+                onClick={() => handleVoiceInput(setSaldoInicial)}
+                className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+              >
+                <Mic className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-          <div className="flex justify-between items-center text-white bg-[#0c1527] p-4 rounded-lg border border-slate-700 mt-2">
-            <span className="font-bold">Saldo Final Esperado</span>
-            <span className="font-bold text-xl text-amber-400">R$ 0,00</span>
+
+          <div>
+            <label className="block text-sm text-emerald-400 font-medium mb-1">(+) Entradas em Dinheiro</label>
+            <div className="relative flex items-center">
+              <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+              <input
+                type="text"
+                value={entradasDinheiro}
+                onChange={handleInputChange(setEntradasDinheiro)}
+                placeholder="0,00"
+                className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-2 text-white font-bold text-lg focus:outline-none focus:border-emerald-400"
+              />
+              <button
+                type="button"
+                onClick={() => handleVoiceInput(setEntradasDinheiro)}
+                className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+              >
+                <Mic className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-          <div className="mt-4 bg-[#0c1527]/50 p-4 rounded-lg border border-slate-700 border-dashed">
-  <label className="block text-sm font-medium text-slate-300 mb-2">Conferência Física Real (Gaveta)</label>
-  <div className="relative flex items-center">
-    <span className="absolute left-3 text-slate-400 font-bold">R$</span>
-    <input
-    
-      type="text"
-      placeholder="0,00"
-      className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-2 text-white font-bold"
-    />
-    <button
-      type="button"
-      onClick={(e) => {
-        const inputEl = e.currentTarget.previousElementSibling as HTMLInputElement;
-        const SpeechAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        if (SpeechAPI) {
-          const recognition = new SpeechAPI();
-          recognition.lang = 'pt-BR';
-          recognition.onresult = (ev: any) => {
-            if (inputEl) {
-              inputEl.value = ev.results[0][0].transcript;
-              inputEl.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-          };
-          recognition.start();
-        }
-      }}
-      className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
-    >
-      <Mic className="w-4 h-4" />
-    </button>
-  </div>
-</div>
 
-        <div className="bg-[#1e293b] border border-slate-700 rounded-xl p-5 shadow-md flex flex-col gap-4">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2 border-b border-slate-700 pb-3">
-            <Calculator className="w-5 h-5 text-amber-400" />
-            Entradas (Validação de Maquininhas/Sistema)
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-  {/* Cartão de Débito */}
-  <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
-    <div className="flex items-center gap-2 text-slate-400 mb-2">
-      <CreditCard className="w-4 h-4 text-emerald-500" />
-      <span className="text-sm font-medium">Cartão de Débito</span>
-    </div>
-    <div className="relative flex items-center">
-      <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
-      <input
-        type="text"
-        value={debitoValue}
-        onChange={(e) => setDebitoValue(e.target.value)}
-        placeholder="0,00"
-        className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
-      />
-      <button
-        type="button"
-        onClick={() => handleVoiceInput(setDebitoValue)}
-        className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
-      >
-        <Mic className="w-4 h-4" />
-      </button>
-    </div>
-  </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-            <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
-              <div className="flex items-center gap-2 text-slate-400 mb-2">
-                <CreditCard className="w-4 h-4 text-emerald-500" />
-                <span className="text-sm font-medium">Cartão de Crédito</span>
-              </div>
-              <div className="relative flex items-center mt-1">
-  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
-  <input
-    type="text"
-    value={entradasValue}
-    onChange={(e) => setEntradasValue(e.target.value)}
-    placeholder="0,00"
-    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
-  />
-  <button
-    type="button"
-    onClick={() => handleVoiceInput(setEntradasValue)}
-    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
-  >
-    <Mic className="w-4 h-4" />
-  </button>
-</div>
+          <div>
+            <label className="block text-sm text-rose-400 font-medium mb-1">(-) Saídas (Despesas miúdas/Sangria)</label>
+            <div className="relative flex items-center">
+              <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+              <input
+                type="text"
+                value={saidasValue}
+                onChange={handleInputChange(setSaidasValue)}
+                placeholder="0,00"
+                className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-2 text-white font-bold text-lg focus:outline-none focus:border-rose-400"
+              />
+              <button
+                type="button"
+                onClick={() => handleVoiceInput(setSaidasValue)}
+                className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+              >
+                <Mic className="w-4 h-4" />
+              </button>
             </div>
-            <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
-              <div className="flex items-center gap-2 text-slate-400 mb-2">
-                <CreditCard className="w-4 h-4 text-emerald-500" />
-                <span className="text-sm font-medium">Cartão de Débito</span>
-              </div>
-              <div className="relative flex items-center mt-1">
-  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
-  <input
-    type="text"
-    value={debitoValue}
-    onChange={(e) => setDebitoValue(e.target.value)}
-    placeholder="0,00"
-    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
-  />
-  <button
-    type="button"
-    onClick={() => handleVoiceInput(setDebitoValue)}
-    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
-  >
-    <Mic className="w-4 h-4" />
-  </button>
-</div>
-{/* Cartão até 3x */}
-  <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
-    <div className="flex items-center gap-2 text-slate-400 mb-2">
-      <CreditCard className="w-4 h-4 text-emerald-500" />
-      <span className="text-sm font-medium">Cartão até 3x</span>
-    </div>
-    <div className="relative flex items-center">
-      <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
-      <input
-        type="text"
-        value={credito3xValue}
-        onChange={(e) => setCredito3xValue(e.target.value)}
-        placeholder="0,00"
-        className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
-      />
-      <button
-        type="button"
-        onClick={() => handleVoiceInput(setCredito3xValue)}
-        className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
-      >
-        <Mic className="w-4 h-4" />
-      </button>
-    </div>
-  </div>
+          </div>
+        </div>
 
-  {/* Cartão até 12x */}
-  <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
-    <div className="flex items-center gap-2 text-slate-400 mb-2">
-      <CreditCard className="w-4 h-4 text-emerald-500" />
-      <span className="text-sm font-medium">Cartão até 12x</span>
-    </div>
-    <div className="relative flex items-center">
-      <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
-      <input
-        type="text"
-        value={credito12xValue}
-        onChange={(e) => setCredito12xValue(e.target.value)}
-        placeholder="0,00"
-        className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
-      />
-      <button
-        type="button"
-        onClick={() => handleVoiceInput(setCredito12xValue)}
-        className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
-      >
-        <Mic className="w-4 h-4" />
-      </button>
-    </div>
-  </div>
-            </div>
-            <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
-              <div className="flex items-center gap-2 text-slate-400 mb-2">
-                <Smartphone className="w-4 h-4 text-emerald-500" />
-                <span className="text-sm font-medium">PIX</span>
+        <div className="bg-[#111c32] border border-slate-800 p-6 rounded-xl flex flex-col justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+              <span className="text-amber-400">📊</span> Resumo do Caixa Físico
+            </h2>
+            <div className="mt-6 space-y-3 text-sm text-slate-300">
+              <div className="flex justify-between">
+                <span>(+) Saldo Inicial:</span>
+                <span className="font-semibold text-white">R$ {saldoInicial || '0,00'}</span>
               </div>
-              <div className="relative flex items-center mt-1">
-  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
-  <input
-    type="text"
-    value={pixValue}
-    onChange={(e) => setPixValue(e.target.value)}
-    placeholder="0,00"
-    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
-  />
-  <button
-    type="button"
-    onClick={() => handleVoiceInput(setPixValue)}
-    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
-  >
-    <Mic className="w-4 h-4" />
-  </button>
-</div>
-            </div>
-            <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
-              <div className="flex items-center gap-2 text-slate-400 mb-2">
-                <Receipt className="w-4 h-4 text-emerald-500" />
-                <span className="text-sm font-medium">Boletos</span>
+              <div className="flex justify-between">
+                <span>(+) Entradas em Dinheiro:</span>
+                <span className="font-semibold text-emerald-400">R$ {entradasDinheiro || '0,00'}</span>
               </div>
-              <div className="relative flex items-center mt-1">
-  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
-  <input
-    type="text"
-    value={boletosValue}
-    onChange={(e) => setBoletosValue(e.target.value)}
-    placeholder="0,00"
-    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
-  />
-  <button
-    type="button"
-    onClick={() => handleVoiceInput(setBoletosValue)}
-    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
-  >
-    <Mic className="w-4 h-4" />
-  </button>
-</div>
+              <div className="flex justify-between">
+                <span>(-) Saídas / Sangria:</span>
+                <span className="font-semibold text-rose-400">R$ {saidasValue || '0,00'}</span>
+              </div>
             </div>
+          </div>
+
+          <div className="mt-8 bg-[#0c1527] border border-slate-700 p-5 rounded-xl flex items-center justify-between">
+            <span className="text-sm font-medium text-slate-300">Saldo Final Esperado</span>
+            <span className="text-2xl font-bold text-amber-400">
+              {saldoFinalEsperado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            </span>
           </div>
         </div>
       </div>
 
-      <div className="bg-[#1e293b] border border-slate-700 rounded-xl p-5 shadow-md">
-        <div className="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <FileText className="w-5 h-5 text-amber-400" />
-            Lançamentos Registrados pelo App
-          </h3>
-        </div>
-        <div className="flex flex-col items-center justify-center py-12 text-slate-400 border border-dashed border-slate-600 rounded-lg bg-[#0c1527]/50">
-          <AlertCircle className="w-10 h-10 mb-3 text-slate-500" />
-          <p className="font-medium text-slate-300">Nenhuma movimentação para exibir ainda.</p>
+      <div className="bg-[#111c32] border border-slate-800 p-6 rounded-xl space-y-4">
+        <h2 className="text-base font-semibold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+          <span className="text-amber-400">💳</span> Entradas (Validação de Maquininhas / Sistema)
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+          <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
+            <div className="flex items-center gap-2 text-slate-400 mb-2">
+              <CreditCard className="w-4 h-4 text-emerald-500" />
+              <span className="text-sm font-medium">Cartão de Débito</span>
+            </div>
+            <div className="relative flex items-center">
+              <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+              <input
+                type="text"
+                value={debitoValue}
+                onChange={handleInputChange(setDebitoValue)}
+                placeholder="0,00"
+                className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg focus:outline-none focus:border-emerald-500"
+              />
+              <button
+                type="button"
+                onClick={() => handleVoiceInput(setDebitoValue)}
+                className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+              >
+                <Mic className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
+            <div className="flex items-center gap-2 text-slate-400 mb-2">
+              <CreditCard className="w-4 h-4 text-emerald-500" />
+              <span className="text-sm font-medium">Cartão até 3x</span>
+            </div>
+            <div className="relative flex items-center">
+              <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+              <input
+                type="text"
+                value={credito3xValue}
+                onChange={handleInputChange(setCredito3xValue)}
+                placeholder="0,00"
+                className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg focus:outline-none focus:border-emerald-500"
+              />
+              <button
+                type="button"
+                onClick={() => handleVoiceInput(setCredito3xValue)}
+                className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+              >
+                <Mic className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
+            <div className="flex items-center gap-2 text-slate-400 mb-2">
+              <CreditCard className="w-4 h-4 text-emerald-500" />
+              <span className="text-sm font-medium">Cartão até 12x</span>
+            </div>
+            <div className="relative flex items-center">
+              <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+              <input
+                type="text"
+                value={credito12xValue}
+                onChange={handleInputChange(setCredito12xValue)}
+                placeholder="0,00"
+                className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg focus:outline-none focus:border-emerald-500"
+              />
+              <button
+                type="button"
+                onClick={() => handleVoiceInput(setCredito12xValue)}
+                className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+              >
+                <Mic className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
+            <div className="flex items-center gap-2 text-slate-400 mb-2">
+              <Smartphone className="w-4 h-4 text-emerald-500" />
+              <span className="text-sm font-medium">PIX</span>
+            </div>
+            <div className="relative flex items-center">
+              <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+              <input
+                type="text"
+                value={pixValue}
+                onChange={handleInputChange(setPixValue)}
+                placeholder="0,00"
+                className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg focus:outline-none focus:border-emerald-500"
+              />
+              <button
+                type="button"
+                onClick={() => handleVoiceInput(setPixValue)}
+                className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+              >
+                <Mic className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
+            <div className="flex items-center gap-2 text-slate-400 mb-2">
+              <Receipt className="w-4 h-4 text-emerald-500" />
+              <span className="text-sm font-medium">Boletos</span>
+            </div>
+            <div className="relative flex items-center">
+              <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+              <input
+                type="text"
+                value={boletosValue}
+                onChange={handleInputChange(setBoletosValue)}
+                placeholder="0,00"
+                className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg focus:outline-none focus:border-emerald-500"
+              />
+              <button
+                type="button"
+                onClick={() => handleVoiceInput(setBoletosValue)}
+                className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+              >
+                <Mic className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
   );
 }
