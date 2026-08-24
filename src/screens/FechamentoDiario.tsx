@@ -44,7 +44,22 @@ export function FechamentoDiario() {
   };
 
   const handleVoiceInput = (setter: React.Dispatch<React.SetStateAction<string>>) => {
-    setter(formatMoney('10000'));
+    const win = window as any;
+    const SpeechRecognition = win.SpeechRecognition || win.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Seu navegador não suporta reconhecimento de voz.');
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setter(formatMoney(transcript));
+    };
+    recognition.onerror = () => {
+      alert('Erro ao capturar áudio. Tente novamente.');
+    };
+    recognition.start();
   };
 
   const nSaldoInicial = parseMoney(saldoInicial);
@@ -94,6 +109,7 @@ export function FechamentoDiario() {
                 type="button"
                 onClick={() => handleVoiceInput(setSaldoInicial)}
                 className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+                title="Falar valor"
               >
                 <Mic className="w-4 h-4" />
               </button>
@@ -115,6 +131,7 @@ export function FechamentoDiario() {
                 type="button"
                 onClick={() => handleVoiceInput(setEntradasDinheiro)}
                 className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+                title="Falar valor"
               >
                 <Mic className="w-4 h-4" />
               </button>
@@ -136,6 +153,7 @@ export function FechamentoDiario() {
                 type="button"
                 onClick={() => handleVoiceInput(setSaidasValue)}
                 className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+                title="Falar valor"
               >
                 <Mic className="w-4 h-4" />
               </button>
@@ -197,6 +215,7 @@ export function FechamentoDiario() {
                 type="button"
                 onClick={() => handleVoiceInput(setDebitoValue)}
                 className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+                title="Falar valor"
               >
                 <Mic className="w-4 h-4" />
               </button>
@@ -221,6 +240,7 @@ export function FechamentoDiario() {
                 type="button"
                 onClick={() => handleVoiceInput(setCredito3xValue)}
                 className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+                title="Falar valor"
               >
                 <Mic className="w-4 h-4" />
               </button>
@@ -245,6 +265,7 @@ export function FechamentoDiario() {
                 type="button"
                 onClick={() => handleVoiceInput(setCredito12xValue)}
                 className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+                title="Falar valor"
               >
                 <Mic className="w-4 h-4" />
               </button>
@@ -269,6 +290,7 @@ export function FechamentoDiario() {
                 type="button"
                 onClick={() => handleVoiceInput(setPixValue)}
                 className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+                title="Falar valor"
               >
                 <Mic className="w-4 h-4" />
               </button>
@@ -293,6 +315,7 @@ export function FechamentoDiario() {
                 type="button"
                 onClick={() => handleVoiceInput(setBoletosValue)}
                 className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors cursor-pointer"
+                title="Falar valor"
               >
                 <Mic className="w-4 h-4" />
               </button>
