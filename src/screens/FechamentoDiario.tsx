@@ -8,6 +8,8 @@ export function FechamentoDiario() {
     const [entradasDinheiro, setEntradasDinheiro] = useState('');
     const [saidasValue, setSaidasValue] = useState('');
     const [debitoValue, setDebitoValue] = useState('');
+    const [credito3xValue, setCredito3xValue] = useState('');
+    const [credito12xValue, setCredito12xValue] = useState('');
     const [pixValue, setPixValue] = useState('');
     const [boletosValue, setBoletosValue] = useState('');
     const handleVoiceInput = (setter: (val: string) => void) => {
@@ -43,7 +45,9 @@ export function FechamentoDiario() {
         <div className="bg-[#1e293b] border border-slate-700 rounded-xl p-5 shadow-md flex flex-col gap-4">
           <h3 className="text-lg font-bold text-white flex items-center gap-2 border-b border-slate-700 pb-3">
             <Wallet className="w-5 h-5 text-amber-400" />
-            {/* CAIXA FÍSICO */}
+            Caixa Físico (Dinheiro em Gaveta)
+          </h3>
+          {/* CAIXA FÍSICO */}
 <div className="space-y-4 mb-6">
   {/* Saldo Inicial */}
   <div>
@@ -111,49 +115,6 @@ export function FechamentoDiario() {
     </div>
   </div>
 </div>
-          </h3>
-          <div className="flex justify-between items-center text-slate-300 mt-2">
-            <span>Saldo Inicial (Abertura/Troco)</span>
-            <span className="font-medium">R$ 0,00</span>
-          </div>
-          <div className="flex justify-between items-center text-emerald-400">
-            <div className="relative flex items-center mt-1">
-  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
-  <input
-    type="text"
-    value={entradasDinheiro}
-    onChange={(e) => setEntradasDinheiro(e.target.value)}
-    placeholder="0,00"
-    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
-  />
-  <button
-    type="button"
-    onClick={() => handleVoiceInput(setEntradasDinheiro)}
-    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
-  >
-    <Mic className="w-4 h-4" />
-  </button>
-</div>
-            <span className="font-medium">R$ 0,00</span>
-          </div>
-          <div className="flex justify-between items-center text-red-400">
-            <div className="relative flex items-center mt-1">
-  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
-  <input
-    type="text"
-    value={saidasValue}
-    onChange={(e) => setSaidasValue(e.target.value)}
-    placeholder="0,00"
-    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
-  />
-  <button
-    type="button"
-    onClick={() => handleVoiceInput(setSaidasValue)}
-    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
-  >
-    <Mic className="w-4 h-4" />
-  </button>
-</div>
             <span className="font-medium">R$ 0,00</span>
           </div>
           <div className="flex justify-between items-center text-white bg-[#0c1527] p-4 rounded-lg border border-slate-700 mt-2">
@@ -199,6 +160,31 @@ export function FechamentoDiario() {
             <Calculator className="w-5 h-5 text-amber-400" />
             Entradas (Validação de Maquininhas/Sistema)
           </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  {/* Cartão de Débito */}
+  <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
+    <div className="flex items-center gap-2 text-slate-400 mb-2">
+      <CreditCard className="w-4 h-4 text-emerald-500" />
+      <span className="text-sm font-medium">Cartão de Débito</span>
+    </div>
+    <div className="relative flex items-center">
+      <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+      <input
+        type="text"
+        value={debitoValue}
+        onChange={(e) => setDebitoValue(e.target.value)}
+        placeholder="0,00"
+        className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
+      />
+      <button
+        type="button"
+        onClick={() => handleVoiceInput(setDebitoValue)}
+        className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
+      >
+        <Mic className="w-4 h-4" />
+      </button>
+    </div>
+  </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
             <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
               <div className="flex items-center gap-2 text-slate-400 mb-2">
@@ -226,23 +212,7 @@ export function FechamentoDiario() {
             <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
               <div className="flex items-center gap-2 text-slate-400 mb-2">
                 <CreditCard className="w-4 h-4 text-emerald-500" />
-                <div className="relative flex items-center mt-1">
-  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
-  <input
-    type="text"
-    value={debitoValue}
-    onChange={(e) => setDebitoValue(e.target.value)}
-    placeholder="0,00"
-    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
-  />
-  <button
-    type="button"
-    onClick={() => handleVoiceInput(setDebitoValue)}
-    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
-  >
-    <Mic className="w-4 h-4" />
-  </button>
-</div>
+                <span className="text-sm font-medium">Cartão de Débito</span>
               </div>
               <div className="relative flex items-center mt-1">
   <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
@@ -261,27 +231,60 @@ export function FechamentoDiario() {
     <Mic className="w-4 h-4" />
   </button>
 </div>
+{/* Cartão até 3x */}
+  <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
+    <div className="flex items-center gap-2 text-slate-400 mb-2">
+      <CreditCard className="w-4 h-4 text-emerald-500" />
+      <span className="text-sm font-medium">Cartão até 3x</span>
+    </div>
+    <div className="relative flex items-center">
+      <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+      <input
+        type="text"
+        value={credito3xValue}
+        onChange={(e) => setCredito3xValue(e.target.value)}
+        placeholder="0,00"
+        className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
+      />
+      <button
+        type="button"
+        onClick={() => handleVoiceInput(setCredito3xValue)}
+        className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
+      >
+        <Mic className="w-4 h-4" />
+      </button>
+    </div>
+  </div>
+
+  {/* Cartão até 12x */}
+  <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
+    <div className="flex items-center gap-2 text-slate-400 mb-2">
+      <CreditCard className="w-4 h-4 text-emerald-500" />
+      <span className="text-sm font-medium">Cartão até 12x</span>
+    </div>
+    <div className="relative flex items-center">
+      <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
+      <input
+        type="text"
+        value={credito12xValue}
+        onChange={(e) => setCredito12xValue(e.target.value)}
+        placeholder="0,00"
+        className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
+      />
+      <button
+        type="button"
+        onClick={() => handleVoiceInput(setCredito12xValue)}
+        className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
+      >
+        <Mic className="w-4 h-4" />
+      </button>
+    </div>
+  </div>
             </div>
             <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
               <div className="flex items-center gap-2 text-slate-400 mb-2">
                 <Smartphone className="w-4 h-4 text-emerald-500" />
-                <div className="relative flex items-center mt-1">
-  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
-  <input
-    type="text"
-    value={pixValue}
-    onChange={(e) => setPixValue(e.target.value)}
-    placeholder="0,00"
-    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
-  />
-  <button
-    type="button"
-    onClick={() => handleVoiceInput(setPixValue)}
-    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
-  >
-    <Mic className="w-4 h-4" />
-  </button>
-</div>
+                <span className="text-sm font-medium">PIX</span>
               </div>
               <div className="relative flex items-center mt-1">
   <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
@@ -304,23 +307,7 @@ export function FechamentoDiario() {
             <div className="bg-[#0c1527] border border-slate-700 p-4 rounded-lg flex flex-col justify-center">
               <div className="flex items-center gap-2 text-slate-400 mb-2">
                 <Receipt className="w-4 h-4 text-emerald-500" />
-                <div className="relative flex items-center mt-1">
-  <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
-  <input
-    type="text"
-    value={boletosValue}
-    onChange={(e) => setBoletosValue(e.target.value)}
-    placeholder="0,00"
-    className="w-full bg-[#1e293b] border border-slate-600 rounded-lg pl-10 pr-10 py-1.5 text-white font-bold text-lg"
-  />
-  <button
-    type="button"
-    onClick={() => handleVoiceInput(setBoletosValue)}
-    className="absolute right-3 text-slate-400 hover:text-amber-400 transition-colors"
-  >
-    <Mic className="w-4 h-4" />
-  </button>
-</div>
+                <span className="text-sm font-medium">Boletos</span>
               </div>
               <div className="relative flex items-center mt-1">
   <span className="absolute left-3 text-slate-400 font-bold text-sm">R$</span>
