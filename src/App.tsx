@@ -16,6 +16,7 @@ import {
 import { auth } from './services/firebaseConfig';
 import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
 import { FechamentoDiario } from './screens/FechamentoDiario';
+import { CentralContador } from './screens/CentralContador';
 import Painel from './screens/Painel';
 export default function App() {
   
@@ -87,7 +88,7 @@ export default function App() {
   };
 
   // 1. ESTADOS DE NAVEGAÇÃO E MODAIS
-  const [activeTab, setActiveTab] = useState<string>('painel');
+  const [activeTab, setActiveTab] = useState<'painel' | 'calculadora' | 'fechamento' | 'contador' | 'open-finance' | 'fechamento_contador' | 'conexao'>('contador');
   const [isCalculadoraOpen, setIsCalculadoraOpen] = useState<boolean>(false);
   const [isUpgradeOpen, setIsUpgradeOpen] = useState<boolean>(false);
   const [isTrialExpired, setIsTrialExpired] = useState<boolean>(false);

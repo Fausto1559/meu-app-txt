@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Calendar, Trash2 } from 'lucide-react';
+import { FileText, TrendingUp, CreditCard, Truck, Copy, Send, Calendar, Trash2 } from 'lucide-react';
 
 export function CentralContador() {
   const [fechamentos, setFechamentos] = useState<any[]>([]);
@@ -14,15 +14,38 @@ export function CentralContador() {
     return parseFloat(val.replace(/\./g, '').replace(',', '.')) || 0;
   };
 
-  const totalGeralDinheiro = fechamentos.reduce((acc, f) => acc + parseNum(f.entradasDinheiro), 0);
-  const totalGeralDebito = fechamentos.reduce((acc, f) => acc + parseNum(f.debitoValue), 0);
-  const totalGeralCredito3x = fechamentos.reduce((acc, f) => acc + parseNum(f.credito3xValue), 0);
-  const totalGeralCredito12x = fechamentos.reduce((acc, f) => acc + parseNum(f.credito12xValue), 0);
-  const totalGeralPix = fechamentos.reduce((acc, f) => acc + parseNum(f.pixValue), 0);
-  const totalGeralBoletos = fechamentos.reduce((acc, f) => acc + parseNum(f.boletosValue), 0);
-  const totalGeralSaidas = fechamentos.reduce((acc, f) => acc + parseNum(f.saidasValue), 0);
+  // Cálculos consolidados a partir do histórico
+  const totalDinheiro = fechamentos.reduce((acc, f) => acc + parseNum(f.entradasDinheiro), 0);
+  const totalPix = fechamentos.reduce((acc, f) => acc + parseNum(f.pixValue), 0);
+  const totalDebito = fechamentos.reduce((acc, f) => acc + parseNum(f.debitoValue), 0);
+  const totalCredito3x = fechamentos.reduce((acc, f) => acc + parseNum(f.credito3xValue), 0);
+  const totalCredito12x = fechamentos.reduce((acc, f) => acc + parseNum(f.credito12xValue), 0);
+  const totalBoletos = fechamentos.reduce((acc, f) => acc + parseNum(f.boletosValue), 0);
+  const totalSaidas = fechamentos.reduce((acc, f) => acc + parseNum(f.saidasValue), 0);
 
-  const faturamentoTotal = totalGeralDinheiro + totalGeralDebito + totalGeralCredito3x + totalGeralCredito12x + totalGeralPix + totalGeralBoletos;
+  const faturamentoBruto = totalDinheiro + totalPix + totalDebito + totalCredito3x + totalCredito12x + totalBoletos;
+  const taxasCartao = (totalDebito * 0.0199) + (totalCredito3x * 0.0499) + (totalCredito12x * 0.1299); // Lógica de estimativa de taxa
+  const despesas = totalSaidas;
+
+  const formatarMoeda = (valor: number) => {
+    return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  };
+
+  const mesAtual = new Date().toLocaleString('pt-BR', { month: 'long' });
+  const anoAtual = new Date().getFullYear();
+  const mesFormatado = mesAtual.charAt(0).toUpperCase() + mesAtual.slice(1);
+
+  const mensagemContador = `Prezado(a) contador(a), segue o resumo operacional do meu negócio referente ao mês de ${mesFormatado} de ${anoAtual}. Faturamento Bruto: ${formatarMoeda(faturamentoBruto)}. Total Pago em Taxas de Cartão: ${formatarMoeda(taxasCartao)}. Despesas Operacionais: ${formatarMoeda(despesas)}. Os extratos de Open Finance e XMLs de vendas consolidados estão anexados à plataforma. Fico à disposição para ajustes na guia do Simples.`;
+
+  const handleCopiar = () => {
+    navigator.clipboard.writeText(mensagemContador);
+    alert('Mensagem copiada para a área de transferência!');
+  };
+
+  const handleWhatsApp = () => {
+    const textoUrl = encodeURIComponent(mensagemContador);
+    window.open(`https://wa.me/?text=${textoUrl}`, '_blank');
+  };
 
   const limparHistorico = () => {
     if (confirm('Deseja realmente limpar todos os fechamentos salvos?')) {
@@ -31,89 +54,92 @@ export function CentralContador() {
     }
   };
 
-  const exportarRelatorio = () => {
-    const relatorio = `--- RELATÓRIO CONSOLIDADO PARA CONTABILIDADE ---\n` +
-      `Total de Fechamentos: ${fechamentos.length}\n` +
-      `Faturamento Total: ${faturamentoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}\n` +
-      `- Dinheiro: R$ ${totalGeralDinheiro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n` +
-      `- Débito: R$ ${totalGeralDebito.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n` +
-      `- Crédito 3x: R$ ${totalGeralCredito3x.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n` +
-      `- Crédito 12x: R$ ${totalGeralCredito12x.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n` +
-      `- PIX: R$ ${totalGeralPix.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n` +
-      `- Boletos: R$ ${totalGeralBoletos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n` +
-      `- Total Saídas/Sangrias: R$ ${totalGeralSaidas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n`;
-    
-    navigator.clipboard.writeText(relatorio);
-    alert('Relatório copiado para a área de transferência!');
-  };
-
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6 text-white">
-      <div className="bg-[#111c32] border border-slate-800 p-6 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-xl font-bold flex items-center gap-2">
-            <span className="text-amber-400">📁</span> Central do Contador
-          </h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Consolidado e somatório automático de todos os fechamentos diários realizados.
+    <div className="p-6 max-w-6xl mx-auto space-y-6">
+      
+      {/* BLOCO 1: RESUMO MENSAL (INTERFACE DO PRINT) */}
+      <div className="bg-[#1e293b] rounded-xl p-8 shadow-xl border border-slate-700/50">
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-3">
+            <FileText className="w-7 h-7 text-amber-400" />
+            <h1 className="text-2xl font-bold text-white">Central do Contador</h1>
+            <span className="bg-slate-700/50 border border-slate-600 text-slate-300 text-xs px-3 py-1 rounded-full font-medium">
+              Módulo 4
+            </span>
+          </div>
+          <p className="text-slate-400 text-sm">
+            Resumo operacional do mês para envio ao seu contador. Os dados são consolidados automaticamente a partir de suas vendas diárias.
           </p>
         </div>
-        <div className="flex gap-3">
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <div className="bg-[#0f172a] border border-slate-700/50 rounded-xl p-6">
+            <div className="flex items-center gap-2 text-slate-400 text-xs font-bold tracking-wider mb-4">
+              <TrendingUp className="w-4 h-4 text-amber-500" /> FATURAMENTO BRUTO
+            </div>
+            <div className="text-3xl font-black text-amber-400">
+              {formatarMoeda(faturamentoBruto)}
+            </div>
+          </div>
+
+          <div className="bg-[#0f172a] border border-slate-700/50 rounded-xl p-6">
+            <div className="flex items-center gap-2 text-slate-400 text-xs font-bold tracking-wider mb-4">
+              <CreditCard className="w-4 h-4 text-pink-400" /> TAXAS DE CARTÃO (Est.)
+            </div>
+            <div className="text-3xl font-black text-pink-400">
+              {formatarMoeda(taxasCartao)}
+            </div>
+          </div>
+
+          <div className="bg-[#0f172a] border border-slate-700/50 rounded-xl p-6">
+            <div className="flex items-center gap-2 text-slate-400 text-xs font-bold tracking-wider mb-4">
+              <Truck className="w-4 h-4 text-emerald-400" /> DESPESAS OPERACIONAIS
+            </div>
+            <div className="text-3xl font-black text-emerald-400">
+              {formatarMoeda(despesas)}
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <h3 className="text-amber-500 text-xs font-bold mb-3 uppercase tracking-wider">
+            Mensagem pronta para o contador
+          </h3>
+          <div className="bg-[#0f172a] border border-slate-700/50 rounded-xl p-6 text-slate-300 text-sm leading-relaxed">
+            {mensagemContador}
+          </div>
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-4">
           <button
-            onClick={exportarRelatorio}
-            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2.5 rounded-lg flex items-center gap-2 transition-colors cursor-pointer text-sm"
+            onClick={handleCopiar}
+            className="flex-1 flex items-center justify-center gap-2 bg-transparent border border-slate-600 hover:bg-slate-800 text-slate-300 font-medium py-3.5 rounded-lg transition-colors cursor-pointer"
           >
-            <Download className="w-4 h-4" />
-            Copiar Relatório p/ Contador
+            <Copy className="w-5 h-5" /> Copiar mensagem
           </button>
+          
+          <button
+            onClick={handleWhatsApp}
+            className="flex-[2] flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1fad53] text-white font-bold py-3.5 rounded-lg transition-colors cursor-pointer shadow-lg shadow-green-900/20"
+          >
+            <Send className="w-5 h-5" /> Enviar por WhatsApp para o Contador
+          </button>
+        </div>
+      </div>
+
+      {/* BLOCO 2: TABELA DE HISTÓRICO RESTAURADA (MANUTENÇÃO DOS DADOS) */}
+      <div className="bg-[#111c32] border border-slate-800 rounded-xl overflow-hidden p-6 space-y-4">
+        <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+          <h2 className="text-base font-semibold text-white flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-amber-400" /> Histórico de Fechamentos Diários
+          </h2>
           <button
             onClick={limparHistorico}
-            className="bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-800 font-medium px-3 py-2.5 rounded-lg flex items-center gap-2 transition-colors cursor-pointer text-sm"
+            className="bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-800 font-medium px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors cursor-pointer text-xs"
           >
-            <Trash2 className="w-4 h-4" />
-            Limpar
+            <Trash2 className="w-4 h-4" /> Limpar Histórico
           </button>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#111c32] border border-slate-800 p-5 rounded-xl">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Faturamento Consolidado</span>
-          <div className="text-2xl font-bold text-amber-400 mt-2">
-            {faturamentoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-          </div>
-          <span className="text-xs text-slate-500 mt-1 block">{fechamentos.length} fechamento(s) registrado(s)</span>
-        </div>
-
-        <div className="bg-[#111c32] border border-slate-800 p-5 rounded-xl">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Total PIX + Dinheiro</span>
-          <div className="text-2xl font-bold text-emerald-400 mt-2">
-            {(totalGeralPix + totalGeralDinheiro).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-          </div>
-          <span className="text-xs text-slate-500 mt-1 block">Dinheiro: R$ {totalGeralDinheiro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} | PIX: R$ {totalGeralPix.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-        </div>
-
-        <div className="bg-[#111c32] border border-slate-800 p-5 rounded-xl">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Total Cartões (Déb/Créd)</span>
-          <div className="text-2xl font-bold text-cyan-400 mt-2">
-            {(totalGeralDebito + totalGeralCredito3x + totalGeralCredito12x).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-          </div>
-          <span className="text-xs text-slate-500 mt-1 block">Débito e Crédito parcelado</span>
-        </div>
-
-        <div className="bg-[#111c32] border border-slate-800 p-5 rounded-xl">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Total Saídas / Sangrias</span>
-          <div className="text-2xl font-bold text-rose-400 mt-2">
-            {totalGeralSaidas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-          </div>
-          <span className="text-xs text-slate-500 mt-1 block">Despesas miúdas do período</span>
-        </div>
-      </div>
-
-      <div className="bg-[#111c32] border border-slate-800 rounded-xl overflow-hidden p-6 space-y-4">
-        <h2 className="text-base font-semibold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
-          <Calendar className="w-5 h-5 text-amber-400" /> Histórico de Fechamentos Diários
-        </h2>
 
         {fechamentos.length === 0 ? (
           <div className="text-center py-12 text-slate-500">
@@ -125,7 +151,7 @@ export function CentralContador() {
               <thead className="bg-[#0c1527] text-slate-400 uppercase text-xs">
                 <tr>
                   <th className="p-3">Data</th>
-                  <th className="p-3">Dinheiro (Entrada)</th>
+                  <th className="p-3">Dinheiro</th>
                   <th className="p-3">PIX</th>
                   <th className="p-3">Cartões</th>
                   <th className="p-3">Boletos</th>
@@ -156,6 +182,7 @@ export function CentralContador() {
           </div>
         )}
       </div>
+
     </div>
   );
 }
