@@ -42,6 +42,16 @@ export function OpenFinance() {
     }, 1000);
   };
 
+const [consentAccepted, setConsentAccepted] = useState(false);
+
+const handleOpenFinanceConnect = () => {
+  if (!consentAccepted) {
+    alert("Você precisa aceitar os termos de consentimento da LGPD para continuar.");
+    return;
+  }
+  // Lógica de integração bancária aqui
+};
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-6 space-y-6">
       <div className="bg-[#16223f] border border-slate-700/60 rounded-2xl p-6 shadow-xl">
@@ -105,6 +115,18 @@ export function OpenFinance() {
                     )}
                   </div>
                 </div>
+
+<div className="flex items-center gap-2 my-4">
+  <input 
+    type="checkbox" 
+    id="lgpdConsent"
+    checked={consentAccepted}
+    onChange={(e) => setConsentAccepted(e.target.checked)}
+  />
+  <label htmlFor="lgpdConsent" className="text-sm">
+    Autorizo a coleta e processamento de dados financeiros exclusivamente para geração de relatórios neste aplicativo, conforme a LGPD.
+  </label>
+</div>
 
                 <button
                   onClick={() => handleToggleConexao(maq.id)}
