@@ -20,6 +20,8 @@ import { FechamentoDiario } from './screens/FechamentoDiario';
 import { CentralContador } from './screens/CentralContador';
 import { OpenFinance } from './screens/OpenFinance';
 import Painel from './screens/Painel';
+import { Perfil } from "./screens/Perfil";
+import { Privacidade } from "./screens/Privacidade";
 
 export default function App() {
 const [activeTab, setActiveTab] = useState<'painel' | 'calculadora' | 'fechamento' | 'fechamento_contador' | 'conexao' | 'OpenFinance'>('painel');
@@ -97,6 +99,8 @@ const [diasTrial, setDiasTrial] = useState({ dias: 24, horas: 21, minutos: 43, s
   const [isCalculadoraOpen, setIsCalculadoraOpen] = useState<boolean>(false);
   const [isUpgradeOpen, setIsUpgradeOpen] = useState<boolean>(false);
   const [isTrialExpired, setIsTrialExpired] = useState<boolean>(false);
+  const [isPerfilOpen, setIsPerfilOpen] = useState<boolean>(false);
+  const [isPrivacidadeOpen, setIsPrivacidadeOpen] = useState<boolean>(false);
 
   // 2. ESTADOS DO USUÁRIO E PLANOS
   const [user, setUser] = useState<any>(null);
@@ -385,6 +389,20 @@ const handleLogout = async () => {
   <span>Open Finance</span>
 </button>
 
+<button 
+  onClick={() => setIsPerfilOpen(true)}
+  className="text-slate-300 hover:text-white text-sm font-medium"
+>
+  Perfil
+</button>
+
+<button 
+  onClick={() => setIsPrivacidadeOpen(true)}
+  className="text-slate-300 hover:text-white text-sm font-medium"
+>
+  Privacidade
+</button>
+
         </nav>
       </header>
 
@@ -411,6 +429,34 @@ const handleLogout = async () => {
         {activeTab === 'fechamento_contador' && <CentralContador />}
         {activeTab === 'OpenFinance' && <OpenFinance />}
       </main>
+
+{isPerfilOpen && (
+  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
+      <button 
+        onClick={() => setIsPerfilOpen(false)}
+        className="absolute top-4 right-4 text-gray-500 font-bold"
+      >
+        ✕
+      </button>
+      <Perfil />
+    </div>
+  </div>
+)}
+
+{isPrivacidadeOpen && (
+  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
+      <button 
+        onClick={() => setIsPrivacidadeOpen(false)}
+        className="absolute top-4 right-4 text-gray-500 font-bold"
+      >
+        ✕
+      </button>
+      <Privacidade />
+    </div>
+  </div>
+)}
 
       {/* MODAL DE PLANOS */}
       {isUpgradeOpen && (
