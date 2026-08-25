@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Calculator, LayoutDashboard, FileText, Network, DollarSign,
+  Building2, FileSpreadsheet, Cpu, 
+  LogOut, Calculator, LayoutDashboard, FileText, Network, DollarSign,
   ArrowUpRight, ArrowDownRight, RefreshCw, AlertCircle, Crown,
   Flame, X, ShieldCheck, Download, CheckCircle2, ChevronDown, Mic
 } from 'lucide-react';
@@ -17,8 +18,13 @@ import { auth } from './services/firebaseConfig';
 import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
 import { FechamentoDiario } from './screens/FechamentoDiario';
 import { CentralContador } from './screens/CentralContador';
+import { OpenFinance } from './screens/OpenFinance';
 import Painel from './screens/Painel';
+
 export default function App() {
+const [activeTab, setActiveTab] = useState<'painel' | 'calculadora' | 'fechamento' | 'fechamento_contador' | 'conexao' | 'OpenFinance'>('painel');
+const [modoApagaIncendio, setModoApagaIncendio] = useState(false);
+const [diasTrial, setDiasTrial] = useState({ dias: 24, horas: 21, minutos: 43, segundos: 10 });
   
   // ESTADOS DE AUTENTICAÇÃO
   const [emailLogin, setEmailLogin] = useState<string>('');
@@ -88,7 +94,6 @@ export default function App() {
   };
 
   // 1. ESTADOS DE NAVEGAÇÃO E MODAIS
-  const [activeTab, setActiveTab] = useState<'painel' | 'calculadora' | 'fechamento' | 'contador' | 'open-finance' | 'fechamento_contador' | 'conexao'>('contador');
   const [isCalculadoraOpen, setIsCalculadoraOpen] = useState<boolean>(false);
   const [isUpgradeOpen, setIsUpgradeOpen] = useState<boolean>(false);
   const [isTrialExpired, setIsTrialExpired] = useState<boolean>(false);
@@ -368,19 +373,22 @@ const handleLogout = async () => {
             <span>Central Contador</span>
           </button>
 
-          <button
-            onClick={() => setActiveTab('conexao')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-              activeTab === 'conexao' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10' : 'text-slate-300 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <Network className="w-4 h-4 text-amber-400" />
-            <span>Open Finance</span>
-          </button>
+<button
+  onClick={() => setActiveTab('OpenFinance')}
+  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+    activeTab === 'OpenFinance' 
+      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' 
+      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+  }`}
+>
+  <Cpu className="w-4 h-4 text-amber-400" />
+  <span>Open Finance</span>
+</button>
+
         </nav>
       </header>
 
-        {/* BANNERS DE STATUS E BOTÃO DE UPGRADE */}
+      {/* BANNERS DE STATUS E BOTÃO DE UPGRADE */}
         <div className="w-full bg-[#14223c]/80 border border-slate-700 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 text-xs text-slate-300">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -400,6 +408,8 @@ const handleLogout = async () => {
         {/* RENDERIZAÇÃO CONDICIONAL */}
         {activeTab === 'painel' && <Painel connectedMachines={[]} receivables={[]} />}
         {activeTab === 'fechamento' && <FechamentoDiario />}
+        {activeTab === 'fechamento_contador' && <CentralContador />}
+        {activeTab === 'OpenFinance' && <OpenFinance />}
       </main>
 
       {/* MODAL DE PLANOS */}

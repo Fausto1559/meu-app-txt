@@ -1,6 +1,10 @@
 // src/components/dashboard/CashFlowCards.tsx
 import { Wallet } from 'lucide-react';
-import type { Sale } from '@/types/firefight';
+
+interface Sale {
+  valor_liquido: number;
+  created_at: string | Date;
+}
 
 interface CashFlowCardsProps {
   sales: Sale[];
