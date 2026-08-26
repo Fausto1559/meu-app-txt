@@ -169,6 +169,26 @@ const [diasTrial, setDiasTrial] = useState({ dias: 24, horas: 21, minutos: 43, s
   setIsUpgradeOpen(false);
 };
 
+// 1. Mapeamento de links dos 3 planos
+const ASAAS_LINKS = {
+  essencial: "https://sandbox.asaas.com/c/kvomyzpygxcgvmby",
+  copiloto: "https://sandbox.asaas.com/c/SEU_LINK_COPILOTO",
+  pro: "https://sandbox.asaas.com/c/SEU_LINK_COPILOTO_PRO"
+};
+
+// 2. Função de assinatura única
+const handleSubscribe = (plano: 'essencial' | 'copiloto' | 'pro') => {
+  const userUid = auth.currentUser?.uid;
+  if (!userUid) {
+    alert("Por favor, faça login antes de assinar.");
+    return;
+  }
+
+  const baseUrl = ASAAS_LINKS[plano];
+  const asaasLink = `${baseUrl}?externalReference=${userUid}`;
+  window.open(asaasLink, "_blank");
+};
+
 const handleLogout = async () => {
   try {
     // 1. Limpa o estado local imediatamente
@@ -313,8 +333,8 @@ const handleLogout = async () => {
             </p>
           </div>
           <button
-            onClick={() => setIsUpgradeOpen(true)}
-            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-8 py-3 rounded-xl text-sm transition-all shadow-lg shadow-amber-500/20 cursor-pointer"
+            onClick={() => handleSubscribe('essencial')}
+            className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 px-8 rounded-xl transition-colors"
           >
             Escolher Plano a partir de R$ 19,90/mês
           </button>
