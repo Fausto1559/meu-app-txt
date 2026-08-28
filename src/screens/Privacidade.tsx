@@ -1,25 +1,59 @@
-export function Privacidade() {
+import React from 'react';
+
+export function Privacidade({ onClose }: { onClose?: () => void }) {
   return (
-    <div className="max-w-3xl mx-auto p-6 text-gray-800 leading-relaxed">
-      <h1 className="text-2xl font-bold mb-4">Política de Privacidade - Copiloto Financeiro</h1>
-      <p className="mb-4">
-        Em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018), este documento descreve o tratamento de dados na plataforma.
-      </p>
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-12 flex justify-center">
+      <div className="max-w-3xl w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6 self-start my-8">
+        
+        {/* Cabeçalho */}
+        <div className="flex justify-between items-center border-b border-slate-800 pb-4">
+          <h1 className="text-2xl font-bold text-white">Política de Privacidade - Copiloto Financeiro</h1>
+          {onClose && (
+            <button onClick={onClose} className="text-slate-400 hover:text-white font-bold text-xl">✕</button>
+          )}
+        </div>
 
-      <h2 className="text-lg font-semibold mt-4 mb-2">1. Coleta e Finalidade</h2>
-      <p className="mb-4">
-        Coletamos e-mail de cadastro e dados operacionais de caixa com a finalidade exclusiva de renderizar relatórios e calculadoras financeiras do seu negócio.
-      </p>
+        {/* Conteúdo com Texto Claro */}
+        <div className="space-y-6 text-slate-300 text-sm leading-relaxed">
+          <p>
+            Em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018), este documento descreve como tratamos e protegemos os seus dados na plataforma.
+          </p>
 
-      <h2 className="text-lg font-semibold mt-4 mb-2">2. Compartilhamento de Dados</h2>
-      <p className="mb-4">
-        Seus dados não são compartilhados, vendidos ou transferidos a terceiros. As conexões de Open Finance servem unicamente para sincronização de leitura do seu próprio caixa.
-      </p>
+          <section className="space-y-2">
+            <h2 className="text-base font-semibold text-white">1. Coleta e Finalidade dos Dados</h2>
+            <p>
+              Coletamos seu e-mail de cadastro e dados operacionais de caixa exclusivamente para renderizar relatórios, gráficos e indicadores do seu negócio.
+            </p>
+          </section>
 
-      <h2 className="text-lg font-semibold mt-4 mb-2">3. Exclusão e Direitos</h2>
-      <p className="mb-4">
-        O usuário possui o direito de revogar o acesso e solicitar a exclusão integral e definitiva dos seus dados diretamente pela aba Perfil do aplicativo.
-      </p>
+          <section className="space-y-2">
+            <h2 className="text-base font-semibold text-white">2. Compartilhamento de Informações</h2>
+            <p>
+              Seus dados não são vendidos, alugados ou compartilhados com terceiros. As conexões de Open Finance servem unicamente para a sincronização de leitura do seu próprio fluxo de caixa.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-base font-semibold text-white">3. Exclusão e Direitos do Usuário (LGPD)</h2>
+            <p>
+              Você possui o direito de exportar todos os seus dados a qualquer momento ou solicitar a exclusão definitiva da sua conta diretamente no painel de Perfil e Configurações.
+            </p>
+          </section>
+        </div>
+
+        {/* Botão de Voltar */}
+        <div className="pt-4 border-t border-slate-800">
+          <a
+            href="/"
+            className="inline-block bg-slate-800 hover:bg-slate-700 text-white font-medium px-5 py-2.5 rounded-xl text-sm transition-all text-center"
+          >
+            ← Voltar para o Dashboard
+          </a>
+        </div>
+
+      </div>
     </div>
   );
 }
+
+export default Privacidade;
