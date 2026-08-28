@@ -1,3 +1,4 @@
+import { Privacidade } from './screens/Privacidade';
 import React, { useState, useEffect } from 'react';
 import {
   Building2, FileSpreadsheet, Cpu, 
@@ -21,9 +22,27 @@ import { CentralContador } from './screens/CentralContador';
 import { OpenFinance } from './screens/OpenFinance';
 import Painel from './screens/Painel';
 import { Perfil } from "./screens/Perfil";
-import { Privacidade } from "./screens/Privacidade";
 
 export default function App() {
+// 1. Estado para verificar se o usuário já aceitou os termos no navegador
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(
+    () => localStorage.getItem('copiloto_lgpd_accepted') === 'true'
+  );
+
+  const handleAcceptTerms = () => {
+    localStorage.setItem('copiloto_lgpd_accepted', 'true');
+    setAcceptedTerms(true);
+  };
+
+  // 2. BLOQUEIO INICIAL: Se ainda não aceitou, mostra APENAS a tela de Privacidade
+  if (!acceptedTerms) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+        <Privacidade onAccept={handleAcceptTerms} />
+      </div>
+    );
+  }
+  
 const [activeTab, setActiveTab] = useState<'painel' | 'calculadora' | 'fechamento' | 'fechamento_contador' | 'conexao' | 'OpenFinance'>('painel');
 const [modoApagaIncendio, setModoApagaIncendio] = useState(false);
 const [diasTrial, setDiasTrial] = useState({ dias: 24, horas: 21, minutos: 43, segundos: 10 });
