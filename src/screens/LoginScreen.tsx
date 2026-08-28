@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   sendSignInLinkToEmail, 
   GoogleAuthProvider, 
@@ -12,12 +12,11 @@ export function LoginScreen() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
 
-  useEffect(() => {
-    const accepted = localStorage.getItem('copiloto_lgpd_accepted') === 'true';
-    setAcceptedTerms(accepted);
-  }, []);
+  // Leitura síncrona e direta do localStorage (sem useEffect)
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(() => {
+    return localStorage.getItem('copiloto_lgpd_accepted') === 'true';
+  });
 
   const handleAcceptTerms = () => {
     localStorage.setItem('copiloto_lgpd_accepted', 'true');
@@ -66,10 +65,8 @@ export function LoginScreen() {
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
       {!acceptedTerms ? (
-        /* PASSO 1: Renderiza apenas a Privacidade se não tiver aceitado */
         <Privacidade onAccept={handleAcceptTerms} onClose={handleAcceptTerms} />
       ) : (
-        /* PASSO 2: Renderiza a Tela de Login após o aceite */
         <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-md w-full shadow-2xl text-center space-y-6">
           <div>
             <h1 className="text-2xl font-bold text-white">Copiloto Financeiro</h1>
