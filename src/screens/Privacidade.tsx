@@ -8,7 +8,21 @@ interface PrivacidadeProps {
 export function Privacidade({ onClose, onAccept }: PrivacidadeProps) {
   const handleAccept = () => {
     if (onAccept) onAccept();
-    if (onClose) onClose();
+    
+    // Se recebeu a função do pai executa, senão volta para a tela inicial
+    if (onClose) {
+      onClose();
+    } else {
+      window.location.href = '/';
+    }
+  };
+
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      window.location.href = '/';
+    }
   };
 
   return (
@@ -19,14 +33,12 @@ export function Privacidade({ onClose, onAccept }: PrivacidadeProps) {
         <h2 className="text-xl font-bold text-slate-100">
           Política de Privacidade e Termos
         </h2>
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-white font-bold text-lg"
-          >
-            ✕
-          </button>
-        )}
+        <button
+          onClick={handleClose}
+          className="text-slate-400 hover:text-white font-bold text-lg"
+        >
+          ✕
+        </button>
       </div>
 
       {/* Conteúdo LGPD Resumido */}
