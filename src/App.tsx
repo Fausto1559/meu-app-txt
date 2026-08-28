@@ -473,7 +473,10 @@ const handleLogout = async () => {
       >
         ✕
       </button>
-      <Privacidade />
+      <Privacidade 
+  onClose={() => setIsPrivacidadeOpen(false)} 
+  onAccept={() => setIsPrivacidadeOpen(false)} 
+/>
     </div>
   </div>
 )}

@@ -6,14 +6,13 @@ interface PrivacidadeProps {
 }
 
 export function Privacidade({ onClose, onAccept }: PrivacidadeProps) {
-  const handleCloseAction = () => {
-    if (onAccept) onAccept();
+  const handleCloseAction = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     
-    // Fecha o modal sem recarregar a página (evita ir para a tela de login)
+    if (onAccept) onAccept();
     if (onClose) {
       onClose();
-    } else {
-      window.history.back();
     }
   };
 
@@ -26,8 +25,9 @@ export function Privacidade({ onClose, onAccept }: PrivacidadeProps) {
           Política de Privacidade e Termos
         </h2>
         <button
+          type="button"
           onClick={handleCloseAction}
-          className="text-slate-400 hover:text-white font-bold text-lg"
+          className="text-slate-400 hover:text-white font-bold text-lg cursor-pointer"
         >
           ✕
         </button>
@@ -66,8 +66,9 @@ export function Privacidade({ onClose, onAccept }: PrivacidadeProps) {
       {/* Botão Único de Aceite */}
       <div className="pt-3 border-t border-slate-800">
         <button
+          type="button"
           onClick={handleCloseAction}
-          className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all shadow-lg shadow-emerald-950/40"
+          className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all shadow-lg shadow-emerald-950/40 cursor-pointer"
         >
           ✓ Entendi e Concordo com os Termos
         </button>
