@@ -3,10 +3,8 @@ import {
   sendSignInLinkToEmail, 
   GoogleAuthProvider, 
   signInWithPopup 
-} from 'firebase/auth'; 
-
+} from 'firebase/auth';
 import { auth } from '../services/firebaseConfig';
-import { Crown } from 'lucide-react';
 import { Privacidade } from './Privacidade';
 
 export function LoginScreen() {
@@ -15,7 +13,7 @@ export function LoginScreen() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Trava LGPD
+  // Verificação LGPD via localStorage
   const [acceptedTerms, setAcceptedTerms] = useState<boolean>(
     () => localStorage.getItem('copiloto_lgpd_accepted') === 'true'
   );
@@ -64,7 +62,7 @@ export function LoginScreen() {
     }
   };
 
-  // 1. ETAPA LGPD: Se não aceitou, mostra a Política de Privacidade
+  // PASSO 1: Exibe Termos antes do login
   if (!acceptedTerms) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
@@ -73,17 +71,11 @@ export function LoginScreen() {
     );
   }
 
-  // 2. ETAPA LOGIN: Exibe a tela após o aceite
+  // PASSO 2: Exibe Login após aceite
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
       <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-md w-full shadow-2xl text-center space-y-6">
         
-        <div className="flex justify-center mb-2">
-          <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center border border-amber-500/20">
-            <Crown className="w-6 h-6 text-amber-500" />
-          </div>
-        </div>
-
         <div>
           <h1 className="text-2xl font-bold text-white">Copiloto Financeiro</h1>
           <p className="text-xs text-slate-400 mt-1">Acesse sua conta para continuar</p>
