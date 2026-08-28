@@ -1,4 +1,3 @@
-import { Privacidade } from './screens/Privacidade';
 import React, { useState, useEffect } from 'react';
 import {
   Building2, FileSpreadsheet, Cpu, 
@@ -6,6 +5,7 @@ import {
   ArrowUpRight, ArrowDownRight, RefreshCw, AlertCircle, Crown,
   Flame, X, ShieldCheck, Download, CheckCircle2, ChevronDown, Mic
 } from 'lucide-react';
+
 import { 
   onAuthStateChanged, 
   User, 
@@ -15,6 +15,7 @@ import {
   isSignInWithEmailLink, 
   signInWithEmailLink 
 } from 'firebase/auth';
+
 import { auth } from './services/firebaseConfig';
 import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
 import { FechamentoDiario } from './screens/FechamentoDiario';
@@ -22,18 +23,9 @@ import { CentralContador } from './screens/CentralContador';
 import { OpenFinance } from './screens/OpenFinance';
 import Painel from './screens/Painel';
 import { Perfil } from "./screens/Perfil";
+import LoginScreen from './screens/LoginScreen';
 
 export default function App() {
-// 1. Estado para verificar se o usuário já aceitou os termos no navegador
-  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(
-    () => localStorage.getItem('copiloto_lgpd_accepted') === 'true'
-  );
-
-  const handleAcceptTerms = () => {
-    localStorage.setItem('copiloto_lgpd_accepted', 'true');
-    setAcceptedTerms(true);
-  };
-
 const [activeTab, setActiveTab] = useState<'painel' | 'calculadora' | 'fechamento' | 'fechamento_contador' | 'conexao' | 'OpenFinance'>('painel');
 const [modoApagaIncendio, setModoApagaIncendio] = useState(false);
 const [diasTrial, setDiasTrial] = useState({ dias: 24, horas: 21, minutos: 43, segundos: 10 });
@@ -42,7 +34,7 @@ const [diasTrial, setDiasTrial] = useState({ dias: 24, horas: 21, minutos: 43, s
   const [emailLogin, setEmailLogin] = useState<string>('');
   const [authLoading, setAuthLoading] = useState<boolean>(false);
   const [emailSent, setEmailSent] = useState<boolean>(false);
-
+  
   // ESCUTADOR DE AUTENTICAÇÃO DO FIREBASE (MANTÉM SESSÃO ATIVA)
   useEffect(() => {
     if (typeof auth !== 'undefined' && auth) {
@@ -52,7 +44,6 @@ const [diasTrial, setDiasTrial] = useState({ dias: 24, horas: 21, minutos: 43, s
       return () => unsubscribe();
     }
   }, []);
-  
   // VERIFICAÇÃO DO LINK DE EMAIL
   useEffect(() => {
     if (typeof auth !== 'undefined' && auth && isSignInWithEmailLink(auth, window.location.href)) {
@@ -485,11 +476,7 @@ const handleLogout = async () => {
       >
         ✕
       </button>
-      <Privacidade 
-  onClose={() => setIsPrivacidadeOpen(false)} 
-  onAccept={() => setIsPrivacidadeOpen(false)} 
-/>
-    </div>
+</div>
   </div>
 )}
 

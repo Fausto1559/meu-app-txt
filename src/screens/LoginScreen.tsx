@@ -13,9 +13,12 @@ export function LoginScreen() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Leitura síncrona e direta do localStorage (sem useEffect)
   const [acceptedTerms, setAcceptedTerms] = useState<boolean>(() => {
-    return localStorage.getItem('copiloto_lgpd_accepted') === 'true';
+    try {
+      return localStorage.getItem('copiloto_lgpd_accepted') === 'true';
+    } catch {
+      return false;
+    }
   });
 
   const handleAcceptTerms = () => {
