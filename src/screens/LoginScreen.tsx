@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   sendSignInLinkToEmail, 
   GoogleAuthProvider, 
@@ -12,11 +12,12 @@ export function LoginScreen() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
 
-  // Verificação LGPD via localStorage
-  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(
-    () => localStorage.getItem('copiloto_lgpd_accepted') === 'true'
-  );
+  useEffect(() => {
+    const accepted = localStorage.getItem('copiloto_lgpd_accepted') === 'true';
+    setAcceptedTerms(accepted);
+  }, []);
 
   const handleAcceptTerms = () => {
     localStorage.setItem('copiloto_lgpd_accepted', 'true');
@@ -62,69 +63,64 @@ export function LoginScreen() {
     }
   };
 
-  // PASSO 1: Exibe Termos antes do login
-  if (!acceptedTerms) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-        <Privacidade onAccept={handleAcceptTerms} />
-      </div>
-    );
-  }
-
-  // PASSO 2: Exibe Login após aceite
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-md w-full shadow-2xl text-center space-y-6">
-        
-        <div>
-          <h1 className="text-2xl font-bold text-white">Copiloto Financeiro</h1>
-          <p className="text-xs text-slate-400 mt-1">Acesse sua conta para continuar</p>
-        </div>
-
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-xs">
-            {error}
+      {!acceptedTerms ? (
+        /* PASSO 1: Renderiza apenas a Privacidade se não tiver aceitado */
+        <Privacidade onAccept={handleAcceptTerms} onClose={handleAcceptTerms} />
+      ) : (
+        /* PASSO 2: Renderiza a Tela de Login após o aceite */
+        <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-md w-full shadow-2xl text-center space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Copiloto Financeiro</h1>
+            <p className="text-xs text-slate-400 mt-1">Acesse sua conta para continuar</p>
           </div>
-        )}
 
-        {message && (
-          <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-xl text-xs">
-            {message}
-          </div>
-        )}
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-xs">
+              {error}
+            </div>
+          )}
 
-        <button
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          className="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold py-3 px-4 rounded-xl text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
-        >
-          <span>G</span> {loading ? 'Carregando...' : 'Fazer Login com o Google'}
-        </button>
+          {message && (
+            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-xl text-xs">
+              {message}
+            </div>
+          )}
 
-        <div className="flex items-center gap-3 my-4">
-          <div className="h-px bg-slate-800 flex-1"></div>
-          <span className="text-xs text-slate-500 uppercase">OU</span>
-          <div className="h-px bg-slate-800 flex-1"></div>
-        </div>
-
-        <form onSubmit={handleEmailLogin} className="space-y-3">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="seu.email@exemplo.com"
-            className="w-full bg-slate-950 border border-slate-800 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-amber-500"
-          />
           <button
-            type="submit"
+            type="button"
+            onClick={handleGoogleLogin}
             disabled={loading}
-            className="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold py-3 px-4 rounded-xl text-sm transition-all cursor-pointer"
+            className="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold py-3 px-4 rounded-xl text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
-            {loading ? 'Enviando...' : 'Receber Link de Acesso por E-mail'}
+            <span>G</span> {loading ? 'Carregando...' : 'Fazer Login com o Google'}
           </button>
-        </form>
 
-      </div>
+          <div className="flex items-center gap-3 my-4">
+            <div className="h-px bg-slate-800 flex-1"></div>
+            <span className="text-xs text-slate-500 uppercase">OU</span>
+            <div className="h-px bg-slate-800 flex-1"></div>
+          </div>
+
+          <form onSubmit={handleEmailLogin} className="space-y-3">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seu.email@exemplo.com"
+              className="w-full bg-slate-950 border border-slate-800 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-amber-500"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold py-3 px-4 rounded-xl text-sm transition-all cursor-pointer"
+            >
+              {loading ? 'Enviando...' : 'Receber Link de Acesso por E-mail'}
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
