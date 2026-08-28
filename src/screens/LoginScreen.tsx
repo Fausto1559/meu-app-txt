@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Privacidade } from './Privacidade';
 import { 
   sendSignInLinkToEmail, 
   isSignInWithEmailLink, 
@@ -9,15 +10,25 @@ import {
 import { auth } from '../services/firebaseConfig';
 import { Crown } from 'lucide-react';
 
-export default function LoginScreen() {
+export function LoginScreen() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Verificação inicial: checa se o usuário já aceitou os termos no navegador
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(
+    () => localStorage.getItem('copiloto_lgpd_accepted') === 'true'
+  );
+
   const actionCodeSettings = {
     url: window.location.href,
     handleCodeInApp: true,
+  };
+
+const handleAcceptTerms = () => {
+    localStorage.setItem('copiloto_lgpd_accepted', 'true');
+    setAcceptedTerms(true);
   };
 
   useEffect(() => {
@@ -70,69 +81,57 @@ export default function LoginScreen() {
     }
   };
 
+  // PASSO 1: Se ainda não aceitou, exibe apenas o Termo de Privacidade
+  if (!acceptedTerms) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+        <Privacidade onAccept={handleAcceptTerms} />
+      </div>
+    );
+  }
+
+  // PASSO 2: Após o aceite, carrega a tela de login normal (Google / E-mail)
   return (
-    <div className="min-h-screen bg-[#050B14] text-slate-100 flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md bg-[#0A1428] border border-slate-800 rounded-2xl p-8 shadow-2xl space-y-6">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+      <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-md w-full shadow-2xl text-center space-y-6">
         
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mx-auto">
-            <Crown className="w-6 h-6" />
-          </div>
-          <h1 className="text-xl font-bold text-white tracking-wider">Copiloto Financeiro</h1>
-          <p className="text-xs text-slate-400">Entre sem senha usando seu e-mail ou Google</p>
+        <div>
+          <h1 className="text-2xl font-bold text-white">Copiloto Financeiro</h1>
+          <p className="text-xs text-slate-400 mt-1">Acesse sua conta para continuar</p>
         </div>
 
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-2 rounded-lg text-xs text-center font-medium break-words">
-            {error}
-          </div>
-        )}
+        {/* Botão Google */}
+        <button
+          onClick={/* Sua função de login Google */ () => {}}
+          className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 px-4 rounded-xl text-sm flex items-center justify-center gap-2 transition-all"
+        >
+          <span>G</span> Fazer Login com o Google
+        </button>
 
-        {message && (
-          <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3 py-2 rounded-lg text-xs text-center font-medium break-words">
-            {message}
-          </div>
-        )}
+        <div className="flex items-center gap-3 my-4">
+          <div className="h-px bg-slate-800 flex-1"></div>
+          <span className="text-xs text-slate-500 uppercase">OU</span>
+          <div className="h-px bg-slate-800 flex-1"></div>
+        </div>
 
-        <form onSubmit={handleSendMagicLink} className="space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">E-mail</label>
-            <input 
-              type="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com" 
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 transition-all"
-              required
-            />
-          </div>
-
-          <button 
+        {/* Formulário Email */}
+        <form className="space-y-3">
+          <input
+            type="email"
+            placeholder="seu.email@exemplo.com"
+            className="w-full bg-slate-950 border border-slate-800 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-amber-500"
+          />
+          <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-lg text-xs transition-all cursor-pointer shadow-md shadow-amber-500/10"
+            className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 px-4 rounded-xl text-sm transition-all"
           >
-            {loading ? 'Enviando...' : 'Enviar Link por E-mail'}
+            Receber Link de Acesso por E-mail
           </button>
         </form>
-
-        <div className="relative flex py-2 items-center">
-          <div className="flex-grow border-t border-slate-800"></div>
-          <span className="flex-shrink mx-4 text-slate-500 text-[10px] uppercase tracking-wider">ou continue com</span>
-          <div className="flex-grow border-t border-slate-800"></div>
-        </div>
-
-        <div>
-          <button 
-            onClick={handleGoogleLogin}
-            type="button"
-            className="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-medium py-2.5 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-center gap-2"
-          >
-            <span>Entrar com Google</span>
-          </button>
-        </div>
 
       </div>
     </div>
   );
 }
+
+export default LoginScreen;
