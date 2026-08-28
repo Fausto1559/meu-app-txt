@@ -1,113 +1,56 @@
+import { sendSignInLinkToEmail } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import React, { useState, useEffect } from 'react';
-import {
-  Building2, FileSpreadsheet, Cpu, 
-  LogOut, Calculator, LayoutDashboard, FileText, Network, DollarSign,
-  ArrowUpRight, ArrowDownRight, RefreshCw, AlertCircle, Crown,
-  Flame, X, ShieldCheck, Download, CheckCircle2, ChevronDown, Mic
-} from 'lucide-react';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth } from './services/firebaseConfig';
+import LoginScreen from './screens/LoginScreen';
 
 import { 
-  onAuthStateChanged, 
-  User, 
-  GoogleAuthProvider, 
-  signInWithPopup, 
-  sendSignInLinkToEmail, 
-  isSignInWithEmailLink, 
-  signInWithEmailLink 
-} from 'firebase/auth';
+  Building2, FileSpreadsheet, Cpu, LogOut, Calculator, 
+  LayoutDashboard, FileText, Network, DollarSign, ArrowUpRight, 
+  ArrowDownRight, RefreshCw, AlertCircle, Crown, Flame, X, 
+  ShieldCheck, Download, CheckCircle2, ChevronDown, Mic 
+} from 'lucide-react';
 
-import { auth } from './services/firebaseConfig';
 import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
 import { FechamentoDiario } from './screens/FechamentoDiario';
 import { CentralContador } from './screens/CentralContador';
 import { OpenFinance } from './screens/OpenFinance';
 import Painel from './screens/Painel';
-import { Perfil } from "./screens/Perfil";
-import LoginScreen from './screens/LoginScreen';
+import { Perfil } from './screens/Perfil';
 
 export default function App() {
-const [activeTab, setActiveTab] = useState<'painel' | 'calculadora' | 'fechamento' | 'fechamento_contador' | 'conexao' | 'OpenFinance'>('painel');
-const [modoApagaIncendio, setModoApagaIncendio] = useState(false);
-const [diasTrial, setDiasTrial] = useState({ dias: 24, horas: 21, minutos: 43, segundos: 10 });
-  
-  // ESTADOS DE AUTENTICAÇÃO
+  const [isTrialExpired, setIsTrialExpired] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'painel' | 'calculadora' | 'fechamento' | 'fechamento_contador' | 'OpenFinance'>('painel');
+  const [modoApagaIncendio, setModoApagaIncendio] = useState(false);
+  const [diasTrial, setDiasTrial] = useState({ dias: 24, horas: 21, minutos: 43, segundos: 10 });
+  const [isCalculadoraOpen, setIsCalculadoraOpen] = useState(false);
+  const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
+  const [userPlan, setUserPlan] = useState('Freemium/Essencial');
+  const [emailSent, setEmailSent] = useState(false);
   const [emailLogin, setEmailLogin] = useState<string>('');
-  const [authLoading, setAuthLoading] = useState<boolean>(false);
-  const [emailSent, setEmailSent] = useState<boolean>(false);
-  
-  // ESCUTADOR DE AUTENTICAÇÃO DO FIREBASE (MANTÉM SESSÃO ATIVA)
+  const [isPerfilOpen, setIsPerfilOpen] = useState(false);
+  const [isPrivacidadeOpen, setIsPrivacidadeOpen] = useState(false);
+  const userPlanName = userPlan === 'Freemium/Essencial' ? 'Copiloto' : 'Copiloto Pro';
+  const userPlanPrice = userPlan === 'R$ 19,90/mês' ? 'R$ 29,90/mês' : 'R$ 39,90/mês';
+
   useEffect(() => {
-    if (typeof auth !== 'undefined' && auth) {
-      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-        setUser(currentUser);
-      });
-      return () => unsubscribe();
-    }
-  }, []);
-  // VERIFICAÇÃO DO LINK DE EMAIL
-  useEffect(() => {
-    if (typeof auth !== 'undefined' && auth && isSignInWithEmailLink(auth, window.location.href)) {
-      let email = window.localStorage.getItem('emailForSignIn');
-      if (!email) {
-        email = window.prompt('Por favor, confirme seu e-mail para finalizar o login:');
-      }
-      if (email) {
-        signInWithEmailLink(auth, email, window.location.href)
-          .then((result) => {
-            window.localStorage.removeItem('emailForSignIn');
-            setUser(result.user);
-          })
-          .catch((error) => console.error('Erro ao autenticar via link:', error));
-      }
-    }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setIsAuthLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
 
-  // FUNÇÕES DE LOGIN
-  const handleGoogleLogin = async () => {
-    try {
-      setAuthLoading(true);
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      const result = await signInWithPopup(auth, provider);
-      setUser(result.user);
-    } catch (error: any) {
-      console.error('Erro ao autenticar com Google:', error);
-      alert('Erro ao autenticar com Google: ' + error.message);
-    } finally {
-      setAuthLoading(false);
-    }
-  };
+  if (isAuthLoading) {
+    return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Carregando...</div>;
+  }
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!emailLogin) return;
-    try {
-      setAuthLoading(true);
-      const actionCodeSettings = {
-        url: window.location.href,
-        handleCodeInApp: true,
-      };
-      await sendSignInLinkToEmail(auth, emailLogin, actionCodeSettings);
-      window.localStorage.setItem('emailForSignIn', emailLogin);
-      setEmailSent(true);
-    } catch (error: any) {
-      console.error('Erro ao enviar e-mail:', error);
-      alert('Erro ao enviar e-mail: ' + error.message);
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  // 1. ESTADOS DE NAVEGAÇÃO E MODAIS
-  const [isCalculadoraOpen, setIsCalculadoraOpen] = useState<boolean>(false);
-  const [isUpgradeOpen, setIsUpgradeOpen] = useState<boolean>(false);
-  const [isTrialExpired, setIsTrialExpired] = useState<boolean>(false);
-  const [isPerfilOpen, setIsPerfilOpen] = useState<boolean>(false);
-  const [isPrivacidadeOpen, setIsPrivacidadeOpen] = useState<boolean>(false);
-
-  // 2. ESTADOS DO USUÁRIO E PLANOS
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  if (!user) {
+    return <LoginScreen />;
+  }
   
   // 3. ESTADOS FINANCEIROS
   const [vendasHoje, setVendasHoje] = useState<number>(0);
@@ -156,18 +99,18 @@ const [diasTrial, setDiasTrial] = useState({ dias: 24, horas: 21, minutos: 43, s
   };
 
   // 2. ESTADOS DO USUÁRIO E PLANOS (Ajustado para Freemium por padrão)
-  const [userPlan, setUserPlan] = useState<string>('freemium');
-  const [userPlanName, setUserPlanName] = useState<string>('Freemium / Essencial');
-  const [userPlanPrice, setUserPlanPrice] = useState<string>('Gratuito');
+  const [selectedPlan, setSelectedPlan] = useState<string>('freemium');
+  const [selectedPlanName, setSelectedPlanName] = useState<string>('Freemium / Essencial');
+  const [selectedPlanPrice, setSelectedPlanPrice] = useState<string>('Gratuito');
 
 // Função de seleção atualizada para tratar o valor zero/gratuito
   const selecionarPlano = (id: string, name: string, price: string) => {
-  setUserPlan(id);
-  setUserPlanName(name);
+  setSelectedPlan(id);
+  setSelectedPlanName(name);
   if (price === '0' || price === '0,00' || price.toLowerCase().includes('gratuit')) {
-    setUserPlanPrice('Gratuito');
+    setSelectedPlanPrice('Gratuito');
   } else {
-    setUserPlanPrice(`R$ ${price}/mês`);
+    setSelectedPlanPrice(`R$ ${price}/mês`);
   }
   setIsUpgradeOpen(false);
 };
@@ -190,6 +133,41 @@ const handleSubscribe = (plano: 'essencial' | 'copiloto' | 'pro') => {
   const baseUrl = ASAAS_LINKS[plano];
   const asaasLink = `${baseUrl}?externalReference=${userUid}`;
   window.open(asaasLink, "_blank");
+};
+
+const handleGoogleLogin = async () => {
+    try {
+      setIsAuthLoading(true);
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      const result = await signInWithPopup(auth, provider);
+      setUser(result.user);
+    } catch (error: any) {
+      console.error('Erro ao autenticar com Google:', error);
+      alert('Erro ao autenticar com Google: ' + error.message);
+    } finally {
+      setIsAuthLoading(false);
+    }
+  };
+
+const handleEmailLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!emailLogin) return;
+  try {
+    setIsAuthLoading(true);
+    const actionCodeSettings = {
+      url: window.location.href,
+      handleCodeInApp: true,
+    };
+    await sendSignInLinkToEmail(auth, emailLogin, actionCodeSettings);
+    window.localStorage.setItem('emailForSignIn', emailLogin);
+    setEmailSent(true);
+  } catch (error: any) {
+    console.error('Erro ao enviar e-mail:', error);
+    alert('Erro ao enviar e-mail: ' + error.message);
+  } finally {
+    setIsAuthLoading(false);
+  }
 };
 
 const handleLogout = async () => {
@@ -226,7 +204,7 @@ const handleLogout = async () => {
             <button 
               type="button"
               onClick={handleGoogleLogin}
-              disabled={authLoading}
+              disabled={isAuthLoading}
               className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-3 transition-all cursor-pointer shadow-md active:scale-95 disabled:opacity-50 text-sm"
             >
               <svg className="w-5 h-5 fill-current text-white" viewBox="0 0 24 24">
@@ -235,7 +213,7 @@ const handleLogout = async () => {
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
               </svg>
-              {authLoading ? 'Aguarde...' : 'Fazer Login com o Google'}
+              {isAuthLoading ? 'Aguarde...' : 'Fazer Login com o Google'}
             </button>
 
             <div className="relative flex py-1 items-center">
@@ -270,10 +248,10 @@ const handleLogout = async () => {
                 />
                 <button 
                   type="submit"
-                  disabled={authLoading}
+                  disabled={isAuthLoading}
                   className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-lg transition-all cursor-pointer shadow-md active:scale-95 disabled:opacity-50 text-sm"
                 >
-                  {authLoading ? 'Enviando...' : 'Receber Link de Acesso por E-mail'}
+                  {isAuthLoading ? 'Enviando...' : 'Receber Link de Acesso por E-mail'}
                 </button>
               </form>
             )}
