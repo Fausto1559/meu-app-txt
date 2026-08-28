@@ -45,6 +45,10 @@ export default function App() {
   }, []);
 
   if (isAuthLoading) {
+    return <div className="flex h-screen items-center justify-center bg-slate-900 text-white">Carregando autenticação...</div>;
+  }
+
+  if (isAuthLoading) {
     return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Carregando...</div>;
   }
 
