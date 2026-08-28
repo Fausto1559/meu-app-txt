@@ -14,11 +14,8 @@ export function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const [acceptedTerms, setAcceptedTerms] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('copiloto_lgpd_accepted') === 'true';
-    } catch {
-      return false;
-    }
+  const item = localStorage.getItem('copiloto_lgpd_accepted');
+  return item === 'true';
   });
 
   const handleAcceptTerms = () => {
