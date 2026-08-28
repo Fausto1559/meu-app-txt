@@ -34,15 +34,6 @@ export default function App() {
     setAcceptedTerms(true);
   };
 
-  // 2. BLOQUEIO INICIAL: Se ainda não aceitou, mostra APENAS a tela de Privacidade
-  if (!acceptedTerms) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-        <Privacidade onAccept={handleAcceptTerms} />
-      </div>
-    );
-  }
-  
 const [activeTab, setActiveTab] = useState<'painel' | 'calculadora' | 'fechamento' | 'fechamento_contador' | 'conexao' | 'OpenFinance'>('painel');
 const [modoApagaIncendio, setModoApagaIncendio] = useState(false);
 const [diasTrial, setDiasTrial] = useState({ dias: 24, horas: 21, minutos: 43, segundos: 10 });
