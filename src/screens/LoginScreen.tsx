@@ -65,7 +65,7 @@ export function LoginScreen() {
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
       {!acceptedTerms ? (
-        <Privacidade onAccept={handleAcceptTerms} onClose={handleAcceptTerms} />
+        <Privacidade onAccept={handleAcceptTerms} />
       ) : (
         <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-md w-full shadow-2xl text-center space-y-6">
           <div>

@@ -42,6 +42,7 @@ const [diasTrial, setDiasTrial] = useState({ dias: 24, horas: 21, minutos: 43, s
   const [emailLogin, setEmailLogin] = useState<string>('');
   const [authLoading, setAuthLoading] = useState<boolean>(false);
   const [emailSent, setEmailSent] = useState<boolean>(false);
+
   // ESCUTADOR DE AUTENTICAÇÃO DO FIREBASE (MANTÉM SESSÃO ATIVA)
   useEffect(() => {
     if (typeof auth !== 'undefined' && auth) {
@@ -51,6 +52,7 @@ const [diasTrial, setDiasTrial] = useState({ dias: 24, horas: 21, minutos: 43, s
       return () => unsubscribe();
     }
   }, []);
+  
   // VERIFICAÇÃO DO LINK DE EMAIL
   useEffect(() => {
     if (typeof auth !== 'undefined' && auth && isSignInWithEmailLink(auth, window.location.href)) {
