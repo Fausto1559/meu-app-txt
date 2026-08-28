@@ -70,7 +70,7 @@ export function Perfil({ onClose, userData }: any) {
 
           {/* LINK POLÍTICA DE PRIVACIDADE */}
           <a
-            href="/politica-de-privacidade"
+            href="/privacidade"
             className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 px-4 rounded-xl font-medium border border-slate-700 text-sm text-center transition-all"
           >
             📄 Política de Privacidade
