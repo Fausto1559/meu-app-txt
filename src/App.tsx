@@ -84,13 +84,17 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
-  // 5. FUNÇÕES AUXILIARES
+  // FUNÇÕES AUXILIARES
+  const handleRecusarPrivacidade = () => {
+  window.location.href = 'https://www.google.com';
+};
+  
   const handleVoiceInput = (fieldName: string, setter: (val: string) => void) => {
     setListeningField(fieldName);
     setTimeout(() => setListeningField(null), 3000);
   };
 
-  // 2. ESTADOS DO USUÁRIO E PLANOS (Ajustado para Freemium por padrão)
+  // ESTADOS DO USUÁRIO E PLANOS (Ajustado para Freemium por padrão)
   const [selectedPlan, setSelectedPlan] = useState<string>('freemium');
   const [selectedPlanName, setSelectedPlanName] = useState<string>('Freemium / Essencial');
   const [selectedPlanPrice, setSelectedPlanPrice] = useState<string>('Gratuito');
