@@ -36,6 +36,13 @@ export default function App() {
   const userPlanName = userPlan === 'Freemium/Essencial' ? 'Copiloto' : 'Copiloto Pro';
   const userPlanPrice = userPlan === 'R$ 19,90/mês' ? 'R$ 29,90/mês' : 'R$ 39,90/mês';
 
+// ESTADOS FINANCEIROS
+  const [vendasHoje, setVendasHoje] = useState<number>(0);
+  const [aReceber, setAReceber] = useState<number>(0);
+  const [aPagar, setAPagar] = useState<number>(0);
+  const [listeningField, setListeningField] = useState<string | null>(null);
+  const saldoPrevisto = Number(vendasHoje) + Number(aReceber) - Number(aPagar);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -44,26 +51,7 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  if (isAuthLoading) {
-    return <div className="flex h-screen items-center justify-center bg-slate-900 text-white">Carregando autenticação...</div>;
-  }
-
-  if (isAuthLoading) {
-    return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Carregando...</div>;
-  }
-
-  if (!user) {
-    return <LoginScreen />;
-  }
-  
-  // 3. ESTADOS FINANCEIROS
-  const [vendasHoje, setVendasHoje] = useState<number>(0);
-  const [aReceber, setAReceber] = useState<number>(0);
-  const [aPagar, setAPagar] = useState<number>(0);
-  const [listeningField, setListeningField] = useState<string | null>(null);
-  const saldoPrevisto = Number(vendasHoje) + Number(aReceber) - Number(aPagar);
-
-  // 4. TEMPORIZADOR TRIAL
+  // TEMPORIZADOR TRIAL
   const calculateTimeLeft = () => {
     let trialStart = localStorage.getItem('copiloto_trial_start');
     if (!trialStart) {
@@ -176,6 +164,7 @@ const handleEmailLogin = async (e: React.FormEvent) => {
 
 const handleLogout = async () => {
   try {
+
     // 1. Limpa o estado local imediatamente
     setUser(null);
     localStorage.clear();
@@ -188,10 +177,19 @@ const handleLogout = async () => {
   } catch (error) {
     console.error('Erro ao encerrar sessão:', error);
   } finally {
+    
     // 3. Força o redirecionamento limpo para a raiz
     window.location.href = '/';
   }
 };
+
+  if (isAuthLoading) {
+    return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Carregando...</div>;
+  }
+
+  if (!user) {
+    return <LoginScreen />;
+  }
 
 // TRAVA DE SEGURANÇA E TELA DE LOGIN
   if (!user) {
