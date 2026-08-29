@@ -403,13 +403,6 @@ const handleLogout = async () => {
   Perfil
 </button>
 
-<button 
-  onClick={() => setIsPrivacidadeOpen(true)}
-  className="text-slate-300 hover:text-white text-sm font-medium"
->
-  Privacidade
-</button>
-
         </nav>
       </header>
 
