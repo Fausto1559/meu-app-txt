@@ -7,14 +7,8 @@ interface PrivacidadeProps {
 
 export function Privacidade({ onClose, onAccept }: PrivacidadeProps) {
   const handleCloseAction = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (onAccept) onAccept();
-    if (onClose) {
-      onClose();
-    }
-  };
+  window.location.href = 'https://www.google.com';
+};
 
   return (
     <div className="bg-slate-900 text-white p-6 rounded-2xl w-full max-w-xl border border-slate-800 shadow-2xl space-y-6">
