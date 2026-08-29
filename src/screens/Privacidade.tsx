@@ -13,6 +13,7 @@ export function Privacidade({ onClose, onAccept }: PrivacidadeProps) {
 
   // Ação para quando o usuário ACEITA (Entra no app)
   const handleAccept = () => {
+    localStorage.setItem('aceitouPrivacidade', 'true');
     if (onAccept) {
       onAccept();
     } else if (onClose) {
