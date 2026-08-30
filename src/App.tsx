@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from './services/firebaseConfig';
 import LoginScreen from './screens/LoginScreen';
+import { Privacidade } from './screens/Privacidade';
 
 import { 
   Building2, FileSpreadsheet, Cpu, LogOut, Calculator, 
@@ -20,6 +21,14 @@ import Painel from './screens/Painel';
 import { Perfil } from './screens/Perfil';
 
 export default function App() {
+  const [mostrarPrivacidade, setMostrarPrivacidade] = useState(() => {
+    return localStorage.getItem('aceitouPrivacidade') !== 'true';
+  });
+
+  const handleAcceptPrivacidade = () => {
+    localStorage.setItem('aceitouPrivacidade', 'true');
+    setMostrarPrivacidade(false);
+  };
   const [isTrialExpired, setIsTrialExpired] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
@@ -168,6 +177,11 @@ const handleEmailLogin = async (e: React.FormEvent) => {
 
 const handleLogout = async () => {
   try {
+
+const handleAcceptPrivacidade = () => {
+    localStorage.setItem('aceitouPrivacidade', 'true');
+    setMostrarPrivacidade(false);
+  };
 
     // 1. Limpa o estado local imediatamente
     setUser(null);
