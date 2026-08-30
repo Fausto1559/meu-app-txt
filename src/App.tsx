@@ -189,6 +189,35 @@ const handleLogout = () => {
     window.location.replace('https://www.google.com');
   };
 
+    const handleVoiceInput = (campo: 'aReceber' | 'aPagar') => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert('Seu navegador não suporta reconhecimento de voz.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+    setListeningField(campo);
+
+    recognition.onresult = (event: any) => {
+      const texto = event.results[0][0].transcript;
+      const valorNumerico = parseFloat(texto.replace(/[^0-9,\.]/g, '').replace(',', '.'));
+
+      if (!isNaN(valorNumerico)) {
+        if (campo === 'aReceber') setAReceber(valorNumerico);
+        if (campo === 'aPagar') setAPagar(valorNumerico);
+      }
+      setListeningField(null);
+    };
+
+    recognition.onerror = () => setListeningField(null);
+    recognition.onend = () => setListeningField(null);
+
+    recognition.start();
+  };
+
   if (isAuthLoading) {
     return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Carregando...</div>;
   }
@@ -297,7 +326,6 @@ const handleLogout = () => {
       VERMELHO
     </span>
   </div>
-
 </div>
 
       {/* 2. BARRA DE USUÁRIO */}
@@ -543,6 +571,38 @@ const handleLogout = () => {
                 </button>
               </div>
             </div>
+
+            <div className="flex items-center justify-between mb-3">
+  <h3 className="text-slate-300 font-medium text-lg">Contas a Receber</h3>
+  <button
+    type="button"
+    onClick={() => handleVoiceInput('aReceber')}
+    className={`p-2 rounded-full transition-all ${
+      listeningField === 'aReceber'
+        ? 'bg-red-500 text-white animate-pulse'
+        : 'bg-slate-800 text-slate-300 hover:text-emerald-400 hover:bg-slate-700'
+    }`}
+    title="Ditar valor por voz"
+  >
+    <Mic className="w-5 h-5" />
+  </button>
+</div>
+
+<div className="flex items-center justify-between mb-3">
+  <h3 className="text-slate-300 font-medium text-lg">Contas a Pagar</h3>
+  <button
+    type="button"
+    onClick={() => handleVoiceInput('aPagar')}
+    className={`p-2 rounded-full transition-all ${
+      listeningField === 'aPagar'
+        ? 'bg-red-500 text-white animate-pulse'
+        : 'bg-slate-800 text-slate-300 hover:text-rose-400 hover:bg-slate-700'
+    }`}
+    title="Ditar valor por voz"
+  >
+    <Mic className="w-5 h-5" />
+  </button>
+</div>
 
 {/* CARD CONTAS A RECEBER */}
 <div className="flex items-center justify-between mb-3">
