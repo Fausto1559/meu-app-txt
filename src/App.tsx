@@ -177,21 +177,20 @@ const handleEmailLogin = async (e: React.FormEvent) => {
   }
 };
 
-const handleLogout = async () => {
-    // 1. Limpa os dados salvos do usuário
+const handleLogout = () => {
+    // 1. Limpa as sessões locais de forma síncrona
     localStorage.removeItem('usuarioLogado');
     sessionStorage.clear();
 
-    // 2. Desconecta do Firebase
-    try {
-      if (typeof auth !== 'undefined' && auth?.signOut) {
-        await auth.signOut();
-      }
-    } catch (error) {
-      console.error('Erro ao sair:', error);
+    // 2. Apaga a tela do app no DOM imediatamente para esconder qualquer transição
+    document.body.innerHTML = '<div style="background-color: #020617; height: 100vh; width: 100vw;"></div>';
+
+    // 3. Desconecta do Firebase em segundo plano
+    if (typeof auth !== 'undefined' && auth?.signOut) {
+      auth.signOut().catch(() => {});
     }
 
-    // 3. Força a saída imediata da aplicação para o Google (sem re-renderizar a tela de login)
+    // 4. Redireciona direto para fora do sistema
     window.location.replace('https://www.google.com');
   };
 
