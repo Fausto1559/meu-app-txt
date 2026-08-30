@@ -21,6 +21,9 @@ import Painel from './screens/Painel';
 import { Perfil } from './screens/Perfil';
 
 export default function App() {
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+
   const [mostrarPrivacidade, setMostrarPrivacidade] = useState(() => {
     return localStorage.getItem('aceitouPrivacidade') !== 'true';
   });
@@ -29,10 +32,9 @@ export default function App() {
     localStorage.setItem('aceitouPrivacidade', 'true');
     setMostrarPrivacidade(false);
   };
+
   const [isTrialExpired, setIsTrialExpired] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'painel' | 'calculadora' | 'fechamento' | 'fechamento_contador' | 'OpenFinance'>('painel');
+  const [activeTab, setActiveTab] = useState<'painel' | 'calculadora' | 'fechamento' | 'fechamento_contador' | 'open_finance' | 'OpenFinance' | 'perfil'>('painel');
   const [modoApagaIncendio, setModoApagaIncendio] = useState(false);
   const [diasTrial, setDiasTrial] = useState({ dias: 24, horas: 21, minutos: 43, segundos: 10 });
   const [isCalculadoraOpen, setIsCalculadoraOpen] = useState(false);
@@ -176,30 +178,23 @@ const handleEmailLogin = async (e: React.FormEvent) => {
 };
 
 const handleLogout = async () => {
-  try {
-
-const handleAcceptPrivacidade = () => {
-    localStorage.setItem('aceitouPrivacidade', 'true');
-    setMostrarPrivacidade(false);
-  };
-
     // 1. Limpa o estado local imediatamente
     setUser(null);
     localStorage.removeItem('usuarioLogado');
     sessionStorage.clear();
 
-    // 2. Desconecta do Firebase se a instância existir
-    if (typeof auth !== 'undefined' && auth?.signOut) {
-      await auth.signOut();
+    // 2. Desconecta do Firebase com tratamento de erro
+    try {
+      if (typeof auth !== 'undefined' && auth?.signOut) {
+        await auth.signOut();
+      }
+    } catch (error) {
+      console.error('Erro ao encerrar sessão:', error);
+    } finally {
+      // 3. Força o redirecionamento limpo para a raiz
+      window.location.href = '/';
     }
-  } catch (error) {
-    console.error('Erro ao encerrar sessão:', error);
-  } finally {
-    
-    // 3. Força o redirecionamento limpo para a raiz
-    window.location.href = '/';
-  }
-};
+  };
 
   if (isAuthLoading) {
     return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Carregando...</div>;
