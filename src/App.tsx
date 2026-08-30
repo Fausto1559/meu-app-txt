@@ -281,6 +281,10 @@ const handleAcceptPrivacidade = () => {
     );
   }
 
+{mostrarPrivacidade && (
+  <Privacidade onAccept={handleAcceptPrivacidade} />
+)}
+
     return (
     <div className="min-h-screen bg-[#0c1527] text-white font-sans">
       
