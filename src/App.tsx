@@ -185,7 +185,7 @@ const handleAcceptPrivacidade = () => {
 
     // 1. Limpa o estado local imediatamente
     setUser(null);
-    localStorage.clear();
+    localStorage.removeItem('usuarioLogado');
     sessionStorage.clear();
 
     // 2. Desconecta do Firebase se a instância existir
