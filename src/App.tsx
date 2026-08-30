@@ -577,12 +577,12 @@ const handleLogout = () => {
   <button
     type="button"
     onClick={() => handleVoiceInput('aReceber')}
-    className={`p-2 rounded-full transition-all ${
+    className={`p-2.5 rounded-full transition-all ${
       listeningField === 'aReceber'
-        ? 'bg-red-500 text-white animate-pulse'
+        ? 'bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/50'
         : 'bg-slate-800 text-slate-300 hover:text-emerald-400 hover:bg-slate-700'
     }`}
-    title="Ditar valor por voz"
+    title="Ditar valor para Contas a Receber"
   >
     <Mic className="w-5 h-5" />
   </button>
@@ -593,12 +593,12 @@ const handleLogout = () => {
   <button
     type="button"
     onClick={() => handleVoiceInput('aPagar')}
-    className={`p-2 rounded-full transition-all ${
+    className={`p-2.5 rounded-full transition-all ${
       listeningField === 'aPagar'
-        ? 'bg-red-500 text-white animate-pulse'
+        ? 'bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/50'
         : 'bg-slate-800 text-slate-300 hover:text-rose-400 hover:bg-slate-700'
     }`}
-    title="Ditar valor por voz"
+    title="Ditar valor para Contas a Pagar"
   >
     <Mic className="w-5 h-5" />
   </button>
