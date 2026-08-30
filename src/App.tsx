@@ -33,6 +33,37 @@ export default function App() {
     setMostrarPrivacidade(false);
   };
 
+  const [listeningField, setListeningField] = useState<'aReceber' | 'aPagar' | null>(null);
+
+  const handleVoiceInput = (campo: 'aReceber' | 'aPagar') => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert('Seu navegador não suporta reconhecimento de voz.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+    setListeningField(campo);
+
+    recognition.onresult = (event: any) => {
+      const texto = event.results[0][0].transcript;
+      const valorNumerico = parseFloat(texto.replace(/[^0-9,\.]/g, '').replace(',', '.'));
+
+      if (!isNaN(valorNumerico)) {
+        if (campo === 'aReceber') setAReceber(valorNumerico);
+        if (campo === 'aPagar') setAPagar(valorNumerico);
+      }
+      setListeningField(null);
+    };
+
+    recognition.onerror = () => setListeningField(null);
+    recognition.onend = () => setListeningField(null);
+
+    recognition.start();
+  };
+
   const [isTrialExpired, setIsTrialExpired] = useState(false);
   const [activeTab, setActiveTab] = useState<'painel' | 'calculadora' | 'fechamento' | 'fechamento_contador' | 'open_finance' | 'OpenFinance' | 'perfil'>('painel');
   const [modoApagaIncendio, setModoApagaIncendio] = useState(false);
@@ -51,7 +82,6 @@ export default function App() {
   const [vendasHoje, setVendasHoje] = useState<number>(0);
   const [aReceber, setAReceber] = useState<number>(0);
   const [aPagar, setAPagar] = useState<number>(0);
-  const [listeningField, setListeningField] = useState<string | null>(null);
   const saldoPrevisto = Number(vendasHoje) + Number(aReceber) - Number(aPagar);
 
   useEffect(() => {
@@ -187,35 +217,6 @@ const handleLogout = () => {
 
     // 4. Redireciona direto para fora do sistema
     window.location.replace('https://www.google.com');
-  };
-
-    const handleVoiceInput = (campo: 'aReceber' | 'aPagar') => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      alert('Seu navegador não suporta reconhecimento de voz.');
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'pt-BR';
-    setListeningField(campo);
-
-    recognition.onresult = (event: any) => {
-      const texto = event.results[0][0].transcript;
-      const valorNumerico = parseFloat(texto.replace(/[^0-9,\.]/g, '').replace(',', '.'));
-
-      if (!isNaN(valorNumerico)) {
-        if (campo === 'aReceber') setAReceber(valorNumerico);
-        if (campo === 'aPagar') setAPagar(valorNumerico);
-      }
-      setListeningField(null);
-    };
-
-    recognition.onerror = () => setListeningField(null);
-    recognition.onend = () => setListeningField(null);
-
-    recognition.start();
   };
 
   if (isAuthLoading) {
@@ -572,7 +573,7 @@ const handleLogout = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between mb-3">
+<div className="flex items-center justify-between mb-3">
   <h3 className="text-slate-300 font-medium text-lg">Contas a Receber</h3>
   <button
     type="button"
@@ -582,7 +583,7 @@ const handleLogout = () => {
         ? 'bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/50'
         : 'bg-slate-800 text-slate-300 hover:text-emerald-400 hover:bg-slate-700'
     }`}
-    title="Ditar valor para Contas a Receber"
+    title="Ditar valor por voz"
   >
     <Mic className="w-5 h-5" />
   </button>
@@ -598,7 +599,7 @@ const handleLogout = () => {
         ? 'bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/50'
         : 'bg-slate-800 text-slate-300 hover:text-rose-400 hover:bg-slate-700'
     }`}
-    title="Ditar valor para Contas a Pagar"
+    title="Ditar valor por voz"
   >
     <Mic className="w-5 h-5" />
   </button>
