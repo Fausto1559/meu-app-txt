@@ -5,12 +5,12 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from './services/firebaseConfig';
 import LoginScreen from './screens/LoginScreen';
 import { Privacidade } from './screens/Privacidade';
-
-import { 
-  Building2, FileSpreadsheet, Cpu, LogOut, Calculator, 
-  LayoutDashboard, FileText, Network, DollarSign, ArrowUpRight, 
-  ArrowDownRight, RefreshCw, AlertCircle, Crown, Flame, X, 
-  ShieldCheck, Download, CheckCircle2, ChevronDown, Mic 
+import {
+  User as UserIcon,
+  Building2, FileSpreadsheet, Cpu, LogOut, Calculator,
+  LayoutDashboard, FileText, Network, DollarSign, ArrowUpRight,
+  ArrowDownRight, RefreshCw, AlertCircle, Crown, Flame, X,
+  ShieldCheck, Download, CheckCircle2, ChevronDown, Mic
 } from 'lucide-react';
 
 import CalculadoraExpress from './components/calculadora/CalculadoraExpress';
@@ -454,6 +454,16 @@ const handleLogout = () => {
     </div>
   </div>
 )}
+
+<button
+  onClick={() => setActiveTab('perfil')}
+  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+    activeTab === 'perfil' ? 'bg-amber-500 text-slate-950' : 'text-slate-300 hover:text-white'
+  }`}
+>
+  <UserIcon className="w-4 h-4" />
+  <span>Perfil</span>
+</button>
 
 {isPrivacidadeOpen && (
   <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
