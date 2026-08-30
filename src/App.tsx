@@ -479,16 +479,6 @@ const handleLogout = () => {
   </div>
 )}
 
-<button
-  onClick={() => setActiveTab('perfil')}
-  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-    activeTab === 'perfil' ? 'bg-amber-500 text-slate-950' : 'text-slate-300 hover:text-white'
-  }`}
->
-  <UserIcon className="w-4 h-4" />
-  <span>Perfil</span>
-</button>
-
 {isPrivacidadeOpen && (
   <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
     <div className="bg-slate-900 text-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative border border-slate-800 shadow-2xl">
@@ -582,6 +572,40 @@ const handleLogout = () => {
                 </button>
               </div>
             </div>
+
+{/* CARD CONTAS A RECEBER */}
+<div className="flex items-center justify-between mb-3">
+  <h3 className="text-slate-300 font-medium text-lg">Contas a Receber</h3>
+  <button
+    type="button"
+    onClick={() => handleVoiceInput('aReceber')}
+    className={`p-2.5 rounded-full transition-all ${
+      listeningField === 'aReceber'
+        ? 'bg-red-500 text-white animate-pulse'
+        : 'bg-slate-800 text-slate-300 hover:text-emerald-400 hover:bg-slate-700'
+    }`}
+    title="Ditar valor por voz"
+  >
+    <Mic className="w-5 h-5" />
+  </button>
+</div>
+
+{/* CARD CONTAS A PAGAR */}
+<div className="flex items-center justify-between mb-3">
+  <h3 className="text-slate-300 font-medium text-lg">Contas a Pagar</h3>
+  <button
+    type="button"
+    onClick={() => handleVoiceInput('aPagar')}
+    className={`p-2.5 rounded-full transition-all ${
+      listeningField === 'aPagar'
+        ? 'bg-red-500 text-white animate-pulse'
+        : 'bg-slate-800 text-slate-300 hover:text-rose-400 hover:bg-slate-700'
+    }`}
+    title="Ditar valor por voz"
+  >
+    <Mic className="w-5 h-5" />
+  </button>
+</div>
 
             <div className="flex justify-end mt-4">
               <button
