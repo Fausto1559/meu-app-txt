@@ -100,9 +100,33 @@ export default function App() {
   window.location.href = 'https://www.google.com';
 };
   
-  const handleVoiceInput = (fieldName: string, setter: (val: string) => void) => {
-    setListeningField(fieldName);
-    setTimeout(() => setListeningField(null), 3000);
+    const handleVoiceInput = (campo: 'aReceber' | 'aPagar') => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      alert('Seu navegador não suporta reconhecimento de voz.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+    setListeningField(campo);
+
+    recognition.onresult = (event: any) => {
+      const texto = event.results[0][0].transcript;
+      const valorNumerico = parseFloat(texto.replace(/[^0-9,\.]/g, '').replace(',', '.'));
+
+      if (!isNaN(valorNumerico)) {
+        if (campo === 'aReceber') setAReceber(valorNumerico);
+        if (campo === 'aPagar') setAPagar(valorNumerico);
+      }
+      setListeningField(null);
+    };
+
+    recognition.onerror = () => setListeningField(null);
+    recognition.onend = () => setListeningField(null);
+
+    recognition.start();
   };
 
   // ESTADOS DO USUÁRIO E PLANOS (Ajustado para Freemium por padrão)
