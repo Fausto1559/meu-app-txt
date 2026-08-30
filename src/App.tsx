@@ -192,7 +192,9 @@ const handleLogout = async () => {
       console.error('Erro ao encerrar sessão:', error);
     } finally {
       // 3. Força o redirecionamento limpo para a raiz
-      window.location.href = '/';
+      window.close();
+      // Caso o navegador bloqueie o fechamento, redireciona para fora do app
+      window.location.href = 'https://www.google.com';
     }
   };
 
