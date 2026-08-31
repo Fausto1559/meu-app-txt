@@ -241,7 +241,7 @@ return (
         </div>
       )}
 
-      {/* QUADROS COM MIK E LISTAS EDITÁVEIS */}
+      {/* UNICO CONTAINER EDITÁVEL DE CONTAS A RECEBER E PAGAR */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         {/* CONTAS A RECEBER */}
         <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
@@ -270,20 +270,20 @@ return (
               <p className="text-xs text-slate-500 italic">Diga ex: "Receber da Padaria R$ 100"</p>
             ) : (
               aReceberItens.map((item, i) => (
-                <div key={i} className="flex items-center justify-between text-xs py-1 border-b border-slate-800/50 last:border-0 gap-2">
-                  <div className="flex items-center gap-1.5 flex-1">
+                <div key={i} className="flex items-center justify-between text-xs py-0.5 border-b border-slate-800/50 last:border-0 gap-2">
+                  <div className="flex items-center gap-1 flex-1">
                     <span className="text-emerald-500 font-bold">•</span>
                     <input
                       type="text"
                       value={item}
                       onChange={(e) => atualizarItemAReceber(i, e.target.value)}
-                      className="w-full bg-transparent text-emerald-300 text-xs focus:outline-none focus:bg-slate-800/80 focus:ring-1 focus:ring-emerald-500/50 px-1.5 py-0.5 rounded cursor-text"
+                      className="w-full bg-transparent text-emerald-300 text-xs border-b border-transparent hover:border-slate-700 focus:border-emerald-400 focus:bg-slate-800/50 focus:outline-none transition-all px-1 py-0.5 rounded"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => removerItemAReceber(i)}
-                    className="text-slate-500 hover:text-red-400 font-bold px-1.5 py-0.5 rounded transition-colors"
+                    className="text-slate-500 hover:text-red-400 font-bold px-2 py-0.5 rounded transition-colors"
                     title="Apagar este item"
                   >
                     ✕
@@ -321,20 +321,20 @@ return (
               <p className="text-xs text-slate-500 italic">Diga ex: "Pagar energia R$ 150"</p>
             ) : (
               aPagarItens.map((item, i) => (
-                <div key={i} className="flex items-center justify-between text-xs py-1 border-b border-slate-800/50 last:border-0 gap-2">
-                  <div className="flex items-center gap-1.5 flex-1">
+                <div key={i} className="flex items-center justify-between text-xs py-0.5 border-b border-slate-800/50 last:border-0 gap-2">
+                  <div className="flex items-center gap-1 flex-1">
                     <span className="text-rose-500 font-bold">•</span>
                     <input
                       type="text"
                       value={item}
                       onChange={(e) => atualizarItemAPagar(i, e.target.value)}
-                      className="w-full bg-transparent text-rose-300 text-xs focus:outline-none focus:bg-slate-800/80 focus:ring-1 focus:ring-rose-500/50 px-1.5 py-0.5 rounded cursor-text"
+                      className="w-full bg-transparent text-rose-300 text-xs border-b border-transparent hover:border-slate-700 focus:border-rose-400 focus:bg-slate-800/50 focus:outline-none transition-all px-1 py-0.5 rounded"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => removerItemAPagar(i)}
-                    className="text-slate-500 hover:text-red-400 font-bold px-1.5 py-0.5 rounded transition-colors"
+                    className="text-slate-500 hover:text-red-400 font-bold px-2 py-0.5 rounded transition-colors"
                     title="Apagar este item"
                   >
                     ✕
