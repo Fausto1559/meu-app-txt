@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Mic } from 'lucide-react';
-// src/screens/Painel.tsx
 import { parseBRL, Plan, ConnectedMachine, ReceivableItem, PayableItem } from '../types/index';
-// Altere a segunda linha de acordo com a localização exata do arquivo de types (exemplo: '../types' ou '../types/index')
 import { DollarSign, ArrowUpRight, ArrowDownRight, RefreshCw, AlertCircle, X, CheckCircle2 } from 'lucide-react';
 
 interface PainelProps {
@@ -32,7 +30,7 @@ export default function Painel({
   setVendasHoje,
   onNavigateToConexao,
 }: PainelProps) {
-const [listeningField, setListeningField] = useState<'aReceber' | 'aPagar' | null>(null);
+  const [listeningField, setListeningField] = useState<'aReceber' | 'aPagar' | null>(null);
   const [aReceberTotal, setAReceberTotal] = useState<number>(0);
   const [aReceberItens, setAReceberItens] = useState<string[]>([]);
   const [aPagarTotal, setAPagarTotal] = useState<number>(0);
@@ -70,33 +68,7 @@ const [listeningField, setListeningField] = useState<'aReceber' | 'aPagar' | nul
     recognition.start();
   };
 
-  const removerItemAReceber = (index: number) => {
-    const item = aReceberItens[index];
-    const numeros = item.match(/\d+(?:[.,]\d+)?/g);
-    const valor = numeros ? parseFloat(numeros[0].replace(',', '.')) : 0;
-    if (valor > 0) setAReceberTotal(prev => Math.max(0, prev - valor));
-    setAReceberItens(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const removerItemAPagar = (index: number) => {
-    const item = aPagarItens[index];
-    const numeros = item.match(/\d+(?:[.,]\d+)?/g);
-    const valor = numeros ? parseFloat(numeros[0].replace(',', '.')) : 0;
-    if (valor > 0) setAPagarTotal(prev => Math.max(0, prev - valor));
-    setAPagarItens(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const totalReceivables = (receivables ?? [])
-    .filter((r) => !r.received)
-    .reduce((acc, r) => acc + r.amount, 0);
-
-  const totalPayables = (payables ?? [])
-    .filter((p) => !p.paid)
-    .reduce((acc, p) => acc + parseBRL(p.amount), 0);
-
-  const saldoPrevisto = totalReceivables + vendasHoje - totalPayables;
-
-const atualizarItemAReceber = (index: number, novoTexto: string) => {
+  const atualizarItemAReceber = (index: number, novoTexto: string) => {
     setAReceberItens(prev => {
       const copia = [...prev];
       copia[index] = novoTexto;
@@ -122,25 +94,39 @@ const atualizarItemAReceber = (index: number, novoTexto: string) => {
     });
   };
 
-  function toggleReceive(id: string) {
-    setReceivables((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, received: !r.received } : r))
-    );
-  }
+  const removerItemAReceber = (index: number) => {
+    const item = aReceberItens[index];
+    const numeros = item.match(/\d+(?:[.,]\d+)?/g);
+    const valor = numeros ? parseFloat(numeros[0].replace(',', '.')) : 0;
+    if (valor > 0) setAReceberTotal(prev => Math.max(0, prev - valor));
+    setAReceberItens(prev => prev.filter((_, i) => i !== index));
+  };
 
-  function togglePay(id: string) {
-    setPayables((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, paid: !p.paid } : p))
-    );
-  }
+  const removerItemAPagar = (index: number) => {
+    const item = aPagarItens[index];
+    const numeros = item.match(/\d+(?:[.,]\d+)?/g);
+    const valor = numeros ? parseFloat(numeros[0].replace(',', '.')) : 0;
+    if (valor > 0) setAPagarTotal(prev => Math.max(0, prev - valor));
+    setAPagarItens(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const totalReceivables = (receivables ?? [])
+    .filter((r) => !r.received)
+    .reduce((acc, r) => acc + r.amount, 0);
+
+  const totalPayables = (payables ?? [])
+    .filter((p) => !p.paid)
+    .reduce((acc, p) => acc + parseBRL(p.amount), 0);
+
+  const saldoPrevisto = totalReceivables + (typeof vendasHoje === 'number' ? vendasHoje : 0) - totalPayables;
 
   function handleClearVendas() {
     if (window.confirm("Tem certeza? Apagar o conteúdo desse campo?")) {
-      setVendasHoje(0);
+      if (setVendasHoje) setVendasHoje(0);
     }
   }
 
-return (
+  return (
     <div className="p-6 max-w-7xl mx-auto flex flex-col gap-6">
       {/* CABEÇALHO */}
       <div className="flex flex-col gap-2">
@@ -161,7 +147,7 @@ return (
               <button
                 type="button"
                 onClick={handleClearVendas}
-                title="Tem certeza? Apagar o conteúdo desse campo?"
+                title="Apagar o conteúdo desse campo"
                 className="text-slate-500 hover:text-red-400 p-1 transition-colors"
               >
                 <X className="w-4 h-4" />
@@ -173,7 +159,7 @@ return (
             {typeof vendasHoje === 'number' ? vendasHoje.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : (vendasHoje || 'R$ 0,00')}
           </div>
           <p className="text-[11px] text-slate-500 mt-1">
-            {connectedMachines?.length > 0 ? `${connectedMachines.length} maquininha(s) ativa(s)` : 'Nenhuma maquininha conectada'}
+            {connectedMachines && connectedMachines.length > 0 ? `${connectedMachines.length} maquininha(s) ativa(s)` : 'Nenhuma maquininha conectada'}
           </p>
         </div>
 
