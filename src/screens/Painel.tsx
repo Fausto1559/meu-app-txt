@@ -5,8 +5,7 @@ import { parseBRL, Plan, ConnectedMachine, ReceivableItem, PayableItem } from '.
 interface PainelProps {
   plan?: Plan;
   connectedMachines?: ConnectedMachine[];
-  receivables?: Array<{ id: string; description: string; dueDate: string; amount: number; received: boolean }>;
-  [key: string]: any;
+  receivables?: ReceivableItem[];
   setReceivables?: React.Dispatch<React.SetStateAction<ReceivableItem[]>>;
   payables?: PayableItem[];
   setPayables?: React.Dispatch<React.SetStateAction<PayableItem[]>>;
@@ -111,7 +110,7 @@ export default function Painel({
 
   const totalReceivables = (receivables ?? [])
     .filter((r) => !r.received)
-    .reduce((acc, r) => acc + r.amount, 0);
+    .reduce((acc, r) => acc + parseBRL(r.amount), 0);
 
   const totalPayables = (payables ?? [])
     .filter((p) => !p.paid)
@@ -229,7 +228,7 @@ export default function Painel({
         </div>
       )}
 
-      {/* ÚNICO CONTAINER DE CONTAS */}
+      {/* APENAS UM ÚNICO CONTAINER NO RODAPÉ (DUAS COLUNAS LADO A LADO) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         {/* CONTAS A RECEBER */}
         <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
