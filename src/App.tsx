@@ -26,6 +26,45 @@ function App() {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
+// === INÍCIO DO ITEM 1 ===
+  const [aReceberTotal, setAReceberTotal] = useState<number>(0);
+  const [aReceberItens, setAReceberItens] = useState<string[]>([]);
+  const [aPagarTotal, setAPagarTotal] = useState<number>(0);
+  const [aPagarItens, setAPagarItens] = useState<string[]>([]);
+
+  const handleVoiceInput = (field: 'aReceber' | 'aPagar') => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      alert('Navegador sem suporte a reconhecimento de voz.');
+      return;
+    }
+
+    setListeningField(field);
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+
+    recognition.onresult = (event: any) => {
+      const texto = event.results[0][0].transcript;
+      const numeros = texto.match(/\d+(?:[.,]\d+)?/g);
+      const valor = numeros ? parseFloat(numeros[0].replace(',', '.')) : 0;
+
+      if (field === 'aReceber') {
+        if (valor > 0) setAReceberTotal(prev => prev + valor);
+        setAReceberItens(prev => [texto, ...prev]);
+      } else {
+        if (valor > 0) setAPagarTotal(prev => prev + valor);
+        setAPagarItens(prev => [texto, ...prev]);
+      }
+      setListeningField(null);
+    };
+
+    recognition.onerror = () => setListeningField(null);
+    recognition.onend = () => setListeningField(null);
+    recognition.start();
+  };
+  // === FIM DO ITEM 1 ===
+
   const [mostrarPrivacidade, setMostrarPrivacidade] = useState(() => {
     return localStorage.getItem('aceitouPrivacidade') !== 'true';
   });
@@ -36,35 +75,6 @@ function App() {
   };
 
   const [listeningField, setListeningField] = useState<'aReceber' | 'aPagar' | null>(null);
-
-  const handleVoiceInput = (campo: 'aReceber' | 'aPagar') => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      alert('Seu navegador não suporta reconhecimento de voz.');
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'pt-BR';
-    setListeningField(campo);
-
-    recognition.onresult = (event: any) => {
-      const texto = event.results[0][0].transcript;
-      const valorNumerico = parseFloat(texto.replace(/[^0-9,\.]/g, '').replace(',', '.'));
-
-      if (!isNaN(valorNumerico)) {
-        if (campo === 'aReceber') setAReceber(valorNumerico);
-        if (campo === 'aPagar') setAPagar(valorNumerico);
-      }
-      setListeningField(null);
-    };
-
-    recognition.onerror = () => setListeningField(null);
-    recognition.onend = () => setListeningField(null);
-
-    recognition.start();
-  };
 
   const [isTrialExpired, setIsTrialExpired] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('painel');
@@ -586,44 +596,69 @@ return (
           </div>
         )}
 
-        {/* SEÇÃO CONTAS A RECEBER E PAGAR COM VOZ */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-800 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-300">Contas a Receber</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => handleVoiceInput('aReceber')}
-              className={`p-3 rounded-full transition-all ${
-                listeningField === 'aReceber'
-                  ? 'bg-red-500 text-white animate-pulse'
-                  : 'bg-slate-800 text-slate-300 hover:text-emerald-400'
-              }`}
-              title="Ditar valor por voz"
-            >
-              <Mic className="w-5 h-5" />
-            </button>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+  {/* CONTAS A RECEBER */}
+  <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
+    <div className="flex items-center justify-between">
+      <div>
+        <h3 className="text-base font-bold text-white tracking-wide">Contas a Receber</h3>
+        <p className="text-2xl font-extrabold text-emerald-400 mt-1">
+          R$ {aReceberTotal.toFixed(2).replace('.', ',')}
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={() => handleVoiceInput('aReceber')}
+        className={`p-3.5 rounded-xl transition-all ${
+          listeningField === 'aReceber'
+            ? 'bg-red-500 text-white animate-pulse'
+            : 'bg-slate-800 text-slate-300 hover:text-emerald-400'
+        }`}
+      >
+        <Mic className="w-6 h-6" />
+      </button>
+    </div>
 
-          <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-800 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-300">Contas a Pagar</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => handleVoiceInput('aPagar')}
-              className={`p-3 rounded-full transition-all ${
-                listeningField === 'aPagar'
-                  ? 'bg-red-500 text-white animate-pulse'
-                  : 'bg-slate-800 text-slate-300 hover:text-rose-400'
-              }`}
-              title="Ditar valor por voz"
-            >
-              <Mic className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
+    <div className="bg-slate-900/60 rounded-xl p-3 border border-slate-800 min-h-[50px] max-h-[100px] overflow-y-auto">
+      {aReceberItens.length === 0 ? (
+        <p className="text-xs text-slate-500 italic">Diga ex: "Receber da Padaria R$ 100"</p>
+      ) : (
+        aReceberItens.map((item, i) => <p key={i} className="text-xs text-emerald-300">• {item}</p>)
+      )}
+    </div>
+  </div>
+
+  {/* CONTAS A PAGAR */}
+  <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
+    <div className="flex items-center justify-between">
+      <div>
+        <h3 className="text-base font-bold text-white tracking-wide">Contas a Pagar</h3>
+        <p className="text-2xl font-extrabold text-rose-400 mt-1">
+          R$ {aPagarTotal.toFixed(2).replace('.', ',')}
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={() => handleVoiceInput('aPagar')}
+        className={`p-3.5 rounded-xl transition-all ${
+          listeningField === 'aPagar'
+            ? 'bg-red-500 text-white animate-pulse'
+            : 'bg-slate-800 text-slate-300 hover:text-rose-400'
+        }`}
+      >
+        <Mic className="w-6 h-6" />
+      </button>
+    </div>
+
+    <div className="bg-slate-900/60 rounded-xl p-3 border border-slate-800 min-h-[50px] max-h-[100px] overflow-y-auto">
+      {aPagarItens.length === 0 ? (
+        <p className="text-xs text-slate-500 italic">Diga ex: "Pagar energia R$ 150"</p>
+      ) : (
+        aPagarItens.map((item, i) => <p key={i} className="text-xs text-rose-300">• {item}</p>)
+      )}
+    </div>
+  </div>
+</div>
 
         {/* COMPONENTE DA CALCULADORA */}
         <CalculadoraExpress
