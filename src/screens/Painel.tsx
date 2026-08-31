@@ -230,7 +230,7 @@ export default function Painel({
         </div>
       )}
 
-      {/* UNICO CONTAINER DE CONTAS EDITÁVEL E DITÁVEL */}
+      {/* ÚNICO CONTAINER DE CONTAS EDITÁVEL E DITÁVEL */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         {/* CONTAS A RECEBER */}
         <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
