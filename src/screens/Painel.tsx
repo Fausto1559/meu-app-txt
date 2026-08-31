@@ -96,6 +96,32 @@ const [listeningField, setListeningField] = useState<'aReceber' | 'aPagar' | nul
 
   const saldoPrevisto = totalReceivables + vendasHoje - totalPayables;
 
+const atualizarItemAReceber = (index: number, novoTexto: string) => {
+    setAReceberItens(prev => {
+      const copia = [...prev];
+      copia[index] = novoTexto;
+      const novoTotal = copia.reduce((acc, curr) => {
+        const nums = curr.match(/\d+(?:[.,]\d+)?/g);
+        return acc + (nums ? parseFloat(nums[0].replace(',', '.')) : 0);
+      }, 0);
+      setAReceberTotal(novoTotal);
+      return copia;
+    });
+  };
+
+  const atualizarItemAPagar = (index: number, novoTexto: string) => {
+    setAPagarItens(prev => {
+      const copia = [...prev];
+      copia[index] = novoTexto;
+      const novoTotal = copia.reduce((acc, curr) => {
+        const nums = curr.match(/\d+(?:[.,]\d+)?/g);
+        return acc + (nums ? parseFloat(nums[0].replace(',', '.')) : 0);
+      }, 0);
+      setAPagarTotal(novoTotal);
+      return copia;
+    });
+  };
+
   function toggleReceive(id: string) {
     setReceivables((prev) =>
       prev.map((r) => (r.id === id ? { ...r, received: !r.received } : r))
@@ -155,7 +181,7 @@ const [listeningField, setListeningField] = useState<'aReceber' | 'aPagar' | nul
             <ArrowUpRight className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="text-2xl font-bold text-emerald-400">
-            {Number(aReceber ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            {Number(aReceberTotal ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </div>
           <p className="text-[11px] text-slate-500 mt-1">Valores pendentes</p>
         </div>
@@ -166,7 +192,7 @@ const [listeningField, setListeningField] = useState<'aReceber' | 'aPagar' | nul
             <ArrowDownRight className="w-4 h-4 text-red-400" />
           </div>
           <div className="text-2xl font-bold text-red-400">
-            {Number(totalPayables ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            {Number(aPagarTotal ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </div>
           <p className="text-[11px] text-slate-500 mt-1">Contas em aberto</p>
         </div>
@@ -214,6 +240,111 @@ const [listeningField, setListeningField] = useState<'aReceber' | 'aPagar' | nul
           </button>
         </div>
       )}
+
+      {/* QUADROS COM DITADO E EDIÇÃO DE LINHAS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        {/* CONTAS A RECEBER */}
+        <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-bold text-white tracking-wide">Contas a Receber</h3>
+              <p className="text-2xl font-extrabold text-emerald-400 mt-1">
+                R$ {aReceberTotal.toFixed(2).replace('.', ',')}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleVoiceInput('aReceber')}
+              className={`p-3.5 rounded-xl transition-all ${
+                listeningField === 'aReceber'
+                  ? 'bg-red-500 text-white animate-pulse'
+                  : 'bg-slate-800 text-slate-300 hover:text-emerald-400'
+              }`}
+            >
+              <Mic className="w-6 h-6" />
+            </button>
+          </div>
+
+          <div className="bg-slate-900/60 rounded-xl p-3 border border-slate-800 min-h-[50px] max-h-[140px] overflow-y-auto space-y-1">
+            {aReceberItens.length === 0 ? (
+              <p className="text-xs text-slate-500 italic">Diga ex: "Receber da Padaria R$ 100"</p>
+            ) : (
+              aReceberItens.map((item, i) => (
+                <div key={i} className="flex items-center justify-between text-xs py-0.5 border-b border-slate-800/50 last:border-0 gap-2">
+                  <div className="flex items-center gap-1 flex-1">
+                    <span className="text-emerald-500 font-bold">•</span>
+                    <input
+                      type="text"
+                      value={item}
+                      onChange={(e) => atualizarItemAReceber(i, e.target.value)}
+                      className="w-full bg-transparent text-emerald-300 text-xs border-b border-transparent hover:border-slate-700 focus:border-emerald-400 focus:bg-slate-800/50 focus:outline-none transition-all px-1 py-0.5 rounded"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removerItemAReceber(i)}
+                    className="text-slate-500 hover:text-red-400 font-bold px-2 py-0.5 rounded transition-colors"
+                    title="Apagar este item"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* CONTAS A PAGAR */}
+        <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-bold text-white tracking-wide">Contas a Pagar</h3>
+              <p className="text-2xl font-extrabold text-rose-400 mt-1">
+                R$ {aPagarTotal.toFixed(2).replace('.', ',')}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleVoiceInput('aPagar')}
+              className={`p-3.5 rounded-xl transition-all ${
+                listeningField === 'aPagar'
+                  ? 'bg-red-500 text-white animate-pulse'
+                  : 'bg-slate-800 text-slate-300 hover:text-rose-400'
+              }`}
+            >
+              <Mic className="w-6 h-6" />
+            </button>
+          </div>
+
+          <div className="bg-slate-900/60 rounded-xl p-3 border border-slate-800 min-h-[50px] max-h-[140px] overflow-y-auto space-y-1">
+            {aPagarItens.length === 0 ? (
+              <p className="text-xs text-slate-500 italic">Diga ex: "Pagar energia R$ 150"</p>
+            ) : (
+              aPagarItens.map((item, i) => (
+                <div key={i} className="flex items-center justify-between text-xs py-0.5 border-b border-slate-800/50 last:border-0 gap-2">
+                  <div className="flex items-center gap-1 flex-1">
+                    <span className="text-rose-500 font-bold">•</span>
+                    <input
+                      type="text"
+                      value={item}
+                      onChange={(e) => atualizarItemAPagar(i, e.target.value)}
+                      className="w-full bg-transparent text-rose-300 text-xs border-b border-transparent hover:border-slate-700 focus:border-rose-400 focus:bg-slate-800/50 focus:outline-none transition-all px-1 py-0.5 rounded"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removerItemAPagar(i)}
+                    className="text-slate-500 hover:text-red-400 font-bold px-2 py-0.5 rounded transition-colors"
+                    title="Apagar este item"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
