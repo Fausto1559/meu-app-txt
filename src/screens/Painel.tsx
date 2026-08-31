@@ -241,7 +241,7 @@ return (
         </div>
       )}
 
-      {/* ÚNICO CONTAINER EDITÁVEL DE CONTAS A RECEBER E PAGAR */}
+      {/* UNICO CONTAINER DE CONTAS A RECEBER E PAGAR */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         {/* CONTAS A RECEBER */}
         <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
