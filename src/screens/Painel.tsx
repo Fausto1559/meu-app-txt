@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Mic } from 'lucide-react';
+import { Mic, DollarSign, ArrowUpRight, ArrowDownRight, RefreshCw, AlertCircle, X, CheckCircle2 } from 'lucide-react';
 import { parseBRL, Plan, ConnectedMachine, ReceivableItem, PayableItem } from '../types/index';
-import { DollarSign, ArrowUpRight, ArrowDownRight, RefreshCw, AlertCircle, X, CheckCircle2 } from 'lucide-react';
 
 interface PainelProps {
   plan?: Plan;
@@ -230,7 +229,7 @@ export default function Painel({
         </div>
       )}
 
-      {/* ÚNICO CONTAINER DE CONTAS EDITÁVEL E DITÁVEL */}
+      {/* ÚNICO CONTAINER DE CONTAS (GRID COM CONTAS A RECEBER E A PAGAR) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         {/* CONTAS A RECEBER */}
         <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
