@@ -140,7 +140,7 @@ const atualizarItemAReceber = (index: number, novoTexto: string) => {
     }
   }
 
-  return (
+return (
     <div className="p-6 max-w-7xl mx-auto flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <h2 className="text-xl font-extrabold text-[#E5C158] tracking-wide">
@@ -240,111 +240,6 @@ const atualizarItemAReceber = (index: number, novoTexto: string) => {
           </button>
         </div>
       )}
-
-      {/* QUADROS COM DITADO E EDIÇÃO DE LINHAS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-        {/* CONTAS A RECEBER */}
-        <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-base font-bold text-white tracking-wide">Contas a Receber</h3>
-              <p className="text-2xl font-extrabold text-emerald-400 mt-1">
-                R$ {aReceberTotal.toFixed(2).replace('.', ',')}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => handleVoiceInput('aReceber')}
-              className={`p-3.5 rounded-xl transition-all ${
-                listeningField === 'aReceber'
-                  ? 'bg-red-500 text-white animate-pulse'
-                  : 'bg-slate-800 text-slate-300 hover:text-emerald-400'
-              }`}
-            >
-              <Mic className="w-6 h-6" />
-            </button>
-          </div>
-
-          <div className="bg-slate-900/60 rounded-xl p-3 border border-slate-800 min-h-[50px] max-h-[140px] overflow-y-auto space-y-1">
-            {aReceberItens.length === 0 ? (
-              <p className="text-xs text-slate-500 italic">Diga ex: "Receber da Padaria R$ 100"</p>
-            ) : (
-              aReceberItens.map((item, i) => (
-                <div key={i} className="flex items-center justify-between text-xs py-0.5 border-b border-slate-800/50 last:border-0 gap-2">
-                  <div className="flex items-center gap-1 flex-1">
-                    <span className="text-emerald-500 font-bold">•</span>
-                    <input
-                      type="text"
-                      value={item}
-                      onChange={(e) => atualizarItemAReceber(i, e.target.value)}
-                      className="w-full bg-transparent text-emerald-300 text-xs border-b border-transparent hover:border-slate-700 focus:border-emerald-400 focus:bg-slate-800/50 focus:outline-none transition-all px-1 py-0.5 rounded"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removerItemAReceber(i)}
-                    className="text-slate-500 hover:text-red-400 font-bold px-2 py-0.5 rounded transition-colors"
-                    title="Apagar este item"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* CONTAS A PAGAR */}
-        <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-base font-bold text-white tracking-wide">Contas a Pagar</h3>
-              <p className="text-2xl font-extrabold text-rose-400 mt-1">
-                R$ {aPagarTotal.toFixed(2).replace('.', ',')}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => handleVoiceInput('aPagar')}
-              className={`p-3.5 rounded-xl transition-all ${
-                listeningField === 'aPagar'
-                  ? 'bg-red-500 text-white animate-pulse'
-                  : 'bg-slate-800 text-slate-300 hover:text-rose-400'
-              }`}
-            >
-              <Mic className="w-6 h-6" />
-            </button>
-          </div>
-
-          <div className="bg-slate-900/60 rounded-xl p-3 border border-slate-800 min-h-[50px] max-h-[140px] overflow-y-auto space-y-1">
-            {aPagarItens.length === 0 ? (
-              <p className="text-xs text-slate-500 italic">Diga ex: "Pagar energia R$ 150"</p>
-            ) : (
-              aPagarItens.map((item, i) => (
-                <div key={i} className="flex items-center justify-between text-xs py-0.5 border-b border-slate-800/50 last:border-0 gap-2">
-                  <div className="flex items-center gap-1 flex-1">
-                    <span className="text-rose-500 font-bold">•</span>
-                    <input
-                      type="text"
-                      value={item}
-                      onChange={(e) => atualizarItemAPagar(i, e.target.value)}
-                      className="w-full bg-transparent text-rose-300 text-xs border-b border-transparent hover:border-slate-700 focus:border-rose-400 focus:bg-slate-800/50 focus:outline-none transition-all px-1 py-0.5 rounded"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removerItemAPagar(i)}
-                    className="text-slate-500 hover:text-red-400 font-bold px-2 py-0.5 rounded transition-colors"
-                    title="Apagar este item"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
