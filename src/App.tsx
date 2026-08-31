@@ -1,3 +1,4 @@
+import Conexao from './screens/Conexao';
 import { sendSignInLinkToEmail } from 'firebase/auth';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import React, { useState, useEffect } from 'react';
@@ -19,8 +20,9 @@ import { CentralContador } from './screens/CentralContador';
 import { OpenFinance } from './screens/OpenFinance';
 import Painel from './screens/Painel';
 import { Perfil } from './screens/Perfil';
+import SalesCalculator from './screens/SalesCalculator';
 
-export default function App() {
+function App() {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
@@ -65,7 +67,7 @@ export default function App() {
   };
 
   const [isTrialExpired, setIsTrialExpired] = useState(false);
-  const [activeTab, setActiveTab] = useState<'painel' | 'calculadora' | 'fechamento' | 'fechamento_contador' | 'open_finance' | 'OpenFinance' | 'perfil'>('painel');
+  const [activeTab, setActiveTab] = useState<string>('painel');
   const [modoApagaIncendio, setModoApagaIncendio] = useState(false);
   const [diasTrial, setDiasTrial] = useState({ dias: 24, horas: 21, minutos: 43, segundos: 10 });
   const [isCalculadoraOpen, setIsCalculadoraOpen] = useState(false);
@@ -78,7 +80,7 @@ export default function App() {
   const userPlanName = userPlan === 'Freemium/Essencial' ? 'Copiloto' : 'Copiloto Pro';
   const userPlanPrice = userPlan === 'R$ 19,90/mês' ? 'R$ 29,90/mês' : 'R$ 39,90/mês';
 
-// ESTADOS FINANCEIROS
+  // ESTADOS FINANCEIROS
   const [vendasHoje, setVendasHoje] = useState<number>(0);
   const [aReceber, setAReceber] = useState<number>(0);
   const [aPagar, setAPagar] = useState<number>(0);
@@ -127,47 +129,47 @@ export default function App() {
 
   // FUNÇÕES AUXILIARES
   const handleRecusarPrivacidade = () => {
-  window.location.href = 'https://www.google.com';
-};
+    window.location.href = 'https://www.google.com';
+  };
 
   // ESTADOS DO USUÁRIO E PLANOS (Ajustado para Freemium por padrão)
   const [selectedPlan, setSelectedPlan] = useState<string>('freemium');
   const [selectedPlanName, setSelectedPlanName] = useState<string>('Freemium / Essencial');
   const [selectedPlanPrice, setSelectedPlanPrice] = useState<string>('Gratuito');
 
-// Função de seleção atualizada para tratar o valor zero/gratuito
+  // Função de seleção atualizada para tratar o valor zero/gratuito
   const selecionarPlano = (id: string, name: string, price: string) => {
-  setSelectedPlan(id);
-  setSelectedPlanName(name);
-  if (price === '0' || price === '0,00' || price.toLowerCase().includes('gratuit')) {
-    setSelectedPlanPrice('Gratuito');
-  } else {
-    setSelectedPlanPrice(`R$ ${price}/mês`);
-  }
-  setIsUpgradeOpen(false);
-};
+    setSelectedPlan(id);
+    setSelectedPlanName(name);
+    if (price === '0' || price === '0,00' || price.toLowerCase().includes('gratuit')) {
+      setSelectedPlanPrice('Gratuito');
+    } else {
+      setSelectedPlanPrice(`R$ ${price}/mês`);
+    }
+    setIsUpgradeOpen(false);
+  };
 
-// 1. Mapeamento de links dos 3 planos
-const ASAAS_LINKS = {
-  essencial: "https://sandbox.asaas.com/c/kvomyzpygxcgvmby",
-  copiloto: "https://sandbox.asaas.com/c/SEU_LINK_COPILOTO",
-  pro: "https://sandbox.asaas.com/c/SEU_LINK_COPILOTO_PRO"
-};
+  // 1. Mapeamento de links dos 3 planos
+  const ASAAS_LINKS = {
+    essencial: "https://sandbox.asaas.com/c/kvomyzpygxcgvmby",
+    copiloto: "https://sandbox.asaas.com/c/SEU_LINK_COPILOTO",
+    pro: "https://sandbox.asaas.com/c/SEU_LINK_COPILOTO_PRO"
+  };
 
-// 2. Função de assinatura única
-const handleSubscribe = (plano: 'essencial' | 'copiloto' | 'pro') => {
-  const userUid = auth.currentUser?.uid;
-  if (!userUid) {
-    alert("Por favor, faça login antes de assinar.");
-    return;
-  }
+  // 2. Função de assinatura única
+  const handleSubscribe = (plano: 'essencial' | 'copiloto' | 'pro') => {
+    const userUid = auth.currentUser?.uid;
+    if (!userUid) {
+      alert("Por favor, faça login antes de assinar.");
+      return;
+    }
 
-  const baseUrl = ASAAS_LINKS[plano];
-  const asaasLink = `${baseUrl}?externalReference=${userUid}`;
-  window.open(asaasLink, "_blank");
-};
+    const baseUrl = ASAAS_LINKS[plano];
+    const asaasLink = `${baseUrl}?externalReference=${userUid}`;
+    window.open(asaasLink, "_blank");
+  };
 
-const handleGoogleLogin = async () => {
+  const handleGoogleLogin = async () => {
     try {
       setIsAuthLoading(true);
       const provider = new GoogleAuthProvider();
@@ -182,25 +184,25 @@ const handleGoogleLogin = async () => {
     }
   };
 
-const handleEmailLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!emailLogin) return;
-  try {
-    setIsAuthLoading(true);
-    const actionCodeSettings = {
-      url: window.location.href,
-      handleCodeInApp: true,
-    };
-    await sendSignInLinkToEmail(auth, emailLogin, actionCodeSettings);
-    window.localStorage.setItem('emailForSignIn', emailLogin);
-    setEmailSent(true);
-  } catch (error: any) {
-    console.error('Erro ao enviar e-mail:', error);
-    alert('Erro ao enviar e-mail: ' + error.message);
-  } finally {
-    setIsAuthLoading(false);
-  }
-};
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailLogin) return;
+    try {
+      setIsAuthLoading(true);
+      const actionCodeSettings = {
+        url: window.location.href,
+        handleCodeInApp: true,
+      };
+      await sendSignInLinkToEmail(auth, emailLogin, actionCodeSettings);
+      window.localStorage.setItem('emailForSignIn', emailLogin);
+      setEmailSent(true);
+    } catch (error: any) {
+      console.error('Erro ao enviar e-mail:', error);
+      alert('Erro ao enviar e-mail: ' + error.message);
+    } finally {
+      setIsAuthLoading(false);
+    }
+  };
 
 const handleLogout = () => {
     // 1. Limpa as sessões locais de forma síncrona
@@ -212,7 +214,7 @@ const handleLogout = () => {
 
     // 3. Desconecta do Firebase em segundo plano
     if (typeof auth !== 'undefined' && auth?.signOut) {
-      auth.signOut().catch(() => {});
+      auth.signOut().catch(() => { });
     }
 
     // 4. Redireciona direto para fora do sistema
@@ -223,11 +225,7 @@ const handleLogout = () => {
     return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Carregando...</div>;
   }
 
-  if (!user) {
-    return <LoginScreen />;
-  }
-
-// TRAVA DE SEGURANÇA E TELA DE LOGIN
+  // TRAVA DE SEGURANÇA E TELA DE LOGIN
   if (!user) {
     return (
       <div className="min-h-screen bg-[#111827] flex items-center justify-center text-white p-4">
@@ -239,17 +237,17 @@ const handleLogout = () => {
 
           <div className="space-y-4">
             {/* 1. BOTÃO GOOGLE DOURADO FUNCIONAL */}
-            <button 
+            <button
               type="button"
               onClick={handleGoogleLogin}
               disabled={isAuthLoading}
               className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-3 transition-all cursor-pointer shadow-md active:scale-95 disabled:opacity-50 text-sm"
             >
               <svg className="w-5 h-5 fill-current text-white" viewBox="0 0 24 24">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
               </svg>
               {isAuthLoading ? 'Aguarde...' : 'Fazer Login com o Google'}
             </button>
@@ -266,9 +264,9 @@ const handleLogout = () => {
                 <p className="font-bold text-emerald-400">✅ Link enviado com sucesso!</p>
                 <p>Enviamos um link de acesso para <strong className="text-white">{emailLogin}</strong>.</p>
                 <p className="text-xs text-slate-300">Acesse sua caixa de e-mail e clique no link para entrar no aplicativo.</p>
-                <button 
+                <button
                   type="button"
-                  onClick={() => setEmailSent(false)} 
+                  onClick={() => setEmailSent(false)}
                   className="text-xs text-amber-400 underline mt-2 cursor-pointer hover:text-amber-300"
                 >
                   Tentar outro e-mail
@@ -284,7 +282,7 @@ const handleLogout = () => {
                   required
                   className="w-full bg-[#0c1527] border-2 border-amber-500 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400"
                 />
-                <button 
+                <button
                   type="submit"
                   disabled={isAuthLoading}
                   className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-lg transition-all cursor-pointer shadow-md active:scale-95 disabled:opacity-50 text-sm"
@@ -299,35 +297,35 @@ const handleLogout = () => {
     );
   }
 
-{mostrarPrivacidade && (
-  <Privacidade onAccept={handleAcceptPrivacidade} />
-)}
-
-    return (
+return (
     <div className="min-h-screen bg-[#0c1527] text-white font-sans">
-      
-  {/* BARRA APAGA INCÊNDIO - CONTADOR CENTRALIZADO */}
-<div className="relative w-full bg-gradient-to-r from-transparent via-red-900/90 to-transparent border-b border-red-600/40 py-2 px-6 grid grid-cols-1 md:grid-cols-3 items-center text-xs sm:text-sm animate-pulse shadow-[0_0_15px_rgba(220,38,38,0.3)] gap-2">
-  
-  {/* ESQUERDA: MODO APAGA INCÊNDIO */}
-  <div className="flex items-center gap-2 font-bold text-red-100 tracking-wide justify-start">
-    <span className="text-base animate-bounce">🔥</span>
-    <span>MODO APAGA INCÊNDIO</span>
-  </div>
+      {/* TELA DE PRIVACIDADE */}
+      {mostrarPrivacidade && (
+        <Privacidade onAccept={handleAcceptPrivacidade} />
+      )}
 
-  {/* CENTRO: CONTADOR TRIAL */}
-  <div className="text-gray-200 text-center">
-    Trial Gratuito: <span className="font-mono text-amber-400 font-bold">{timeLeft}</span>
-  </div>
+      {/* BARRA APAGA INCÊNDIO - CONTADOR CENTRALIZADO */}
+      <div className="relative w-full bg-gradient-to-r from-transparent via-red-900/90 to-transparent border-b border-red-600/40 py-2 px-6 grid grid-cols-1 md:grid-cols-3 items-center text-xs sm:text-sm animate-pulse shadow-[0_0_15px_rgba(220,38,38,0.3)] gap-2">
 
-  {/* DIREITA: STATUS DO CAIXA */}
-  <div className="flex items-center gap-2 justify-end">
-    <span className="text-gray-300">Status do caixa:</span>
-    <span className="bg-red-600 text-white font-bold px-2 py-0.5 rounded text-xs uppercase tracking-wider">
-      VERMELHO
-    </span>
-  </div>
-</div>
+        {/* ESQUERDA: MODO APAGA INCÊNDIO */}
+        <div className="flex items-center gap-2 font-bold text-red-100 tracking-wide justify-start">
+          <span className="text-base animate-bounce">🔥</span>
+          <span>MODO APAGA INCÊNDIO</span>
+        </div>
+
+        {/* CENTRO: CONTADOR TRIAL */}
+        <div className="text-gray-200 text-center">
+          Trial Gratuito: <span className="font-mono text-amber-400 font-bold">{timeLeft}</span>
+        </div>
+
+        {/* DIREITA: STATUS DO CAIXA */}
+        <div className="flex items-center gap-2 justify-end">
+          <span className="text-gray-300">Status do caixa:</span>
+          <span className="bg-red-600 text-white font-bold px-2 py-0.5 rounded text-xs uppercase tracking-wider">
+            VERMELHO
+          </span>
+        </div>
+      </div>
 
       {/* 2. BARRA DE USUÁRIO */}
       <div className="px-6 py-2.5 flex items-center justify-between text-xs bg-[#14223c]/80 text-slate-300 border-b border-slate-700">
@@ -365,7 +363,7 @@ const handleLogout = () => {
 
       {/* 3. CONTEÚDO PRINCIPAL (FORMATADO PARA LAYOUT DE PC) */}
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1">
-        
+
         {/* CABEÇALHO E NAVEGAÇÃO */}
         <header className="w-full bg-[#14223c] border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -379,263 +377,266 @@ const handleLogout = () => {
           </div>
 
           <nav className="flex items-center gap-2 flex-wrap justify-center">
-          <button
-            onClick={() => setActiveTab('painel')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-              activeTab === 'painel' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10' : 'text-slate-300 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <LayoutDashboard className="w-4 h-4" />
-            <span>Painel</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('painel')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                activeTab === 'painel' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10' : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>Painel</span>
+            </button>
 
-          <button
-            onClick={() => setIsCalculadoraOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800"
-          >
-            <Calculator className="w-4 h-4 text-amber-400" />
-            <span>Calculadora</span>
-          </button>
-
-          <button
-  onClick={() => setActiveTab('fechamento')}
-  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-    activeTab === 'fechamento'
-      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-      : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-  }`}
->
-  <FileText className="w-4 h-4" />
-  <span>Fechamento Diário</span>
-</button>
-          
-          <button
-            onClick={() => setActiveTab('fechamento_contador')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-              activeTab === 'fechamento_contador' ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10' : 'text-slate-300 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <ShieldCheck className="w-4 h-4" />
-            <span>Central Contador</span>
-          </button>
+            <button
+              onClick={() => setIsCalculadoraOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800"
+            >
+              <Calculator className="w-4 h-4 text-amber-400" />
+              <span>Calculadora</span>
+            </button>
 
 <button
-  onClick={() => setActiveTab('OpenFinance')}
-  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-    activeTab === 'OpenFinance' 
-      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' 
-      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
-  }`}
->
-  <Cpu className="w-4 h-4 text-amber-400" />
-  <span>Open Finance</span>
-</button>
+              onClick={() => setActiveTab('fechamento')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                activeTab === 'fechamento'
+                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              <span>Fechamento Diário</span>
+            </button>
 
-<button 
-  onClick={() => setIsPerfilOpen(true)}
-  className="text-slate-300 hover:text-white text-sm font-medium"
->
-  Perfil
-</button>
+            <button
+              onClick={() => setActiveTab('fechamento_contador')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                activeTab === 'fechamento_contador'
+                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Central Contador</span>
+            </button>
 
-        </nav>
-      </header>
+            <button
+              onClick={() => setActiveTab('OpenFinance')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                activeTab === 'OpenFinance'
+                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+              }`}
+            >
+              <Cpu className="w-4 h-4 text-amber-400" />
+              <span>Open Finance</span>
+            </button>
 
-      {/* BANNERS DE STATUS E BOTÃO DE UPGRADE */}
+            <button
+              onClick={() => setIsPerfilOpen(true)}
+              className="text-slate-300 hover:text-white text-sm font-medium"
+            >
+              Perfil
+            </button>
+
+          </nav>
+        </header>
+
+        {/* BANNERS DE STATUS E BOTÃO DE UPGRADE */}
         <div className="w-full bg-[#14223c]/80 border border-slate-700 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 text-xs text-slate-300">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Plano Atual: <strong className="text-emerald-400 font-bold">{userPlanName} ({userPlanPrice})</strong></span>
+            <span>Plano Atual: <strong className="text-emerald-400 font-bold">{selectedPlanName} ({selectedPlanPrice})</strong></span>
           </div>
 
           <button
+            type="button"
             onClick={() => setIsUpgradeOpen(!isUpgradeOpen)}
-            className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-md shadow-amber-500/10 flex items-center gap-2"
+            className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-lg text-xs font-bold transition-all"
           >
-            <span>Seja Copiloto Pro</span>
-            <ChevronDown className="w-3.5 h-3.5" />
+            Fazer Upgrade
           </button>
         </div>
 
-        {/* ABA PAINEL */}
-        {/* RENDERIZAÇÃO CONDICIONAL */}
+        {/* ABA PAINEL E RENDERIZAÇÃO CONDICIONAL */}
         {activeTab === 'painel' && <Painel connectedMachines={[]} receivables={[]} />}
         {activeTab === 'fechamento' && <FechamentoDiario />}
         {activeTab === 'fechamento_contador' && <CentralContador />}
-        {activeTab === 'OpenFinance' && <OpenFinance />}
-      </main>
+        {/* @ts-ignore */}
+        {activeTab === 'conexao' && <Conexao plan={selectedPlan} connectedMachines={[]} onConnect={() => {}} onDisconnect={() => {}} />}
+        {/* @ts-ignore */}
+        {activeTab === 'salesCalculator' && <SalesCalculator plan={selectedPlan} onSaleBooked={() => {}} />}
 
-{isPerfilOpen && (
-  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div className="bg-slate-900 text-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative border border-slate-800 shadow-2xl">
-      <button 
-        onClick={() => setIsPerfilOpen(false)}
-        className="absolute top-4 right-4 text-gray-500 font-bold"
-      >
-        ✕
-      </button>
-      <Perfil />
-    </div>
-  </div>
-)}
-
-{isPrivacidadeOpen && (
-  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div className="bg-slate-900 text-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative border border-slate-800 shadow-2xl">
-      <button 
-        onClick={handleRecusarPrivacidade}
-        className="absolute top-4 right-4 text-gray-500 font-bold"
-      >
-        ✕
-      </button>
-</div>
-  </div>
-)}
-
-      {/* MODAL DE PLANOS */}
-      {isUpgradeOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
-          <div className="relative w-full max-w-4xl bg-[#14223c] border border-slate-700 rounded-2xl p-6 max-h-[90vh] overflow-y-auto text-slate-100 shadow-2xl">
-            <button
-              onClick={() => setIsUpgradeOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold cursor-pointer z-10"
-            >
-              ✕
-            </button>
-
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-amber-400">SEJA COPILOTO PRO</h2>
-              <p className="text-sm text-slate-300 mt-1">Escolha o plano ideal para o seu negócio. Cancele quando quiser.</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div
-                onClick={() => selecionarPlano('essencial', 'Essencial', '19,90')}
-                className={`p-5 rounded-xl border cursor-pointer transition-all ${
-                  userPlan === 'essencial'
-                    ? 'border-emerald-500 bg-[#14223c]'
-                    : 'border-slate-700 bg-[#14223c]/80 hover:border-slate-500'
-                }`}
-              >
-                <h3 className="font-bold text-base text-white">Freemium (30 Dias) / Essencial</h3>
-                <p className="text-2xl font-extrabold text-emerald-400 mt-2">R$ 19,90<span className="text-xs font-normal text-slate-300">/mês</span></p>
-                <ul className="mt-4 text-xs text-slate-200 space-y-2">
-                  <li>✓ Painel manual de prioridades</li>
-                  <li>✓ Calculadora de balcão digital</li>
-                  <li>✓ Fluxo de caixa básico</li>
-                </ul>
-                <button className="w-full mt-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs cursor-pointer">
-                  {userPlan === 'essencial' ? 'Plano Atual' : 'Ativar Essencial'}
-                </button>
-              </div>
-
-              <div
-                onClick={() => selecionarPlano('copiloto', 'Copiloto', '29,90')}
-                className={`p-5 rounded-xl border cursor-pointer transition-all ${
-                  userPlan === 'copiloto'
-                    ? 'border-amber-500 bg-[#14223c]'
-                    : 'border-slate-700 bg-[#14223c]/80 hover:border-slate-500'
-                }`}
-              >
-                <h3 className="font-bold text-lg text-white">Copiloto</h3>
-                <p className="text-2xl font-extrabold text-amber-400 mt-2">R$ 29,90<span className="text-xs font-normal text-slate-300">/mês</span></p>
-                <ul className="mt-4 text-xs text-slate-200 space-y-2">
-                  <li>✓ Tudo do Essencial</li>
-                  <li>✓ Finanças Abertas</li>
-                  <li>✓ Auditoria automática de taxas</li>
-                  <li>✓ Comandos de voz</li>
-                  <li>✓ Cobrança via WhatsApp</li>
-                </ul>
-                <button className="w-full mt-6 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs cursor-pointer">
-                  {userPlan === 'copiloto' ? 'Plano Atual' : 'Assinar Copiloto'}
-                </button>
-              </div>
-
-              <div
-                onClick={() => selecionarPlano('alta_performance', 'Copiloto Pro', '39,90')}
-                className={`p-5 rounded-xl border cursor-pointer transition-all ${
-                  userPlan === 'alta_performance'
-                    ? 'border-indigo-500 bg-[#14223c]'
-                    : 'border-slate-700 bg-[#14223c]/80 hover:border-slate-500'
-                }`}
-              >
-                <h3 className="font-bold text-lg text-white">Copiloto Pro</h3>
-                <p className="text-2xl font-extrabold text-indigo-400 mt-2">R$ 39,90<span className="text-xs font-normal text-slate-300">/mês</span></p>
-                <ul className="mt-4 text-xs text-slate-200 space-y-2">
-                  <li>✓ Tudo do Copiloto</li>
-                  <li>✓ Relatórios executivos automatizados</li>
-                  <li>✓ Suporte prioritário dedicado</li>
-                  <li>✓ Central do Contador</li>
-                </ul>
-                <button className="w-full mt-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-xs cursor-pointer">
-                  {userPlan === 'alta_performance' ? 'Plano Atual' : 'Assinar Copiloto Pro'}
-                </button>
-              </div>
-            </div>
-
-<div className="flex items-center justify-between mb-3">
-  <h3 className="text-slate-300 font-medium text-lg">Contas a Receber</h3>
-  <button
-    type="button"
-    onClick={() => handleVoiceInput('aReceber')}
-    className={`p-2.5 rounded-full transition-all ${
-      listeningField === 'aReceber'
-        ? 'bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/50'
-        : 'bg-slate-800 text-slate-300 hover:text-emerald-400 hover:bg-slate-700'
-    }`}
-    title="Ditar valor por voz"
-  >
-    <Mic className="w-5 h-5" />
-  </button>
-</div>
-
-<div className="flex items-center justify-between mb-3">
-  <h3 className="text-slate-300 font-medium text-lg">Contas a Pagar</h3>
-  <button
-    type="button"
-    onClick={() => handleVoiceInput('aPagar')}
-    className={`p-2.5 rounded-full transition-all ${
-      listeningField === 'aPagar'
-        ? 'bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/50'
-        : 'bg-slate-800 text-slate-300 hover:text-rose-400 hover:bg-slate-700'
-    }`}
-    title="Ditar valor por voz"
-  >
-    <Mic className="w-5 h-5" />
-  </button>
-</div>
-
-{/* CARD CONTAS A RECEBER */}
-<div className="flex items-center justify-between mb-3">
-  <h3 className="text-slate-300 font-medium text-lg">Contas a Receber</h3>
-</div>
-
-{/* CARD CONTAS A PAGAR */}
-<div className="flex items-center justify-between mb-3">
-  <h3 className="text-slate-300 font-medium text-lg">Contas a Pagar</h3>
-</div>
-
-            <div className="flex justify-end mt-4">
+        {isPerfilOpen && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-slate-900 text-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative border border-slate-800 shadow-2xl">
               <button
-                onClick={() => setIsUpgradeOpen(false)}
-                className="px-5 py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg text-xs cursor-pointer"
+                onClick={() => setIsPerfilOpen(false)}
+                className="absolute top-4 right-4 text-gray-500 font-bold"
               >
-                Fechar
+                ✕
+              </button>
+              <Perfil />
+            </div>
+          </div>
+        )}
+
+        {isPrivacidadeOpen && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-slate-900 text-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative border border-slate-800 shadow-2xl">
+              <button
+                onClick={handleRecusarPrivacidade}
+                className="absolute top-4 right-4 text-gray-500 font-bold"
+              >
+                ✕
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* COMPONENTE DA CALCULADORA PRESERVADO */}
-      <CalculadoraExpress
-        isOpen={isCalculadoraOpen}
-        onClose={() => {
-          setIsCalculadoraOpen(false);
-          setActiveTab('painel');
-        }}
-        userPlan={userPlan}
-      />
+        {/* MODAL DE PLANOS */}
+        {isUpgradeOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
+            <div className="relative w-full max-w-4xl bg-[#14223c] border border-slate-700 rounded-2xl p-6 max-h-[90vh] overflow-y-auto text-slate-100 shadow-2xl">
+              <button
+                onClick={() => setIsUpgradeOpen(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold cursor-pointer z-10"
+              >
+                ✕
+              </button>
+
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold text-amber-400">SEJA COPILOTO PRO</h2>
+                <p className="text-sm text-slate-300 mt-1">Escolha o plano ideal para o seu negócio. Cancele quando quiser.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div
+                  onClick={() => selecionarPlano('essencial', 'Essencial', '19,90')}
+                  className={`p-5 rounded-xl border cursor-pointer transition-all ${
+                    selectedPlan === 'essencial'
+                      ? 'border-emerald-500 bg-[#14223c]'
+                      : 'border-slate-700 bg-[#14223c]/80 hover:border-slate-500'
+                  }`}
+                >
+                  <h3 className="font-bold text-base text-white">Freemium (30 Dias) / Essencial</h3>
+                  <p className="text-2xl font-extrabold text-emerald-400 mt-2">R$ 19,90<span className="text-xs font-normal text-slate-300">/mês</span></p>
+                  <ul className="mt-4 text-xs text-slate-200 space-y-2">
+                    <li>✓ Painel manual de prioridades</li>
+                    <li>✓ Calculadora de balcão digital</li>
+                    <li>✓ Fluxo de caixa básico</li>
+                  </ul>
+                  <button 
+                    onClick={() => handleSubscribe('essencial')}
+                    className="w-full mt-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs cursor-pointer"
+                  >
+                    {selectedPlan === 'essencial' ? 'Plano Atual' : 'Ativar Essencial'}
+                  </button>
+                </div>
+
+                <div
+                  onClick={() => selecionarPlano('copiloto', 'Copiloto', '29,90')}
+                  className={`p-5 rounded-xl border cursor-pointer transition-all ${
+                    selectedPlan === 'copiloto'
+                      ? 'border-amber-500 bg-[#14223c]'
+                      : 'border-slate-700 bg-[#14223c]/80 hover:border-slate-500'
+                  }`}
+                >
+                  <h3 className="font-bold text-lg text-white">Copiloto</h3>
+                  <p className="text-2xl font-extrabold text-amber-400 mt-2">R$ 29,90<span className="text-xs font-normal text-slate-300">/mês</span></p>
+                  <ul className="mt-4 text-xs text-slate-200 space-y-2">
+                    <li>✓ Tudo do Essencial</li>
+                    <li>✓ Finanças Abertas</li>
+                    <li>✓ Auditoria automática de taxas</li>
+                    <li>✓ Comandos de voz</li>
+                    <li>✓ Cobrança via WhatsApp</li>
+                  </ul>
+                  <button 
+                    onClick={() => handleSubscribe('copiloto')}
+                    className="w-full mt-6 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs cursor-pointer"
+                  >
+                    {selectedPlan === 'copiloto' ? 'Plano Atual' : 'Assinar Copiloto'}
+                  </button>
+                </div>
+
+                <div
+                  onClick={() => selecionarPlano('alta_performance', 'Copiloto Pro', '39,90')}
+                  className={`p-5 rounded-xl border cursor-pointer transition-all ${
+                    selectedPlan === 'alta_performance'
+                      ? 'border-indigo-500 bg-[#14223c]'
+                      : 'border-slate-700 bg-[#14223c]/80 hover:border-slate-500'
+                  }`}
+                >
+                  <h3 className="font-bold text-lg text-white">Copiloto Pro</h3>
+                  <p className="text-2xl font-extrabold text-indigo-400 mt-2">R$ 39,90<span className="text-xs font-normal text-slate-300">/mês</span></p>
+                  <ul className="mt-4 text-xs text-slate-200 space-y-2">
+                    <li>✓ Tudo do Copiloto</li>
+                    <li>✓ Relatórios executivos automatizados</li>
+                    <li>✓ Suporte prioritário dedicado</li>
+                    <li>✓ Central do Contador</li>
+                  </ul>
+                  <button 
+                    onClick={() => handleSubscribe('pro')}
+                    className="w-full mt-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-xs cursor-pointer"
+                  >
+                    {selectedPlan === 'alta_performance' ? 'Plano Atual' : 'Assinar Copiloto Pro'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SEÇÃO CONTAS A RECEBER E PAGAR COM VOZ */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-800 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-300">Contas a Receber</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleVoiceInput('aReceber')}
+              className={`p-3 rounded-full transition-all ${
+                listeningField === 'aReceber'
+                  ? 'bg-red-500 text-white animate-pulse'
+                  : 'bg-slate-800 text-slate-300 hover:text-emerald-400'
+              }`}
+              title="Ditar valor por voz"
+            >
+              <Mic className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-800 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-300">Contas a Pagar</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleVoiceInput('aPagar')}
+              className={`p-3 rounded-full transition-all ${
+                listeningField === 'aPagar'
+                  ? 'bg-red-500 text-white animate-pulse'
+                  : 'bg-slate-800 text-slate-300 hover:text-rose-400'
+              }`}
+              title="Ditar valor por voz"
+            >
+              <Mic className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* COMPONENTE DA CALCULADORA */}
+        <CalculadoraExpress
+          isOpen={isCalculadoraOpen}
+          onClose={() => {
+            setIsCalculadoraOpen(false);
+            setActiveTab('painel');
+          }}
+          userPlan={selectedPlan}
+        />
+      </main>
     </div>
   );
 }
+
+export default App;
