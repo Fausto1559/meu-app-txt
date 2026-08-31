@@ -142,6 +142,7 @@ const atualizarItemAReceber = (index: number, novoTexto: string) => {
 
 return (
     <div className="p-6 max-w-7xl mx-auto flex flex-col gap-6">
+      {/* CABEÇALHO */}
       <div className="flex flex-col gap-2">
         <h2 className="text-xl font-extrabold text-[#E5C158] tracking-wide">
           Suas prioridades de hoje
@@ -151,6 +152,7 @@ return (
         </p>
       </div>
 
+      {/* CARDS DE KPIS */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl shadow-md relative group">
           <div className="flex items-center justify-between text-slate-400 text-xs mb-2">
@@ -209,6 +211,7 @@ return (
         </div>
       </div>
 
+      {/* BANNER DE PLANO */}
       {plan === 'gratis' ? (
         <div className="bg-[#C5A028]/10 border border-[#C5A028]/30 rounded-xl p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -241,7 +244,7 @@ return (
         </div>
       )}
 
-      {/* ÚNICO CONTAINER FINAL DE CONTAS A RECEBER E PAGAR */}
+      {/* UNICO CONTAINER DE CONTAS EDITÁVEL E DITÁVEL */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         {/* CONTAS A RECEBER */}
         <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
