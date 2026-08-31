@@ -307,6 +307,22 @@ const handleLogout = () => {
     );
   }
 
+const removerItemAReceber = (index: number) => {
+  const item = aReceberItens[index];
+  const numeros = item.match(/\d+(?:[.,]\d+)?/g);
+  const valor = numeros ? parseFloat(numeros[0].replace(',', '.')) : 0;
+  if (valor > 0) setAReceberTotal(prev => Math.max(0, prev - valor));
+  setAReceberItens(prev => prev.filter((_, i) => i !== index));
+};
+
+const removerItemAPagar = (index: number) => {
+  const item = aPagarItens[index];
+  const numeros = item.match(/\d+(?:[.,]\d+)?/g);
+  const valor = numeros ? parseFloat(numeros[0].replace(',', '.')) : 0;
+  if (valor > 0) setAPagarTotal(prev => Math.max(0, prev - valor));
+  setAPagarItens(prev => prev.filter((_, i) => i !== index));
+};
+
 return (
     <div className="min-h-screen bg-[#0c1527] text-white font-sans">
       {/* TELA DE PRIVACIDADE */}
@@ -405,7 +421,7 @@ return (
               <span>Calculadora</span>
             </button>
 
-<button
+           <button
               onClick={() => setActiveTab('fechamento')}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activeTab === 'fechamento'
@@ -596,7 +612,7 @@ return (
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
   {/* CONTAS A RECEBER */}
   <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
     <div className="flex items-center justify-between">
@@ -619,11 +635,23 @@ return (
       </button>
     </div>
 
-    <div className="bg-slate-900/60 rounded-xl p-3 border border-slate-800 min-h-[50px] max-h-[100px] overflow-y-auto">
+    <div className="bg-slate-900/60 rounded-xl p-3 border border-slate-800 min-h-[50px] max-h-[120px] overflow-y-auto space-y-1">
       {aReceberItens.length === 0 ? (
         <p className="text-xs text-slate-500 italic">Diga ex: "Receber da Padaria R$ 100"</p>
       ) : (
-        aReceberItens.map((item, i) => <p key={i} className="text-xs text-emerald-300">• {item}</p>)
+        aReceberItens.map((item, i) => (
+          <div key={i} className="flex items-center justify-between text-xs text-emerald-300 py-0.5 border-b border-slate-800/50 last:border-0">
+            <span>• {item}</span>
+            <button
+              type="button"
+              onClick={() => removerItemAReceber(i)}
+              className="text-slate-400 hover:text-red-400 font-bold px-2 py-0.5 rounded transition-colors"
+              title="Apagar este item"
+            >
+              ✕
+            </button>
+          </div>
+        ))
       )}
     </div>
   </div>
@@ -650,11 +678,23 @@ return (
       </button>
     </div>
 
-    <div className="bg-slate-900/60 rounded-xl p-3 border border-slate-800 min-h-[50px] max-h-[100px] overflow-y-auto">
+    <div className="bg-slate-900/60 rounded-xl p-3 border border-slate-800 min-h-[50px] max-h-[120px] overflow-y-auto space-y-1">
       {aPagarItens.length === 0 ? (
         <p className="text-xs text-slate-500 italic">Diga ex: "Pagar energia R$ 150"</p>
       ) : (
-        aPagarItens.map((item, i) => <p key={i} className="text-xs text-rose-300">• {item}</p>)
+        aPagarItens.map((item, i) => (
+          <div key={i} className="flex items-center justify-between text-xs text-rose-300 py-0.5 border-b border-slate-800/50 last:border-0">
+            <span>• {item}</span>
+            <button
+              type="button"
+              onClick={() => removerItemAPagar(i)}
+              className="text-slate-400 hover:text-red-400 font-bold px-2 py-0.5 rounded transition-colors"
+              title="Apagar este item"
+            >
+              ✕
+            </button>
+          </div>
+        ))
       )}
     </div>
   </div>
