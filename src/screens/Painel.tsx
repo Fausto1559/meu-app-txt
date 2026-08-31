@@ -1,3 +1,5 @@
+import React, { useState } from 'react';
+import { Mic } from 'lucide-react';
 // src/screens/Painel.tsx
 import { parseBRL, Plan, ConnectedMachine, ReceivableItem, PayableItem } from '../types/index';
 // Altere a segunda linha de acordo com a localização exata do arquivo de types (exemplo: '../types' ou '../types/index')
@@ -30,6 +32,60 @@ export default function Painel({
   setVendasHoje,
   onNavigateToConexao,
 }: PainelProps) {
+const [listeningField, setListeningField] = useState<'aReceber' | 'aPagar' | null>(null);
+  const [aReceberTotal, setAReceberTotal] = useState<number>(0);
+  const [aReceberItens, setAReceberItens] = useState<string[]>([]);
+  const [aPagarTotal, setAPagarTotal] = useState<number>(0);
+  const [aPagarItens, setAPagarItens] = useState<string[]>([]);
+
+  const handleVoiceInput = (field: 'aReceber' | 'aPagar') => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      alert('Navegador sem suporte a reconhecimento de voz.');
+      return;
+    }
+
+    setListeningField(field);
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+
+    recognition.onresult = (event: any) => {
+      const texto = event.results[0][0].transcript;
+      const numeros = texto.match(/\d+(?:[.,]\d+)?/g);
+      const valor = numeros ? parseFloat(numeros[0].replace(',', '.')) : 0;
+
+      if (field === 'aReceber') {
+        if (valor > 0) setAReceberTotal(prev => prev + valor);
+        setAReceberItens(prev => [texto, ...prev]);
+      } else {
+        if (valor > 0) setAPagarTotal(prev => prev + valor);
+        setAPagarItens(prev => [texto, ...prev]);
+      }
+      setListeningField(null);
+    };
+
+    recognition.onerror = () => setListeningField(null);
+    recognition.onend = () => setListeningField(null);
+    recognition.start();
+  };
+
+  const removerItemAReceber = (index: number) => {
+    const item = aReceberItens[index];
+    const numeros = item.match(/\d+(?:[.,]\d+)?/g);
+    const valor = numeros ? parseFloat(numeros[0].replace(',', '.')) : 0;
+    if (valor > 0) setAReceberTotal(prev => Math.max(0, prev - valor));
+    setAReceberItens(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removerItemAPagar = (index: number) => {
+    const item = aPagarItens[index];
+    const numeros = item.match(/\d+(?:[.,]\d+)?/g);
+    const valor = numeros ? parseFloat(numeros[0].replace(',', '.')) : 0;
+    if (valor > 0) setAPagarTotal(prev => Math.max(0, prev - valor));
+    setAPagarItens(prev => prev.filter((_, i) => i !== index));
+  };
+
   const totalReceivables = (receivables ?? [])
     .filter((r) => !r.received)
     .reduce((acc, r) => acc + r.amount, 0);
@@ -159,58 +215,90 @@ export default function Painel({
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-md">
-          <h2 className="text-sm font-medium text-white mb-4">Contas a Receber</h2>
-          <div className="flex flex-col gap-2.5">
-            {(receivables ?? []).map((r) => (
-              <div key={r.id} className="flex items-center justify-between bg-slate-950/40 border border-slate-800/60 p-3 rounded-lg text-xs">
-                <div>
-                  <p className="font-medium text-slate-200">{r.description}</p>
-                  <p className="text-slate-500 text-[11px]">Vencimento: {r.dueDate}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="font-semibold text-emerald-400">R$ {r.amount}</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        {/* CONTAS A RECEBER */}
+        <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-bold text-white tracking-wide">Contas a Receber</h3>
+              <p className="text-2xl font-extrabold text-emerald-400 mt-1">
+                R$ {aReceberTotal.toFixed(2).replace('.', ',')}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleVoiceInput('aReceber')}
+              className={`p-3.5 rounded-xl transition-all ${
+                listeningField === 'aReceber'
+                  ? 'bg-red-500 text-white animate-pulse'
+                  : 'bg-slate-800 text-slate-300 hover:text-emerald-400'
+              }`}
+            >
+              <Mic className="w-6 h-6" />
+            </button>
+          </div>
+
+          <div className="bg-slate-900/60 rounded-xl p-3 border border-slate-800 min-h-[50px] max-h-[120px] overflow-y-auto space-y-1">
+            {aReceberItens.length === 0 ? (
+              <p className="text-xs text-slate-500 italic">Diga ex: "Receber da Padaria R$ 100"</p>
+            ) : (
+              aReceberItens.map((item, i) => (
+                <div key={i} className="flex items-center justify-between text-xs text-emerald-300 py-0.5 border-b border-slate-800/50 last:border-0">
+                  <span>• {item}</span>
                   <button
-                    onClick={() => toggleReceive(r.id)}
-                    className={`px-3 py-1 rounded-md text-[11px] font-medium transition-all ${
-                      r.received
-                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-                    }`}
+                    type="button"
+                    onClick={() => removerItemAReceber(i)}
+                    className="text-slate-400 hover:text-red-400 font-bold px-2 py-0.5 rounded transition-colors"
+                    title="Apagar este item"
                   >
-                    {r.received ? 'Recebido' : 'Receber'}
+                    ✕
                   </button>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-md">
-          <h2 className="text-sm font-medium text-white mb-4">Contas a Pagar</h2>
-          <div className="flex flex-col gap-2.5">
-            {(payables ?? []).map((p) => (
-              <div key={p.id} className="flex items-center justify-between bg-slate-950/40 border border-slate-800/60 p-3 rounded-lg text-xs">
-                <div>
-                  <p className="font-medium text-slate-200">{p.description}</p>
-                  <p className="text-slate-500 text-[11px]">Vencimento: {p.dueDate}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="font-semibold text-red-400">R$ {p.amount}</span>
+        {/* CONTAS A PAGAR */}
+        <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-bold text-white tracking-wide">Contas a Pagar</h3>
+              <p className="text-2xl font-extrabold text-rose-400 mt-1">
+                R$ {aPagarTotal.toFixed(2).replace('.', ',')}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleVoiceInput('aPagar')}
+              className={`p-3.5 rounded-xl transition-all ${
+                listeningField === 'aPagar'
+                  ? 'bg-red-500 text-white animate-pulse'
+                  : 'bg-slate-800 text-slate-300 hover:text-rose-400'
+              }`}
+            >
+              <Mic className="w-6 h-6" />
+            </button>
+          </div>
+
+          <div className="bg-slate-900/60 rounded-xl p-3 border border-slate-800 min-h-[50px] max-h-[120px] overflow-y-auto space-y-1">
+            {aPagarItens.length === 0 ? (
+              <p className="text-xs text-slate-500 italic">Diga ex: "Pagar energia R$ 150"</p>
+            ) : (
+              aPagarItens.map((item, i) => (
+                <div key={i} className="flex items-center justify-between text-xs text-rose-300 py-0.5 border-b border-slate-800/50 last:border-0">
+                  <span>• {item}</span>
                   <button
-                    onClick={() => togglePay(p.id)}
-                    className={`px-3 py-1 rounded-md text-[11px] font-medium transition-all ${
-                      p.paid
-                        ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-                    }`}
+                    type="button"
+                    onClick={() => removerItemAPagar(i)}
+                    className="text-slate-400 hover:text-red-400 font-bold px-2 py-0.5 rounded transition-colors"
+                    title="Apagar este item"
                   >
-                    {p.paid ? 'Pago' : 'Pagar'}
+                    ✕
                   </button>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>
