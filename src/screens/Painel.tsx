@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Mic, DollarSign, ArrowUpRight, ArrowDownRight, RefreshCw, AlertCircle, X, CheckCircle2 } from 'lucide-react';
-import { parseBRL, Plan, ConnectedMachine, ReceivableItem, PayableItem } from '../types/index';
+import { Mic, DollarSign, ArrowUpRight, ArrowDownRight, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { Plan, ConnectedMachine, ReceivableItem, PayableItem } from '../types/index';
 
 interface PainelProps {
   plan?: Plan;
@@ -108,128 +108,77 @@ export default function Painel({
     setAPagarItens(prev => prev.filter((_, i) => i !== index));
   };
 
-  const totalReceivables = (receivables ?? [])
-    .filter((r) => !r.received)
-    .reduce((acc, r) => acc + parseBRL(r.amount), 0);
-
-  const totalPayables = (payables ?? [])
-    .filter((p) => !p.paid)
-    .reduce((acc, p) => acc + parseBRL(p.amount), 0);
-
-  const saldoPrevisto = totalReceivables + (typeof vendasHoje === 'number' ? vendasHoje : 0) - totalPayables;
-
-  function handleClearVendas() {
-    if (window.confirm("Tem certeza? Apagar o conteúdo desse campo?")) {
-      if (setVendasHoje) setVendasHoje(0);
-    }
-  }
-
   return (
-    <div className="p-6 max-w-7xl mx-auto flex flex-col gap-6">
-      {/* CABEÇALHO */}
-      <div className="flex flex-col gap-2">
-        <h2 className="text-xl font-extrabold text-[#E5C158] tracking-wide">
-          Suas prioridades de hoje
-        </h2>
-        <p className="text-xs text-slate-400">
-          Selecionamos as ações mais urgentes para colocar dinheiro na caixa e evitar prejuízos. Resolva na ordem — cada minuto conta.
-        </p>
-      </div>
-
-      {/* CARDS DE KPIS */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl shadow-md relative group">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-2">
-            <span>Vendas Hoje</span>
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={handleClearVendas}
-                title="Apagar o conteúdo desse campo"
-                className="text-slate-500 hover:text-red-400 p-1 transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-              <DollarSign className="w-4 h-4 text-[#E5C158]" />
-            </div>
+    <div className="w-full max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+      
+      {/* LINHA 1: INDICADORES PRINCIPAIS */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
+        {/* Vendas Hoje */}
+        <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl">
+          <div className="flex justify-between items-start mb-2">
+            <span className="text-slate-400 text-sm">Vendas Hoje</span>
+            <DollarSign className="w-4 h-4 text-slate-400" />
           </div>
-          <div className="text-2xl font-bold text-white">
-            {typeof vendasHoje === 'number' ? vendasHoje.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : (vendasHoje || 'R$ 0,00')}
-          </div>
-          <p className="text-[11px] text-slate-500 mt-1">
-            {connectedMachines && connectedMachines.length > 0 ? `${connectedMachines.length} maquininha(s) ativa(s)` : 'Nenhuma maquininha conectada'}
-          </p>
+          <h3 className="text-2xl font-bold text-white mb-1">
+            R$ {(vendasHoje || 0).toFixed(2).replace('.', ',')}
+          </h3>
+          <p className="text-xs text-slate-500">Nenhuma maquininha conectada</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl shadow-md">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-2">
-            <span>A Receber</span>
+        {/* A Receber (Total Geral) */}
+        <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl">
+          <div className="flex justify-between items-start mb-2">
+            <span className="text-slate-400 text-sm">A Receber</span>
             <ArrowUpRight className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-2xl font-bold text-emerald-400">
-            {Number(aReceberTotal ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-          </div>
-          <p className="text-[11px] text-slate-500 mt-1">Valores pendentes</p>
+          <h3 className="text-2xl font-bold text-emerald-400 mb-1">
+            R$ {aReceberTotal.toFixed(2).replace('.', ',')}
+          </h3>
+          <p className="text-xs text-slate-500">Valores pendentes</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl shadow-md">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-2">
-            <span>A Pagar</span>
-            <ArrowDownRight className="w-4 h-4 text-red-400" />
+        {/* A Pagar (Total Geral) */}
+        <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl">
+          <div className="flex justify-between items-start mb-2">
+            <span className="text-slate-400 text-sm">A Pagar</span>
+            <ArrowDownRight className="w-4 h-4 text-rose-400" />
           </div>
-          <div className="text-2xl font-bold text-red-400">
-            {Number(aPagarTotal ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-          </div>
-          <p className="text-[11px] text-slate-500 mt-1">Contas em aberto</p>
+          <h3 className="text-2xl font-bold text-rose-400 mb-1">
+            R$ {aPagarTotal.toFixed(2).replace('.', ',')}
+          </h3>
+          <p className="text-xs text-slate-500">Contas em aberto</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl shadow-md">
-          <div className="flex items-center justify-between text-slate-400 text-xs mb-2">
-            <span>Saldo Previsto</span>
-            <RefreshCw className="w-4 h-4 text-[#E5C158]" />
+        {/* Saldo Previsto */}
+        <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl">
+          <div className="flex justify-between items-start mb-2">
+            <span className="text-slate-400 text-sm">Saldo Previsto</span>
+            <RefreshCw className="w-4 h-4 text-blue-400" />
           </div>
-          <div className={`text-2xl font-bold ${saldoPrevisto >= 0 ? 'text-white' : 'text-red-400'}`}>
-            {isNaN(Number(saldoPrevisto)) ? 'R$ 0,00' : Number(saldoPrevisto).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-          </div>
-          <p className="text-[11px] text-slate-500 mt-1">Balanço geral</p>
+          <h3 className="text-2xl font-bold text-blue-400 mb-1">
+            R$ {(aReceberTotal - aPagarTotal).toFixed(2).replace('.', ',')}
+          </h3>
+          <p className="text-xs text-slate-500">Balanço geral</p>
         </div>
       </div>
 
-      {/* BANNER DE PLANO */}
-      {plan === 'gratis' ? (
-        <div className="bg-[#C5A028]/10 border border-[#C5A028]/30 rounded-xl p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-[#E5C158]" />
-            <p className="text-xs text-slate-300">
-              Conecte suas maquininhas de cartão para automatizar o fluxo de vendas diárias.
-            </p>
-          </div>
-          <button
-            onClick={onNavigateToConexao}
-            className="bg-[#C5A028]/20 hover:bg-[#C5A028]/30 border border-[#C5A028]/40 text-[#E5C158] text-xs font-medium px-4 py-2 rounded-lg transition-all"
-          >
-            Conectar Maquininhas
-          </button>
+      {/* LINHA 2: BANNER DE MAQUININHAS */}
+      <div className="bg-[#0f292e] border border-emerald-900/50 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3 text-emerald-400">
+          <CheckCircle2 className="w-5 h-5" />
+          <span className="text-sm">Gerencie e adicione novas maquininhas de cartão ativas ao seu plano atual.</span>
         </div>
-      ) : (
-        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-            <p className="text-xs text-slate-300">
-              Gerencie e adicione novas maquininhas de cartão ativas ao seu plano atual.
-            </p>
-          </div>
-          <button
-            onClick={onNavigateToConexao}
-            className="bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-400 text-xs font-medium px-4 py-2 rounded-lg transition-all"
-          >
-            Conectar Maquininhas
-          </button>
-        </div>
-      )}
+        <button
+          onClick={onNavigateToConexao}
+          className="px-4 py-2 bg-emerald-900/40 hover:bg-emerald-800/60 border border-emerald-700/50 rounded-lg text-emerald-400 text-sm transition-colors whitespace-nowrap"
+        >
+          Conectar Maquininhas
+        </button>
+      </div>
 
-      {/* APENAS UM ÚNICO CONTAINER NO RODAPÉ (DUAS COLUNAS LADO A LADO) */}
+      {/* LINHA 3: UM ÚNICO CONTAINER (DUAS COLUNAS LADO A LADO) COM MICROFONES */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        
         {/* CONTAS A RECEBER */}
         <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
           <div className="flex items-center justify-between">
@@ -331,6 +280,7 @@ export default function Painel({
             )}
           </div>
         </div>
+
       </div>
     </div>
   );
