@@ -162,8 +162,8 @@ function App() {
   // 1. Mapeamento de links dos 3 planos
   const ASAAS_LINKS = {
     essencial: "https://sandbox.asaas.com/c/kvomyzpygxcgvmby",
-    copiloto: "https://sandbox.asaas.com/c/SEU_LINK_COPILOTO",
-    pro: "https://sandbox.asaas.com/c/SEU_LINK_COPILOTO_PRO"
+    copiloto: "https://sandbox.asaas.com/c/04z4xx7wo4dlv93r",
+    pro: "https://sandbox.asaas.com/c/uwjut7rqbeeohnkl"
   };
 
   // 2. Função de assinatura única
