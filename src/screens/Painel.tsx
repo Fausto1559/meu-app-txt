@@ -111,9 +111,8 @@ export default function Painel({
   return (
     <div className="w-full max-w-7xl mx-auto p-4 md:p-6 space-y-6">
       
-      {/* LINHA 1: INDICADORES PRINCIPAIS */}
+      {/* 1. CARDS DE RESUMO */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
-        {/* Vendas Hoje */}
         <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl">
           <div className="flex justify-between items-start mb-2">
             <span className="text-slate-400 text-sm">Vendas Hoje</span>
@@ -125,7 +124,6 @@ export default function Painel({
           <p className="text-xs text-slate-500">Nenhuma maquininha conectada</p>
         </div>
 
-        {/* A Receber (Total Geral) */}
         <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl">
           <div className="flex justify-between items-start mb-2">
             <span className="text-slate-400 text-sm">A Receber</span>
@@ -137,7 +135,6 @@ export default function Painel({
           <p className="text-xs text-slate-500">Valores pendentes</p>
         </div>
 
-        {/* A Pagar (Total Geral) */}
         <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl">
           <div className="flex justify-between items-start mb-2">
             <span className="text-slate-400 text-sm">A Pagar</span>
@@ -149,7 +146,6 @@ export default function Painel({
           <p className="text-xs text-slate-500">Contas em aberto</p>
         </div>
 
-        {/* Saldo Previsto */}
         <div className="bg-[#14223c] border border-slate-700 rounded-2xl p-6 shadow-xl">
           <div className="flex justify-between items-start mb-2">
             <span className="text-slate-400 text-sm">Saldo Previsto</span>
@@ -162,7 +158,7 @@ export default function Painel({
         </div>
       </div>
 
-      {/* LINHA 2: BANNER DE MAQUININHAS */}
+      {/* 2. BANNER MAQUININHAS */}
       <div className="bg-[#0f292e] border border-emerald-900/50 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3 text-emerald-400">
           <CheckCircle2 className="w-5 h-5" />
@@ -176,7 +172,7 @@ export default function Painel({
         </button>
       </div>
 
-      {/* LINHA 3: UM ÚNICO CONTAINER (DUAS COLUNAS LADO A LADO) COM MICROFONES */}
+      {/* 3. BLOCO ÚNICO DE CONTAS A RECEBER E A PAGAR */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         
         {/* CONTAS A RECEBER */}
