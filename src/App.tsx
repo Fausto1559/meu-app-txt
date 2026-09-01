@@ -23,6 +23,28 @@ import { Perfil } from './screens/Perfil';
 import SalesCalculator from './screens/SalesCalculator';
 
 function App() {
+// Cole dentro do componente App:
+const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+const [showInstallBtn, setShowInstallBtn] = useState(false);
+
+useEffect(() => {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    setDeferredPrompt(e);
+    setShowInstallBtn(true);
+  });
+}, []);
+
+const handleInstallClick = async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    setShowInstallBtn(false);
+  }
+  setDeferredPrompt(null);
+};
+
   const [user, setUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
@@ -213,6 +235,12 @@ function App() {
       setIsAuthLoading(false);
     }
   };
+
+{showInstallBtn && (
+  <button onClick={handleInstallClick} className="w-full bg-blue-600 text-white p-3 rounded-lg font-bold mt-4 shadow-md">
+    📱 Instalar Copiloto no Celular
+  </button>
+)}
 
 const handleLogout = () => {
     // 1. Limpa as sessões locais de forma síncrona
