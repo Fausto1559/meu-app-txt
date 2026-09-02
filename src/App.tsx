@@ -23,7 +23,9 @@ import { Perfil } from './screens/Perfil';
 import SalesCalculator from './screens/SalesCalculator';
 
 function App() {
-// Cole dentro do componente App:
+const [telaAtiva, setTelaAtiva] = useState('painel');
+
+  // Cole dentro do componente App:
 const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 const [showInstallBtn, setShowInstallBtn] = useState(false);
 
@@ -586,6 +588,85 @@ return (
                     {selectedPlan === 'essencial' ? 'Plano Atual' : 'Ativar Essencial'}
                   </button>
                 </div>
+
+{telaAtiva === 'open-finance' && (
+  <div className="p-6 bg-[#0f172a] text-white rounded-xl border border-slate-800">
+    <h2 className="text-xl font-bold mb-1">Open Finance - Operadoras de Cartão de Crédito</h2>
+    <p className="text-sm text-slate-400 mb-6">Conecte suas operadoras para captura automática de vendas.</p>
+    
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-[#1e293b] p-4 rounded-xl border border-slate-700 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 font-bold flex items-center justify-center">S</span>
+          <div>
+            <h4 className="font-semibold text-white">Stone / Ton</h4>
+            <p className="text-xs text-slate-400">Integração API Open Finance</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <button className="text-amber-400 text-xs font-semibold block hover:underline">Conectar</button>
+          <button className="text-red-500 text-xs font-semibold block hover:underline">Desconectar</button>
+        </div>
+      </div>
+
+      <div className="bg-[#1e293b] p-4 rounded-xl border border-slate-700 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 font-bold flex items-center justify-center">C</span>
+          <div>
+            <h4 className="font-semibold text-white">Cielo</h4>
+            <p className="text-xs text-slate-400">Integração API Open Finance</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <button className="text-amber-400 text-xs font-semibold block hover:underline">Conectar</button>
+          <button className="text-red-500 text-xs font-semibold block hover:underline">Desconectar</button>
+        </div>
+      </div>
+
+      <div className="bg-[#1e293b] p-4 rounded-xl border border-slate-700 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="w-10 h-10 rounded-full bg-orange-500/20 text-orange-400 font-bold flex items-center justify-center">R</span>
+          <div>
+            <h4 className="font-semibold text-white">Redecard</h4>
+            <p className="text-xs text-slate-400">Integração API Open Finance</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <button className="text-amber-400 text-xs font-semibold block hover:underline">Conectar</button>
+          <button className="text-red-500 text-xs font-semibold block hover:underline">Desconectar</button>
+        </div>
+      </div>
+
+      <div className="bg-[#1e293b] p-4 rounded-xl border border-slate-700 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="w-10 h-10 rounded-full bg-green-500/20 text-green-400 font-bold flex items-center justify-center">P</span>
+          <div>
+            <h4 className="font-semibold text-white">PagSeguro / PagBank</h4>
+            <p className="text-xs text-slate-400">Integração API Open Finance</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <button className="text-amber-400 text-xs font-semibold block hover:underline">Conectar</button>
+          <button className="text-red-500 text-xs font-semibold block hover:underline">Desconectar</button>
+        </div>
+      </div>
+
+      <div className="bg-[#1e293b] p-4 rounded-xl border border-slate-700 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="w-10 h-10 rounded-full bg-purple-500/20 text-purple-400 font-bold flex items-center justify-center">G</span>
+          <div>
+            <h4 className="font-semibold text-white">Getnet</h4>
+            <p className="text-xs text-slate-400">Integração API Open Finance</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <button className="text-amber-400 text-xs font-semibold block hover:underline">Conectar</button>
+          <button className="text-red-500 text-xs font-semibold block hover:underline">Desconectar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
                 <div
                   onClick={() => selecionarPlano('copiloto', 'Copiloto', '29,90')}
