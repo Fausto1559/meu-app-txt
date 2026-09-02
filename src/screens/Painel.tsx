@@ -4,9 +4,10 @@ import { Plan, ConnectedMachine, ReceivableItem, PayableItem } from '../types/in
 
 interface PainelProps {
   plan?: Plan;
-  connectedMachines?: ConnectedMachine[];
-  receivables?: ReceivableItem[];
+  connectedMachines?: any[];
+  receivables?: any[];
   setReceivables?: React.Dispatch<React.SetStateAction<ReceivableItem[]>>;
+  setActiveTab: (tab: string) => void;
   payables?: PayableItem[];
   setPayables?: React.Dispatch<React.SetStateAction<PayableItem[]>>;
   aReceber?: string | number;
@@ -27,6 +28,7 @@ export default function Painel({
   vendasHoje,
   setVendasHoje,
   onNavigateToConexao,
+  setActiveTab,
 }: PainelProps) {
   const [listeningField, setListeningField] = useState<'aReceber' | 'aPagar' | null>(null);
   const [aReceberTotal, setAReceberTotal] = useState<number>(0);
@@ -164,9 +166,9 @@ export default function Painel({
           <CheckCircle2 className="w-5 h-5" />
           <span className="text-sm">Gerencie e adicione novas maquininhas de cartão ativas ao seu plano atual.</span>
         </div>
-        <button
-          onClick={onNavigateToConexao}
-          className="px-4 py-2 bg-emerald-900/40 hover:bg-emerald-800/60 border border-emerald-700/50 rounded-lg text-emerald-400 text-sm transition-colors whitespace-nowrap"
+        <button 
+          onClick={() => setActiveTab('OpenFinance')}
+          className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
         >
           Conectar Maquininhas
         </button>

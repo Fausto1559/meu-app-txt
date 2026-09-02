@@ -514,7 +514,7 @@ return (
         </div>
 
         {/* ABA PAINEL E RENDERIZAÇÃO CONDICIONAL */}
-        {activeTab === 'painel' && <Painel connectedMachines={[]} receivables={[]} />}
+        {activeTab === 'painel' && <Painel connectedMachines={[]} receivables={[]} setActiveTab={setActiveTab} />}
         {activeTab === 'fechamento' && <FechamentoDiario />}
         {activeTab === 'fechamento_contador' && <CentralContador />}
         {/* @ts-ignore */}
