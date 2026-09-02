@@ -521,6 +521,7 @@ return (
         {activeTab === 'conexao' && <Conexao plan={selectedPlan} connectedMachines={[]} onConnect={() => {}} onDisconnect={() => {}} />}
         {/* @ts-ignore */}
         {activeTab === 'salesCalculator' && <SalesCalculator plan={selectedPlan} onSaleBooked={() => {}} />}
+        {activeTab === 'OpenFinance' && <OpenFinance />}
 
         {isPerfilOpen && (
           <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
