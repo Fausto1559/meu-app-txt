@@ -236,12 +236,6 @@ const handleInstallClick = async () => {
     }
   };
 
-{showInstallBtn && (
-  <button onClick={handleInstallClick} className="w-full bg-blue-600 text-white p-3 rounded-lg font-bold mt-4 shadow-md">
-    📱 Instalar Copiloto no Celular
-  </button>
-)}
-
 const handleLogout = () => {
     // 1. Limpa as sessões locais de forma síncrona
     localStorage.removeItem('usuarioLogado');
@@ -328,6 +322,12 @@ const handleLogout = () => {
                   {isAuthLoading ? 'Enviando...' : 'Receber Link de Acesso por E-mail'}
                 </button>
               </form>
+            )}
+
+            {showInstallBtn && (
+                <button onClick={handleInstallClick} className="w-full bg-blue-600 text-white p-3 rounded-lg font-bold mt-4 shadow-md">
+                  📱 Instalar Copiloto no Celular
+                </button>
             )}
           </div>
         </div>
