@@ -524,8 +524,8 @@ return (
         {activeTab === 'OpenFinance' && <OpenFinance />}
 
         {isPerfilOpen && (
-          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 text-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative border border-slate-800 shadow-2xl">
+          <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+            <div className="bg-slate-950 text-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative border border-slate-800 shadow-2xl">
               <button
                 onClick={() => setIsPerfilOpen(false)}
                 className="absolute top-4 right-4 text-gray-500 font-bold"
@@ -538,8 +538,8 @@ return (
         )}
 
         {isPrivacidadeOpen && (
-          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 text-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative border border-slate-800 shadow-2xl">
+          <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+            <div className="bg-slate-950 text-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative border border-slate-800 shadow-2xl">
               <button
                 onClick={handleRecusarPrivacidade}
                 className="absolute top-4 right-4 text-gray-500 font-bold"
