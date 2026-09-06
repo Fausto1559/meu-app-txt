@@ -26,6 +26,7 @@ function App() {
 const [telaAtiva, setTelaAtiva] = useState('painel');
 
   // Cole dentro do componente App:
+const [termoAceito, setTermoAceito] = useState<boolean>(true);
 const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 const [showInstallBtn, setShowInstallBtn] = useState(false);
 
@@ -37,15 +38,24 @@ useEffect(() => {
   });
 }, []);
 
-const handleInstallClick = async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  if (outcome === 'accepted') {
-    setShowInstallBtn(false);
-  }
-  setDeferredPrompt(null);
-};
+useEffect(() => {
+    // Verifica se o usuário já aceitou os termos no armazenamento local
+    const aceito = localStorage.getItem('termo_aceito');
+    if (!aceito) {
+      setTermoAceito(false);
+    }
+  }, []);
+
+  const handleAceitarTermos = () => {
+    localStorage.setItem('termo_aceito', 'true');
+    setTermoAceito(true);
+  };
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+  };
 
   const [user, setUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
@@ -260,8 +270,37 @@ const handleLogout = () => {
   }
 
   // TRAVA DE SEGURANÇA E TELA DE LOGIN
-  if (!user) {
+  if (user) {
     return (
+      <>
+        {!termoAceito ? (
+          <Privacidade onAceitar={handleAceitarTermos} />
+        ) : (
+          <div className="app-container">
+            <div className="main-content">
+              {/* Resto do seu painel, rotas ou componentes */}
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  // Caso contrário, exibe a tela de login
+  return (
+    <div className="min-h-screen bg-[#111827] flex items-center justify-center text-white p-4">
+      <div className="bg-[#1e293b] p-8 rounded-xl border border-slate-700 max-w-md w-full text-center space-y-4">
+        <h2 className="text-2xl font-bold text-white">Copiloto Financeiro</h2>
+        <p className="text-slate-400 text-sm mt-1">Acesse sua conta para continuar</p>
+        
+        <div className="space-y-4">
+          {/* 1. BOTÃO GOOGLE DOURADO FUNCIONAL */}
+          {/* Seu botão de login aqui */}
+        </div>
+      </div>
+    </div>
+  );
+      
       <div className="min-h-screen bg-[#111827] flex items-center justify-center text-white p-4">
         <div className="bg-[#1e293b] p-8 rounded-xl border border-slate-700 max-w-md w-full text-center space-y-6 shadow-2xl">
           <div>
@@ -334,8 +373,6 @@ const handleLogout = () => {
           </div>
         </div>
       </div>
-    );
-  }
 
 const removerItemAReceber = (index: number) => {
   const item = aReceberItens[index];
@@ -357,7 +394,7 @@ return (
     <div className="min-h-screen bg-[#0c1527] text-white font-sans">
       {/* TELA DE PRIVACIDADE */}
       {mostrarPrivacidade && (
-        <Privacidade onAccept={handleAcceptPrivacidade} />
+        <Privacidade onAceitar={handleAcceptPrivacidade} />
       )}
 
       {/* BARRA APAGA INCÊNDIO - CONTADOR CENTRALIZADO */}
