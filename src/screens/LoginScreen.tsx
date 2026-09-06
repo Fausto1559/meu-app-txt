@@ -70,7 +70,7 @@ export function LoginScreen() {
   if (!acceptedTerms) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-        <Privacidade onAccept={handleAcceptTerms} />
+        <Privacidade onAceitar={handleAcceptTerms} />
       </div>
     );
   }
