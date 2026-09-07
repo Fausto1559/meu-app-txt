@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleAuthProvider, signInWithRedirect, getRedirectResult, sendSignInLinkToEmail } from 'firebase/auth';
 import { auth } from '../services/firebaseConfig';
-import { ShieldCheck } from 'lucide-react';
 
 export function LoginScreen() {
   const [acceptedTerms, setAcceptedTerms] = useState(() => {
@@ -14,7 +13,6 @@ export function LoginScreen() {
   useEffect(() => {
     getRedirectResult(auth).catch((err: any) => {
       console.error('Erro no retorno do login:', err);
-      alert('Erro ao concluir login: ' + (err?.message || err));
     });
   }, []);
 
@@ -55,24 +53,21 @@ export function LoginScreen() {
     }
   };
 
-  // Se ainda não aceitou os termos, exibe o modal de LGPD
+  // Se não aceitou os termos, exibe o modal LGPD
   if (!acceptedTerms) {
     return (
-      <div className="min-h-screen bg-[#0c1527] flex items-center justify-center p-4">
-        <div className="bg-[#14223c] border border-slate-700 rounded-2xl max-w-lg w-full p-6 text-white shadow-2xl">
-          <div className="flex items-center gap-3 mb-4 text-amber-400">
-            <ShieldCheck className="w-8 h-8" />
-            <h2 className="text-xl font-bold">Política de Privacidade e Termos</h2>
-          </div>
-          <div className="text-slate-300 text-sm space-y-3 mb-6 max-h-60 overflow-y-auto pr-2">
-            <p><strong>1. Coleta e Finalidade dos Dados:</strong> Coletamos apenas seu e-mail de cadastro e dados operacionais do seu caixa com a finalidade exclusiva de exibir relatórios e indicadores no seu painel.</p>
-            <p><strong>2. Compartilhamento de Informações:</strong> Seus dados são confidenciais. Não vendemos, não repassamos e não compartilhamos suas informações financeiras com nenhuma outra empresa ou terceiro.</p>
-            <p><strong>3. Controle e Direitos (LGPD):</strong> Você pode realizar a exportação integral dos seus dados ou a exclusão permanente e irreversível da sua conta no menu de Perfil.</p>
+      <div style={{ backgroundColor: '#0c1527', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', fontFamily: 'sans-serif' }}>
+        <div style={{ backgroundColor: '#14223c', border: '1px solid #334155', borderRadius: '16px', maxWidth: '500px', width: '100%', padding: '24px', color: '#ffffff', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px', color: '#fbbf24' }}>Política de Privacidade e Termos</h2>
+          <div style={{ color: '#cbd5e1', fontSize: '14px', lineHeight: '1.5', maxHeight: '240px', overflowY: 'auto', marginBottom: '24px', paddingRight: '8px' }}>
+            <p style={{ marginBottom: '12px' }}><strong>1. Coleta e Finalidade dos Dados:</strong> Coletamos apenas seu e-mail de cadastro e dados operacionais do seu caixa com a finalidade exclusiva de exibir relatórios e indicadores no seu painel.</p>
+            <p style={{ marginBottom: '12px' }}><strong>2. Compartilhamento de Informações:</strong> Seus dados são confidenciais. Não vendemos, não repassamos e não compartilhamos suas informações financeiras com nenhuma outra empresa ou terceiro.</p>
+            <p><strong>3. Controle e Direitos (LGPD):</strong> Você pode realizar a exportação integral dos seu dados ou a exclusão permanente e irreversível da sua conta no menu de Perfil.</p>
           </div>
           <button
             type="button"
             onClick={handleAcceptTerms}
-            className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 px-4 rounded-xl transition cursor-pointer"
+            style={{ width: '100%', backgroundColor: '#fbbf24', color: '#020617', fontWeight: 'bold', padding: '12px 16px', borderRadius: '12px', border: 'none', cursor: 'pointer' }}
           >
             ✓ Entendi e Concordo com os Termos
           </button>
@@ -81,48 +76,48 @@ export function LoginScreen() {
     );
   }
 
-  // Após aceitar, exibe a tela de login com os botões
+  // Tela de Login com Google e E-mail
   return (
-    <div className="min-h-screen bg-[#0c1527] flex items-center justify-center p-4">
-      <div className="bg-[#14223c] border border-slate-700 rounded-2xl max-w-md w-full p-8 text-white shadow-2xl text-center">
-        <h1 className="text-2xl font-bold mb-2">Copiloto Financeiro</h1>
-        <p className="text-slate-400 text-sm mb-6">Acesse sua conta para continuar</p>
+    <div style={{ backgroundColor: '#0c1527', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', fontFamily: 'sans-serif' }}>
+      <div style={{ backgroundColor: '#14223c', border: '1px solid #334155', borderRadius: '16px', maxWidth: '400px', width: '100%', padding: '32px', color: '#ffffff', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', textAlign: 'center' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>Copiloto Financeiro</h1>
+        <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '24px' }}>Acesse sua conta para continuar</p>
 
         {loading ? (
-          <div className="py-8 text-amber-400 font-medium">Carregando autenticação...</div>
+          <div style={{ padding: '32px 0', color: '#fbbf24', fontWeight: '500' }}>Redirecionando para autenticação...</div>
         ) : (
-          <div className="space-y-4">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <button
               type="button"
               onClick={handleGoogleLogin}
-              className="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer shadow"
+              style={{ width: '100%', backgroundColor: '#ffffff', color: '#0f172a', fontWeight: 'bold', padding: '12px 16px', borderRadius: '12px', border: 'none', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}
             >
-              <span>Entrar com o Google</span>
+              Entrar com o Google
             </button>
 
-            <div className="relative flex py-2 items-center">
-              <div className="flex-grow border-t border-slate-700"></div>
-              <span className="flex-shrink mx-4 text-slate-500 text-xs">ou por e-mail</span>
-              <div className="flex-grow border-t border-slate-700"></div>
+            <div style={{ display: 'flex', alignItems: 'center', textAlign: 'center', color: '#64748b', fontSize: '12px', margin: '8px 0' }}>
+              <div style={{ flex: 1, borderBottom: '1px solid #334155' }}></div>
+              <span style={{ padding: '0 12px' }}>ou por e-mail</span>
+              <div style={{ flex: 1, borderBottom: '1px solid #334155' }}></div>
             </div>
 
             {emailSent ? (
-              <div className="bg-emerald-950/60 border border-emerald-500/50 p-4 rounded-xl text-emerald-200 text-xs">
+              <div style={{ backgroundColor: '#022c22', border: '1px solid #059669', padding: '16px', borderRadius: '12px', color: '#a7f3d0', fontSize: '12px' }}>
                 ✓ Link de acesso enviado para o seu e-mail! Verifique sua caixa de entrada.
               </div>
             ) : (
-              <form onSubmit={handleEmailLogin} className="space-y-3">
+              <form onSubmit={handleEmailLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <input
                   type="email"
                   placeholder="Seu e-mail profissional"
                   value={emailLogin}
                   onChange={(e) => setEmailLogin(e.target.value)}
                   required
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500"
+                  style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '12px', padding: '10px 16px', color: '#ffffff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                 />
                 <button
                   type="submit"
-                  className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 px-4 rounded-xl transition text-sm cursor-pointer"
+                  style={{ width: '100%', backgroundColor: '#fbbf24', color: '#020617', fontWeight: 'bold', padding: '10px 16px', borderRadius: '12px', border: 'none', cursor: 'pointer', fontSize: '14px' }}
                 >
                   Enviar Link de Acesso por E-mail
                 </button>
