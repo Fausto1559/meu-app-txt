@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleAuthProvider, signInWithPopup, sendSignInLinkToEmail } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { auth } from '../services/firebaseConfig';
 import { Privacidade } from './Privacidade';
+import { sendSignInLinkToEmail } from 'firebase/auth';
 
 export function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -10,6 +11,14 @@ export function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
+
+useEffect(() => {
+  // Captura o resultado após o redirecionamento do Google
+  getRedirectResult(auth).catch((error) => {
+    console.error('Erro no retorno do login:', error);
+    alert('Erro ao concluir login com Google: ' + error.message);
+  });
+}, []);
 
   useEffect(() => {
     const item = localStorage.getItem('copiloto_lgpd_accepted');
@@ -29,9 +38,10 @@ export function LoginScreen() {
       setLoading(true);
       setError('');
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-    } catch (err: unknown) {
-      setError('Erro ao fazer login com o Google.');
+      await signInWithRedirect(auth, provider);
+    } catch (err: any) {
+      console.error('Erro ao iniciar login com Google:', err);
+      alert('Erro ao iniciar login: ' + (err as any).message);
     } finally {
       setLoading(false);
     }
