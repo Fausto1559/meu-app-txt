@@ -10,6 +10,14 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:123:web:abc"
 };
 
-// Inicialização segura do Firebase (evita duplicidade e falhas de runtime)
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-export const auth = getAuth(app);
+let app;
+let authInstance: any = null;
+
+try {
+  app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+  authInstance = getAuth(app);
+} catch (error) {
+  console.error("Erro ao inicializar Firebase:", error);
+}
+
+export const auth = authInstance;
