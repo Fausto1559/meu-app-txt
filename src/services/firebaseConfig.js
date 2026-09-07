@@ -11,7 +11,7 @@ const firebaseConfig = {
 };
 
 let app;
-let authInstance: any = null;
+let authInstance = null;
 
 try {
   app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
