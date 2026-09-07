@@ -1,141 +1,136 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithRedirect, getRedirectResult, sendSignInLinkToEmail } from 'firebase/auth';
 import { auth } from '../services/firebaseConfig';
-import { Privacidade } from './Privacidade';
-import { sendSignInLinkToEmail } from 'firebase/auth';
+import { ShieldCheck } from 'lucide-react';
 
 export function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
-
-useEffect(() => {
-  // Captura o resultado após o redirecionamento do Google
-  getRedirectResult(auth).catch((error) => {
-    console.error('Erro no retorno do login:', error);
-    alert('Erro ao concluir login com Google: ' + error.message);
+  const [acceptedTerms, setAcceptedTerms] = useState(() => {
+    return localStorage.getItem('copilotofinanc_lgpd_accepted') === 'true';
   });
-}, []);
+  const [loading, setLoading] = useState(false);
+  const [emailLogin, setEmailLogin] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
-    const item = localStorage.getItem('copiloto_lgpd_accepted');
-    if (item === 'true') {
-      setAcceptedTerms(true);
-    }
-    setIsChecking(false);
+    getRedirectResult(auth).catch((err: any) => {
+      console.error('Erro no retorno do login:', err);
+      alert('Erro ao concluir login: ' + (err?.message || err));
+    });
   }, []);
 
   const handleAcceptTerms = () => {
-    localStorage.setItem('copiloto_lgpd_accepted', 'true');
+    localStorage.setItem('copilotofinanc_lgpd_accepted', 'true');
     setAcceptedTerms(true);
   };
 
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
-      setError('');
       const provider = new GoogleAuthProvider();
       await signInWithRedirect(auth, provider);
     } catch (err: any) {
       console.error('Erro ao iniciar login com Google:', err);
-      alert('Erro ao iniciar login: ' + (err as any).message);
-    } finally {
+      alert('Erro ao iniciar login: ' + (err?.message || err));
       setLoading(false);
     }
   };
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) {
-      setError('Informe seu e-mail.');
-      return;
-    }
+    if (!emailLogin) return;
     try {
       setLoading(true);
-      setError('');
       const actionCodeSettings = {
         url: window.location.href,
         handleCodeInApp: true,
       };
-      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-      window.localStorage.setItem('emailForSignIn', email);
-      setMessage('Link enviado! Verifique sua caixa de entrada.');
-    } catch (err: unknown) {
-      setError('Erro ao enviar o link por e-mail.');
+      await sendSignInLinkToEmail(auth, emailLogin, actionCodeSettings);
+      window.localStorage.setItem('emailForSignIn', emailLogin);
+      setEmailSent(true);
+    } catch (err: any) {
+      console.error('Erro ao enviar e-mail:', err);
+      alert('Erro ao enviar e-mail: ' + (err?.message || err));
     } finally {
       setLoading(false);
     }
   };
 
-  if (isChecking) {
-    return <div className="min-h-screen bg-slate-950" />;
-  }
-
+  // Se ainda não aceitou os termos, exibe o modal de LGPD
   if (!acceptedTerms) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-        <Privacidade onAceitar={handleAcceptTerms} />
+      <div className="min-h-screen bg-[#0c1527] flex items-center justify-center p-4">
+        <div className="bg-[#14223c] border border-slate-700 rounded-2xl max-w-lg w-full p-6 text-white shadow-2xl">
+          <div className="flex items-center gap-3 mb-4 text-amber-400">
+            <ShieldCheck className="w-8 h-8" />
+            <h2 className="text-xl font-bold">Política de Privacidade e Termos</h2>
+          </div>
+          <div className="text-slate-300 text-sm space-y-3 mb-6 max-h-60 overflow-y-auto pr-2">
+            <p><strong>1. Coleta e Finalidade dos Dados:</strong> Coletamos apenas seu e-mail de cadastro e dados operacionais do seu caixa com a finalidade exclusiva de exibir relatórios e indicadores no seu painel.</p>
+            <p><strong>2. Compartilhamento de Informações:</strong> Seus dados são confidenciais. Não vendemos, não repassamos e não compartilhamos suas informações financeiras com nenhuma outra empresa ou terceiro.</p>
+            <p><strong>3. Controle e Direitos (LGPD):</strong> Você pode realizar a exportação integral dos seus dados ou a exclusão permanente e irreversível da sua conta no menu de Perfil.</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleAcceptTerms}
+            className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 px-4 rounded-xl transition cursor-pointer"
+          >
+            ✓ Entendi e Concordo com os Termos
+          </button>
+        </div>
       </div>
     );
   }
 
+  // Após aceitar, exibe a tela de login com os botões
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-md w-full shadow-2xl text-center space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Copiloto Financeiro</h1>
-          <p className="text-xs text-slate-400 mt-1">Acesse sua conta para continuar</p>
-        </div>
+    <div className="min-h-screen bg-[#0c1527] flex items-center justify-center p-4">
+      <div className="bg-[#14223c] border border-slate-700 rounded-2xl max-w-md w-full p-8 text-white shadow-2xl text-center">
+        <h1 className="text-2xl font-bold mb-2">Copiloto Financeiro</h1>
+        <p className="text-slate-400 text-sm mb-6">Acesse sua conta para continuar</p>
 
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-xs">
-            {error}
+        {loading ? (
+          <div className="py-8 text-amber-400 font-medium">Carregando autenticação...</div>
+        ) : (
+          <div className="space-y-4">
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              className="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer shadow"
+            >
+              <span>Entrar com o Google</span>
+            </button>
+
+            <div className="relative flex py-2 items-center">
+              <div className="flex-grow border-t border-slate-700"></div>
+              <span className="flex-shrink mx-4 text-slate-500 text-xs">ou por e-mail</span>
+              <div className="flex-grow border-t border-slate-700"></div>
+            </div>
+
+            {emailSent ? (
+              <div className="bg-emerald-950/60 border border-emerald-500/50 p-4 rounded-xl text-emerald-200 text-xs">
+                ✓ Link de acesso enviado para o seu e-mail! Verifique sua caixa de entrada.
+              </div>
+            ) : (
+              <form onSubmit={handleEmailLogin} className="space-y-3">
+                <input
+                  type="email"
+                  placeholder="Seu e-mail profissional"
+                  value={emailLogin}
+                  onChange={(e) => setEmailLogin(e.target.value)}
+                  required
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500"
+                />
+                <button
+                  type="submit"
+                  className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 px-4 rounded-xl transition text-sm cursor-pointer"
+                >
+                  Enviar Link de Acesso por E-mail
+                </button>
+              </form>
+            )}
           </div>
         )}
-
-        {message && (
-          <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-xl text-xs">
-            {message}
-          </div>
-        )}
-
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          className="w-full bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold py-3 px-4 rounded-xl text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg"
-        >
-          <span>🌐</span> {loading ? 'Carregando...' : 'Fazer Login com o Google'}
-        </button>
-
-        <div className="flex items-center gap-3 my-2">
-          <div className="h-px bg-slate-800 flex-1" />
-          <span className="text-xs text-slate-500 uppercase font-semibold">OU</span>
-          <div className="h-px bg-slate-800 flex-1" />
-        </div>
-
-        <form onSubmit={handleEmailLogin} className="space-y-3">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="seu.email@exemplo.com"
-            className="w-full bg-slate-950 border border-slate-800 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-amber-500 placeholder-slate-600"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 disabled:opacity-50 font-bold py-3 px-4 rounded-xl text-sm transition-all cursor-pointer border border-slate-700"
-          >
-            {loading ? 'Enviando...' : 'Receber Link por E-mail'}
-          </button>
-        </form>
       </div>
     </div>
   );
 }
-
-export default LoginScreen;
