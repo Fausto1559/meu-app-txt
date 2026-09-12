@@ -1,3 +1,4 @@
+import TopNav from './components/TopNav';
 import { onAuthStateChanged, getRedirectResult, User } from 'firebase/auth';
 import { auth } from './services/firebaseConfig';
 import {LoginScreen} from './screens/LoginScreen';import React, { useState, useEffect } from 'react';
@@ -183,38 +184,21 @@ const handleLogout = () => {
     window.location.replace('https://www.google.com');
   };
 
+  // Força a exibição se o loading travar, ou mostra texto indicativo
   if (isAuthLoading) {
-    return <div className="min-h-screen bg-slate-950" />;
+    return (
+      <div className="min-h-screen bg-[#0c1527] text-white flex items-center justify-center font-bold text-lg">
+        Carregando Copiloto Financeiro...
+      </div>
+    );
   }
 
-  // Se não estiver logado, exibe a tela unificada de Privacidade + Login
   if (!user) {
     return <LoginScreen />;
   }
 
-  // TRAVA DE SEGURANÇA E TELA DE LOGIN
-  if (user) {
-    return (
-      <>
-        {!termoAceito ? (
-          <Privacidade onAceitar={handleAceitarTermos} />
-        ) : (
-          <div className="app-container">
-            <div className="main-content">
-              {/* Resto do seu painel, rotas ou componentes */}
-            </div>
-          </div>
-        )}
-      </>
-    );
-  }
-
-  // Caso contrário, exibe a tela de login padronizada
-  return <LoginScreen />;
-
-return (
+  return (
     <div className="min-h-screen bg-[#0c1527] text-white font-sans">
-      {/* TELA DE PRIVACIDADE */}
       {mostrarPrivacidade && (
         <Privacidade onAceitar={handleAcceptPrivacidade} />
       )}
