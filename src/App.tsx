@@ -22,7 +22,7 @@ import { Perfil } from './screens/Perfil';
 import SalesCalculator from './screens/SalesCalculator';
 
 export function App() {
-const [user, setUser] = useState<any>(null);
+const [user, setUser] = useState<User | null>(null);
 const [loading, setLoading] = useState(true);
 
 const [telaAtiva, setTelaAtiva] = useState('painel');
@@ -63,23 +63,24 @@ useEffect(() => {
       },
       (error) => {
         console.error("Erro na sessão:", error);
-        if (isMounted) {
-          setLoading(false);
-        }
+        if (isMounted) setLoading(false);
       }
     );
 
-    // Trava de segurança: se o Firebase travar por mais de 2 segundos, força a abertura do app
-    const timer = setTimeout(() => {
+    getRedirectResult(auth).catch((error) => {
+      console.error("Erro no redirect:", error);
+    });
+
+    const safetyTimer = setTimeout(() => {
       if (isMounted) {
         setLoading(false);
       }
-    }, 2000);
+    }, 1500);
 
     return () => {
       isMounted = false;
       unsubscribe();
-      clearTimeout(timer);
+      clearTimeout(safetyTimer);
     };
   }, []);
 
