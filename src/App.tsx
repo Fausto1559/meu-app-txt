@@ -51,15 +51,51 @@ const handleInstallClick = async () => {
   const [aPagarItens, setAPagarItens] = useState<string[]>([]);
 
 useEffect(() => {
+    let isMounted = true;
+
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        if (isMounted) {
+          setUser(currentUser);
+          setLoading(false);
+        }
+      },
+      (error) => {
+        console.error("Erro na sessão:", error);
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    );
+
+    // Trava de segurança: se o Firebase travar por mais de 2 segundos, força a abertura do app
+    const timer = setTimeout(() => {
+      if (isMounted) {
+        setLoading(false);
+      }
+    }, 2000);
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+      clearTimeout(timer);
+    };
+  }, []);
+
+useEffect(() => {
+    let unsubscribe: () => void = () => {};
+
     getRedirectResult(auth)
       .catch((error) => console.error(error))
       .finally(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        unsubscribe = onAuthStateChanged(auth, (currentUser) => {
           setUser(currentUser);
           setLoading(false);
         });
-        return () => unsubscribe();
       });
+
+    return () => unsubscribe();
   }, []);
 
   if (loading) {
