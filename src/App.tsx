@@ -22,233 +22,43 @@ import { Perfil } from './screens/Perfil';
 import SalesCalculator from './screens/SalesCalculator';
 
 export function App() {
-const [user, setUser] = useState<User | null>(null);
-const [loading, setLoading] = useState(true);
+  // 1. TODOS OS ESTADOS DO APP
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [telaAtiva, setTelaAtiva] = useState('painel');
+  const [activeTab, setActiveTab] = useState('painel');
+  const [isCalculadoraOpen, setIsCalculadoraOpen] = useState(false);
+  const [isPerfilOpen, setIsPerfilOpen] = useState(false);
+  const [isPrivacidadeOpen, setIsPrivacidadeOpen] = useState(false);
+  const [termoAceito, setTermoAceito] = useState<boolean>(true);
+  const [mostrarPrivacidade, setMostrarPrivacidade] = useState<boolean>(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallBtn, setShowInstallBtn] = useState(false);
+  const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
+  const [emailLogin, setEmailLogin] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string>('freemium');
+  const [selectedPlanName, setSelectedPlanName] = useState<string>('Freemium / Essencial');
+  const [selectedPlanPrice, setSelectedPlanPrice] = useState<string>('Gratuito');
+  const [aPagarTotal, setAPagarTotal] = useState<number>(0);
+  const [aPagarItens, setAPagarItens] = useState<string[]>([]);
+  const [timeLeft, setTimeLeft] = useState<number>(0);
+  const [isTrialExpired, setIsTrialExpired] = useState<boolean>(false);
 
-const [telaAtiva, setTelaAtiva] = useState('painel');
-const [termoAceito, setTermoAceito] = useState<boolean>(true);
-const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-const [showInstallBtn, setShowInstallBtn] = useState(false);
-
-const [isAuthLoading, setIsAuthLoading] = useState(true);
-const [listeningField, setListeningField] = useState<'aReceber' | 'aPagar' | null>(null);
-
-const handleAceitarTermos = () => {
-    localStorage.setItem('termo_aceito', 'true');
+  // 2. FUNÇÕES E HANDLERS
+  const handleAceitarTermos = () => {
     setTermoAceito(true);
   };
 
-const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-  };
-
-// === INÍCIO DO ITEM 1 ===
-  const [aReceberTotal, setAReceberTotal] = useState<number>(0);
-  const [aReceberItens, setAReceberItens] = useState<string[]>([]);
-  const [aPagarTotal, setAPagarTotal] = useState<number>(0);
-  const [aPagarItens, setAPagarItens] = useState<string[]>([]);
-
-useEffect(() => {
-    let isMounted = true;
-
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (currentUser) => {
-        if (isMounted) {
-          setUser(currentUser);
-          setLoading(false);
-        }
-      },
-      (error) => {
-        console.error("Erro na sessão:", error);
-        if (isMounted) setLoading(false);
-      }
-    );
-
-    getRedirectResult(auth).catch((error) => {
-      console.error("Erro no redirect:", error);
-    });
-
-    const safetyTimer = setTimeout(() => {
-      if (isMounted) {
-        setLoading(false);
-      }
-    }, 1500);
-
-    return () => {
-      isMounted = false;
-      unsubscribe();
-      clearTimeout(safetyTimer);
-    };
-  }, []);
-
-useEffect(() => {
-    let unsubscribe: () => void = () => {};
-
-    getRedirectResult(auth)
-      .catch((error) => console.error(error))
-      .finally(() => {
-        unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-          setUser(currentUser);
-          setLoading(false);
-        });
-      });
-
-    return () => unsubscribe();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0c1527] flex items-center justify-center">
-        <p className="text-amber-400 font-bold animate-pulse">Carregando...</p>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <LoginScreen />;
-  }
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (currentUser) => {
-        setUser(currentUser);
-        setLoading(false);
-      },
-      (error) => {
-        console.error("Erro na sessão:", error);
-        setLoading(false);
-      }
-    );
-
-    return () => unsubscribe();
-  }, []);
-
-useEffect(() => {
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    setDeferredPrompt(e);
-    setShowInstallBtn(true);
-  });
-}, []);
-
-useEffect(() => {
-    // Verifica se o usuário já aceitou os termos no armazenamento local
-    const aceito = localStorage.getItem('termo_aceito');
-    if (!aceito) {
-      setTermoAceito(false);
-    }
-  }, []);
-
-    const handleVoiceInput = (field: 'aReceber' | 'aPagar') => {
-     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    
-    if (!SpeechRecognition) {
-      alert('Navegador sem suporte a reconhecimento de voz.');
-      return;
-    }
-
-    setListeningField(field);
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'pt-BR';
-
-    recognition.onresult = (event: any) => {
-      const texto = event.results[0][0].transcript;
-      const numeros = texto.match(/\d+(?:[.,]\d+)?/g);
-      const valor = numeros ? parseFloat(numeros[0].replace(',', '.')) : 0;
-
-      if (field === 'aReceber') {
-        if (valor > 0) setAReceberTotal(prev => prev + valor);
-        setAReceberItens(prev => [texto, ...prev]);
-      } else {
-        if (valor > 0) setAPagarTotal(prev => prev + valor);
-        setAPagarItens(prev => [texto, ...prev]);
-      }
-      setListeningField(null);
-    };
-
-    recognition.onerror = () => setListeningField(null);
-    recognition.onend = () => setListeningField(null);
-    recognition.start();
-  };
-  // === FIM DO ITEM 1 ===
-
-  const [mostrarPrivacidade, setMostrarPrivacidade] = useState(() => {
-    return localStorage.getItem('aceitouPrivacidade') !== 'true';
-  });
-
   const handleAcceptPrivacidade = () => {
-    localStorage.setItem('aceitouPrivacidade', 'true');
     setMostrarPrivacidade(false);
+    setTermoAceito(true);
   };
 
-  const [isTrialExpired, setIsTrialExpired] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>('painel');
-  const [modoApagaIncendio, setModoApagaIncendio] = useState(false);
-  const [diasTrial, setDiasTrial] = useState({ dias: 24, horas: 21, minutos: 43, segundos: 10 });
-  const [isCalculadoraOpen, setIsCalculadoraOpen] = useState(false);
-  const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
-  const [userPlan, setUserPlan] = useState('Freemium/Essencial');
-  const [emailSent, setEmailSent] = useState(false);
-  const [emailLogin, setEmailLogin] = useState<string>('');
-  const [isPerfilOpen, setIsPerfilOpen] = useState(false);
-  const [isPrivacidadeOpen, setIsPrivacidadeOpen] = useState(false);
-  const userPlanName = userPlan === 'Freemium/Essencial' ? 'Copiloto' : 'Copiloto Pro';
-  const userPlanPrice = userPlan === 'R$ 19,90/mês' ? 'R$ 29,90/mês' : 'R$ 39,90/mês';
-
-  // ESTADOS FINANCEIROS
-  const [vendasHoje, setVendasHoje] = useState<number>(0);
-  const [aReceber, setAReceber] = useState<number>(0);
-  const [aPagar, setAPagar] = useState<number>(0);
-  const saldoPrevisto = Number(vendasHoje) + Number(aReceber) - Number(aPagar);
-
-  // TEMPORIZADOR TRIAL
-  const calculateTimeLeft = () => {
-    let trialStart = localStorage.getItem('copiloto_trial_start');
-    if (!trialStart) {
-      trialStart = new Date().toISOString();
-      localStorage.setItem('copiloto_trial_start', trialStart);
-    }
-
-    const targetDate = new Date(trialStart);
-    targetDate.setDate(targetDate.getDate() + 30);
-    const difference = +targetDate - +new Date();
-
-    if (difference <= 0) {
-      setIsTrialExpired(true);
-      return '0d 0h 0m 0s';
-    }
-
-    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((difference / 1000 / 60) % 60);
-    const seconds = Math.floor((difference / 1000) % 60);
-    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-  };
-
-  const [timeLeft, setTimeLeft] = useState<string>(calculateTimeLeft());
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // FUNÇÕES AUXILIARES
   const handleRecusarPrivacidade = () => {
     window.location.href = 'https://www.google.com';
   };
 
-  // ESTADOS DO USUÁRIO E PLANOS (Ajustado para Freemium por padrão)
-  const [selectedPlan, setSelectedPlan] = useState<string>('freemium');
-  const [selectedPlanName, setSelectedPlanName] = useState<string>('Freemium / Essencial');
-  const [selectedPlanPrice, setSelectedPlanPrice] = useState<string>('Gratuito');
-
-  // Função de seleção atualizada para tratar o valor zero/gratuito
   const selecionarPlano = (id: string, name: string, price: string) => {
     setSelectedPlan(id);
     setSelectedPlanName(name);
@@ -259,6 +69,47 @@ useEffect(() => {
     }
     setIsUpgradeOpen(false);
   };
+
+  // 3. HOOKS E CICLO DE VIDA
+  useEffect(() => {
+    let isMounted = true;
+
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        if (isMounted) {
+          setUser(currentUser);
+          setIsAuthLoading(false);
+        }
+      },
+      (error) => {
+        console.error("Erro na sessão:", error);
+        if (isMounted) setIsAuthLoading(false);
+      }
+    );
+
+    getRedirectResult(auth).catch((error) => {
+      console.error("Erro no redirect:", error);
+    });
+
+    const timer = setTimeout(() => {
+      if (isMounted) setIsAuthLoading(false);
+    }, 1500);
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+      clearTimeout(timer);
+    };
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallBtn(true);
+    });
+  }, []);
 
   // 1. Mapeamento de links dos 3 planos
   const ASAAS_LINKS = {
