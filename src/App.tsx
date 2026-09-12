@@ -22,13 +22,14 @@ import Painel from './screens/Painel';
 import { Perfil } from './screens/Perfil';
 import SalesCalculator from './screens/SalesCalculator';
 
-function App() {
+export function App() {
+const [user, setUser] = useState<any>(null);
+const [loading, setLoading] = useState(true);
 const [telaAtiva, setTelaAtiva] = useState('painel');
 const [termoAceito, setTermoAceito] = useState<boolean>(true);
 const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 const [showInstallBtn, setShowInstallBtn] = useState(false);
 
-const [user, setUser] = useState<any>(null);
 const [isAuthLoading, setIsAuthLoading] = useState(true);
 const [listeningField, setListeningField] = useState<'aReceber' | 'aPagar' | null>(null);
 
@@ -50,6 +51,14 @@ const handleInstallClick = async () => {
   const [aPagarItens, setAPagarItens] = useState<string[]>([]);
 
 useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setIsAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+useEffect(() => {
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     setDeferredPrompt(e);
@@ -63,22 +72,6 @@ useEffect(() => {
     if (!aceito) {
       setTermoAceito(false);
     }
-  }, []);
-
-useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setIsAuthLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setShowInstallBtn(true);
-    });
   }, []);
 
     const handleVoiceInput = (field: 'aReceber' | 'aPagar') => {
