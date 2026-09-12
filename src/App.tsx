@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { onAuthStateChanged, getRedirectResult, User } from 'firebase/auth';
 import { auth } from './services/firebaseConfig';
-import {LoginScreen} from './screens/LoginScreen';
+import {LoginScreen} from './screens/LoginScreen';import React, { useState, useEffect } from 'react';
 import Conexao from './screens/Conexao';
 import { sendSignInLinkToEmail } from 'firebase/auth';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
@@ -51,6 +50,30 @@ const handleInstallClick = async () => {
   const [aPagarItens, setAPagarItens] = useState<string[]>([]);
 
 useEffect(() => {
+    getRedirectResult(auth)
+      .catch((error) => console.error(error))
+      .finally(() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+          setUser(currentUser);
+          setLoading(false);
+        });
+        return () => unsubscribe();
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0c1527] flex items-center justify-center">
+        <p className="text-amber-400 font-bold animate-pulse">Carregando...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginScreen />;
+  }
+
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setIsAuthLoading(false);
