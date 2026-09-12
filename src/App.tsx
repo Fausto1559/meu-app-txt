@@ -24,6 +24,7 @@ import SalesCalculator from './screens/SalesCalculator';
 export function App() {
 const [user, setUser] = useState<any>(null);
 const [loading, setLoading] = useState(true);
+
 const [telaAtiva, setTelaAtiva] = useState('painel');
 const [termoAceito, setTermoAceito] = useState<boolean>(true);
 const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -74,10 +75,18 @@ useEffect(() => {
   }
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setIsAuthLoading(false);
-    });
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        setUser(currentUser);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Erro na sessão:", error);
+        setLoading(false);
+      }
+    );
+
     return () => unsubscribe();
   }, []);
 
