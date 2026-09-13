@@ -20,11 +20,18 @@ export function LoginScreen() {
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     setError('');
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err: any) {
-      setError(err.message);
+      if (err?.code === 'auth/invalid-credential' || err?.code === 'auth/user-not-found' || err?.code === 'auth/wrong-password') {
+        setError('E-mail ou senha inválidos.');
+      } else {
+        setError('Erro ao entrar com e-mail. Tente novamente.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -32,18 +39,12 @@ export function LoginScreen() {
     setLoading(true);
     setError('');
     try {
-      const isMobile = window.innerWidth < 768 || window.matchMedia('(display-mode: standalone)').matches;
-      if (isMobile) {
-        await signInWithRedirect(auth, googleProvider);
-        return;
-      } else {
-        await signInWithPopup(auth, googleProvider);
-      }
+      await signInWithPopup(auth, googleProvider);
     } catch (error: any) {
       if (error?.code === 'auth/popup-closed-by-user') {
         setError('O login com o Google foi cancelado.');
       } else {
-        setError('Ocorreu um erro ao tentar entrar. Tente novamente.');
+        setError('Ocorreu um erro ao tentar entrar com o Google.');
         console.error(error);
       }
     } finally {
