@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { auth, googleProvider } from '../services/firebaseConfig';
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signInWithEmailAndPassword } from 'firebase/auth';
 
 export function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -16,7 +16,11 @@ export function LoginScreen() {
     }
   };
 
+const [loading, setLoading] = useState(false);
+
   const handleGoogleLogin = async () => {
+    setLoading(true);
+    setError('');
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (error: any) {
@@ -24,10 +28,11 @@ export function LoginScreen() {
         setError('O login com o Google foi cancelado.');
       } else {
         setError('Ocorreu um erro ao tentar entrar. Tente novamente.');
-        console.error(error);
       }
-    }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#0b1329] flex items-center justify-center p-4">
