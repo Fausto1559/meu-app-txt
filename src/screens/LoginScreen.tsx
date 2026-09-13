@@ -1,14 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { auth, googleProvider } from '../services/firebaseConfig';
-import { signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signInWithEmailAndPassword } from 'firebase/auth';
+import { 
+  signInWithPopup, 
+  signInWithRedirect, 
+  getRedirectResult, 
+  GoogleAuthProvider, 
+  signInWithEmailAndPassword 
+} from 'firebase/auth';
 
 export function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    getRedirectResult(auth).catch((err) => console.error("Erro redirect:", err));
+  }, []);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err: any) {
@@ -16,23 +28,28 @@ export function LoginScreen() {
     }
   };
 
-const [loading, setLoading] = useState(false);
-
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError('');
     try {
-      await signInWithPopup(auth, googleProvider);
+      const isMobile = window.innerWidth < 768 || window.matchMedia('(display-mode: standalone)').matches;
+      if (isMobile) {
+        await signInWithRedirect(auth, googleProvider);
+        return;
+      } else {
+        await signInWithPopup(auth, googleProvider);
+      }
     } catch (error: any) {
       if (error?.code === 'auth/popup-closed-by-user') {
         setError('O login com o Google foi cancelado.');
       } else {
         setError('Ocorreu um erro ao tentar entrar. Tente novamente.');
+        console.error(error);
       }
-  } finally {
-    setLoading(false);
-  }
-};
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#0b1329] flex items-center justify-center p-4">
