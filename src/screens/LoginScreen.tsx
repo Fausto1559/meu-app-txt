@@ -44,13 +44,22 @@ export function LoginScreen() {
       if (error?.code === 'auth/popup-closed-by-user') {
         setError('O login com o Google foi cancelado.');
       } else {
-        setError('Ocorreu um erro ao tentar entrar com o Google.');
+        setError('Ocorreu um erro ao tentar entrar. Tente novamente.');
         console.error(error);
       }
     } finally {
       setLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#0f172a] text-white p-6">
+        <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-sm font-medium text-slate-200">Autenticando e abrindo o Copiloto...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0b1329] flex items-center justify-center p-4">
@@ -59,7 +68,7 @@ export function LoginScreen() {
         <p className="text-sm text-gray-400 text-center mb-6">Acesse sua conta para continuar</p>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500 text-red-400 p-3 rounded mb-4 text-sm">
+          <div className="bg-red-500/15 border border-red-500 text-red-400 p-3 rounded-lg mb-4 text-sm">
             {error}
           </div>
         )}
@@ -71,9 +80,9 @@ export function LoginScreen() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-3 py-2 bg-[#0b1329] border border-gray-700 rounded-lg text-white focus:outline-none focus:border-amber-400"
+              className="w-full bg-[#1e293b] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
               placeholder="seu@email.com"
+              required
             />
           </div>
           <div>
@@ -82,29 +91,30 @@ export function LoginScreen() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-3 py-2 bg-[#0b1329] border border-gray-700 rounded-lg text-white focus:outline-none focus:border-amber-400"
+              className="w-full bg-[#1e293b] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
               placeholder="••••••••"
+              required
             />
           </div>
           <button
             type="submit"
-            className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 font-semibold rounded-lg text-gray-950 transition-colors cursor-pointer"
+            disabled={loading}
+            className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-lg text-sm transition-colors disabled:opacity-50"
           >
             Entrar com E-mail
           </button>
         </form>
 
-        <div className="relative my-6 text-center">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-700"></div>
-          </div>
-          <span className="relative px-2 bg-[#121c38] text-xs text-gray-400">ou</span>
+        <div className="my-5 flex items-center gap-3">
+          <div className="h-px bg-gray-700 flex-1" />
+          <span className="text-xs text-gray-400">ou</span>
+          <div className="h-px bg-gray-700 flex-1" />
         </div>
 
         <button
           onClick={handleGoogleLogin}
-          className="w-full py-2.5 bg-white hover:bg-gray-100 font-semibold rounded-lg text-gray-900 flex items-center justify-center gap-2 transition-colors cursor-pointer"
+          disabled={loading}
+          className="w-full py-2.5 bg-white hover:bg-gray-100 text-gray-900 font-medium rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
         >
           Entrar com o Google
         </button>
