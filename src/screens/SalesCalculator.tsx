@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import type { Plan } from '@/types';
 import { Calculator, Check } from 'lucide-react';
+import { auth } from '../services/firebaseConfig';
+import { saveUserRecord } from '../services/firestoreService';
 
 interface SalesCalculatorProps {
   plan: Plan;
@@ -11,15 +13,29 @@ interface SalesCalculatorProps {
 export default function SalesCalculator({ plan, onSaleBooked }: SalesCalculatorProps) {
   const [amountInput, setAmountInput] = useState('');
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  function handleRegister(e: React.FormEvent) {
+  async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     const cleanValue = parseFloat(amountInput.replace(/\./g, '').replace(',', '.')) || 0;
     if (cleanValue > 0) {
-      onSaleBooked(cleanValue);
-      setAmountInput('');
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
+      setLoading(true);
+      try {
+        onSaleBooked(cleanValue);
+        if (auth.currentUser) {
+          await saveUserRecord(auth.currentUser.uid, 'sales', {
+            amount: cleanValue,
+            timestamp: new Date().toISOString(),
+          });
+        }
+        setAmountInput('');
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
+      } catch (err) {
+        console.error('Erro ao persistir venda no Firestore:', err);
+      } finally {
+        setLoading(false);
+      }
     }
   }
 
@@ -48,15 +64,17 @@ export default function SalesCalculator({ plan, onSaleBooked }: SalesCalculatorP
               value={amountInput}
               onChange={(e) => setAmountInput(e.target.value)}
               placeholder="0,00"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-[#C5A028]/50"
+              disabled={loading}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-[#C5A028]/50 disabled:opacity-50"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-[#C5A028]/20 hover:bg-[#C5A028]/30 border border-[#C5A028]/40 text-[#E5C158] font-medium text-sm py-2.5 px-4 rounded-xl transition-all"
+            disabled={loading}
+            className="w-full bg-[#C5A028]/20 hover:bg-[#C5A028]/30 border border-[#C5A028]/40 text-[#E5C158] font-medium text-sm py-2.5 px-4 rounded-xl transition-all disabled:opacity-50"
           >
-            Registrar Venda
+            {loading ? 'Salvando...' : 'Registrar Venda'}
           </button>
 
           {success && (
