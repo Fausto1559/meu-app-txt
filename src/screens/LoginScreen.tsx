@@ -19,8 +19,13 @@ export function LoginScreen() {
   const handleGoogleLogin = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error: any) {
+      if (error?.code === 'auth/popup-closed-by-user') {
+        setError('O login com o Google foi cancelado.');
+      } else {
+        setError('Ocorreu um erro ao tentar entrar. Tente novamente.');
+        console.error(error);
+      }
     }
   };
 
