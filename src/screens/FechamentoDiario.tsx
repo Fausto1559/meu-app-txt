@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Mic, CreditCard, Smartphone, Receipt, CheckCircle2 } from 'lucide-react';
+import { auth } from '../services/firebaseConfig';
+import { saveUserRecord } from '../services/firestoreService';
 
 export function FechamentoDiario() {
   const [saldoInicial, setSaldoInicial] = useState('');
@@ -11,6 +13,7 @@ export function FechamentoDiario() {
   const [credito12xValue, setCredito12xValue] = useState('');
   const [pixValue, setPixValue] = useState('');
   const [boletosValue, setBoletosValue] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const formatMoney = (value: string) => {
     if (!value) return '';
@@ -68,9 +71,8 @@ export function FechamentoDiario() {
 
   const saldoFinalEsperado = nSaldoInicial + nEntradasDinheiro - nSaidas;
 
-  const handleFinalizar = () => {
+  const handleFinalizar = async () => {
     const novoFechamento = {
-      id: Date.now(),
       data: new Date().toLocaleDateString('pt-BR'),
       saldoInicial,
       entradasDinheiro,
@@ -82,9 +84,21 @@ export function FechamentoDiario() {
       boletosValue,
       saldoFinalEsperado: saldoFinalEsperado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
     };
-    const salvos = JSON.parse(localStorage.getItem('copiloto_fechamentos') || '[]');
-    localStorage.setItem('copiloto_fechamentos', JSON.stringify([novoFechamento, ...salvos]));
-    alert('Fechamento finalizado e enviado para a Central do Contador com sucesso!');
+
+    setLoading(true);
+    try {
+      if (auth.currentUser) {
+        await saveUserRecord(auth.currentUser.uid, 'fechamentos', novoFechamento);
+      }
+      const salvos = JSON.parse(localStorage.getItem('copiloto_fechamentos') || '[]');
+      localStorage.setItem('copiloto_fechamentos', JSON.stringify([novoFechamento, ...salvos]));
+      alert('Fechamento finalizado, salvo no Firestore e enviado para a Central do Contador!');
+    } catch (err) {
+      console.error('Erro ao salvar no Firestore:', err);
+      alert('Erro ao salvar no Firestore. Verifique o console.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -100,10 +114,11 @@ export function FechamentoDiario() {
         </div>
         <button
           onClick={handleFinalizar}
-          className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-5 py-2.5 rounded-lg flex items-center gap-2 transition-colors shadow-lg cursor-pointer"
+          disabled={loading}
+          className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium px-5 py-2.5 rounded-lg flex items-center gap-2 transition-colors shadow-lg cursor-pointer"
         >
           <CheckCircle2 className="w-5 h-5" />
-          Finalizar Fechamento
+          {loading ? 'Salvando...' : 'Finalizar Fechamento'}
         </button>
       </div>
 
