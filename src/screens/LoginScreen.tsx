@@ -1,84 +1,86 @@
-import React, { useState, useEffect } from 'react';
-import { signInWithRedirect, GoogleAuthProvider, getRedirectResult } from 'firebase/auth';
-import { auth } from '../services/firebaseConfig';
+import React, { useState } from 'react';
+import { auth, googleProvider } from '../services/firebaseConfig';
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 
 export function LoginScreen() {
-  const [etapa, setEtapa] = useState<'lgpd' | 'login'>('lgpd');
-  const [processando, setProcessando] = useState(true); // Começa true para processar o retorno
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    // 1. Captura o usuário voltando da tela do Google
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result?.user) {
-          // Se voltou com usuário, não faz nada e deixa o App.tsx redirecionar pro painel
-          return;
-        }
-        // Se não tem usuário voltando, libera a tela de login
-        setProcessando(false);
-      })
-      .catch((error) => {
-        console.error("Erro no retorno do Google:", error);
-        setProcessando(false);
-      });
-
-    // 2. Verifica a LGPD
-    if (localStorage.getItem('lgpd_aceito') === 'true') {
-      setEtapa('login');
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err: any) {
+      setError(err.message);
     }
-  }, []);
-
-  const handleAceitarLgpd = () => {
-    localStorage.setItem('lgpd_aceito', 'true');
-    setEtapa('login');
   };
 
-  const handleGoogleLogin = () => {
-    setProcessando(true);
-    const provider = new GoogleAuthProvider();
-    signInWithRedirect(auth, provider);
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
-
-  if (processando) {
-    return (
-      <div className="min-h-screen bg-[#0c1527] flex items-center justify-center">
-        <p className="text-amber-400 font-bold">Processando login seguro...</p>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-[#0c1527] flex items-center justify-center p-4">
-      {etapa === 'lgpd' ? (
-        <div className="bg-[#14223c] border border-slate-800 rounded-2xl max-w-lg w-full p-6 text-slate-100 shadow-2xl">
-          <h2 className="text-xl font-bold text-amber-400 mb-4">Política de Privacidade e Termos</h2>
-          <div className="space-y-3 text-sm text-slate-300 mb-6">
-            <p><strong>1. Coleta e Finalidade:</strong> Coletamos apenas seu e-mail e dados operacionais para exibir relatórios no painel.</p>
-            <p><strong>2. Privacidade:</strong> Seus dados são confidenciais e nunca vendidos ou repassados a terceiros.</p>
-            <p><strong>3. Direitos (LGPD):</strong> Você pode exportar ou excluir seus dados a qualquer momento pelo menu de perfil.</p>
+    <div className="min-h-screen bg-[#0b1329] flex items-center justify-center p-4">
+      <div className="bg-[#121c38] p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-800 text-white">
+        <h1 className="text-2xl font-bold text-center text-amber-400 mb-2">Copiloto Financeiro</h1>
+        <p className="text-sm text-gray-400 text-center mb-6">Acesse sua conta para continuar</p>
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500 text-red-400 p-3 rounded mb-4 text-sm">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleEmailLogin} className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-300 mb-1">E-mail</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-3 py-2 bg-[#0b1329] border border-gray-700 rounded-lg text-white focus:outline-none focus:border-amber-400"
+              placeholder="seu@email.com"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-300 mb-1">Senha</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-3 py-2 bg-[#0b1329] border border-gray-700 rounded-lg text-white focus:outline-none focus:border-amber-400"
+              placeholder="••••••••"
+            />
           </div>
           <button
-            type="button"
-            onClick={handleAceitarLgpd}
-            className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 px-4 rounded-xl transition cursor-pointer"
+            type="submit"
+            className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 font-semibold rounded-lg text-gray-950 transition-colors cursor-pointer"
           >
-            ✓ Entendi e Concordo com os Termos
+            Entrar com E-mail
           </button>
+        </form>
+
+        <div className="relative my-6 text-center">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-700"></div>
+          </div>
+          <span className="relative px-2 bg-[#121c38] text-xs text-gray-400">ou</span>
         </div>
-      ) : (
-        <div className="bg-[#14223c] border border-slate-800 rounded-2xl max-w-md w-full p-8 text-slate-100 shadow-2xl text-center">
-          <h1 className="text-2xl font-bold text-amber-400 mb-2">Copiloto Financeiro</h1>
-          <p className="text-sm text-slate-400 mb-6">Acesse sua conta para continuar</p>
-          
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            className="w-full bg-white hover:bg-slate-100 text-slate-900 font-semibold py-3 px-4 rounded-xl transition flex items-center justify-center gap-3 shadow-md cursor-pointer"
-          >
-            <span>Entrar com o Google</span>
-          </button>
-        </div>
-      )}
+
+        <button
+          onClick={handleGoogleLogin}
+          className="w-full py-2.5 bg-white hover:bg-gray-100 font-semibold rounded-lg text-gray-900 flex items-center justify-center gap-2 transition-colors cursor-pointer"
+        >
+          Entrar com o Google
+        </button>
+      </div>
     </div>
   );
 }
