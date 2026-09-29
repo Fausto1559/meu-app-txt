@@ -1,17 +1,23 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { initializeAuth, inMemoryPersistence } from 'firebase/auth';
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: './',
-  server: {
-    headers: {
-      "Cross-Origin-Opener-Policy": "same-origin-allow-popups"
-    }
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    pool: 'vmThreads',
+    setupFiles: ['./src/setupTests.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      thresholds: {
+        lines: 40,
+        functions: 30,
+        branches: 30,
+        statements: 40,
+      },
+    },
   },
-  preview: { // Como você está rodando na porta 4173 (preview), isso é essencial!
-    headers: {
-      "Cross-Origin-Opener-Policy": "same-origin-allow-popups"
-    }
-  }
-})
+});

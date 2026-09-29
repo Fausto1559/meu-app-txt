@@ -5,8 +5,10 @@ interface PrivacidadeProps {
 }
 
 export function Privacidade({ onAceitar }: PrivacidadeProps) {
+  // window.open(url, '_self') navega na mesma aba e é mockável nos testes
+  // (window.location é "unforgeable" no jsdom moderno).
   const handleReject = () => {
-    window.location.href = 'https://www.google.com';
+    window.open('https://www.google.com', '_self');
   };
 
   return (

@@ -22,8 +22,22 @@ export function FechamentoDiario() {
   };
 
   const handleFinalizar = async () => {
+    const uid = auth.currentUser?.uid;
+
+    // Sem uid não existe caminho válido no Firestore (users/{uid}/fechamentos):
+    // tentar salvar com uid vazio gera "Invalid collection reference".
+    if (!uid) {
+      alert('Usuário não autenticado. Salvando localmente...');
+      const existingFechamentos = JSON.parse(localStorage.getItem('copiloto_fechamentos') || '[]');
+      localStorage.setItem(
+        'copiloto_fechamentos',
+        JSON.stringify([...existingFechamentos, novoFechamento])
+      );
+      return;
+    }
+
     try {
-      await saveUserRecord(auth.currentUser?.uid || '', 'fechamentos', novoFechamento);
+      await saveUserRecord(uid, 'fechamentos', novoFechamento);
       
       const salvos = JSON.parse(localStorage.getItem('copiloto_fechamentos') || '[]');
       localStorage.setItem('copiloto_fechamentos', JSON.stringify([novoFechamento, ...salvos]));

@@ -42,15 +42,9 @@ export function OpenFinance() {
     }, 1000);
   };
 
+// O checkbox de consentimento LGPD é exibido abaixo; a integração bancária
+// ainda será implementada.
 const [consentAccepted, setConsentAccepted] = useState(false);
-
-const handleOpenFinanceConnect = () => {
-  if (!consentAccepted) {
-    alert("Você precisa aceitar os termos de consentimento da LGPD para continuar.");
-    return;
-  }
-  // Lógica de integração bancária aqui
-};
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-6 space-y-6">
@@ -68,6 +62,22 @@ const handleOpenFinanceConnect = () => {
           <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-2 rounded-xl text-emerald-400 text-xs font-semibold">
             <ShieldCheck className="w-4 h-4" /> Ambiente Criptografado e Seguro
           </div>
+        </div>
+
+        {/* CONSENTIMENTO LGPD — único para toda a integração.
+            Antes estava dentro do map: 6 checkboxes com o mesmo id e o mesmo
+            estado, então marcar um marcava todos. */}
+        <div className="flex items-start gap-3 bg-slate-900/50 border border-slate-800 rounded-xl p-4 mt-6">
+          <input
+            type="checkbox"
+            id="lgpdConsent"
+            checked={consentAccepted}
+            onChange={(e) => setConsentAccepted(e.target.checked)}
+            className="mt-1 cursor-pointer"
+          />
+          <label htmlFor="lgpdConsent" className="text-sm text-slate-300 cursor-pointer">
+            Autorizo a coleta e processamento de dados financeiros exclusivamente para geração de relatórios neste aplicativo, conforme a LGPD.
+          </label>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
@@ -115,18 +125,6 @@ const handleOpenFinanceConnect = () => {
                     )}
                   </div>
                 </div>
-
-<div className="flex items-center gap-2 my-4">
-  <input 
-    type="checkbox" 
-    id="lgpdConsent"
-    checked={consentAccepted}
-    onChange={(e) => setConsentAccepted(e.target.checked)}
-  />
-  <label htmlFor="lgpdConsent" className="text-sm">
-    Autorizo a coleta e processamento de dados financeiros exclusivamente para geração de relatórios neste aplicativo, conforme a LGPD.
-  </label>
-</div>
 
                 <button
                   onClick={() => handleToggleConexao(maq.id)}
