@@ -1,24 +1,21 @@
-@import "tailwindcss";
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
   :root {
-    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
+    color-scheme: dark;
   }
-
   body {
-    font-family: var(--font-sans);
     background-color: #0a0f1d;
-    color: #f1f5f9;
+    color: #f8fafc;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
-}
-
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
 }
 
 .font-mono-num {
-  font-family: var(--font-mono);
+  font-family: 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
 }
 
@@ -31,4 +28,3 @@
     display: none !important;
   }
 }
-
