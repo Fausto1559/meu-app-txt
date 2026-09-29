@@ -66,11 +66,72 @@ type NavTab =
 
 const STORAGE_KEY_RECORDS = 'copiloto_financeiro_records_v1';
 const STORAGE_KEY_MACHINES = 'copiloto_financeiro_machines_v1';
+const STORAGE_KEY_AUTH = 'copiloto_financeiro_auth_v1';
 
 export default function App() {
   const todayISO = useMemo(() => toISODate(new Date()), []);
   const [referenceDate, setReferenceDate] = useState<string>(todayISO);
   const [activeNav, setActiveNav] = useState<NavTab>('painel');
+
+  // Authentication State (Login / Logout working on Desktop & Mobile)
+  const [userEmail, setUserEmail] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_AUTH);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed.email === 'string') return parsed.email;
+      }
+    } catch {
+      // ignore
+    }
+    return 'faustoefiscal@gmail.com';
+  });
+
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_AUTH);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed.isLoggedIn === 'boolean') {
+          return parsed.isLoggedIn;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return true;
+  });
+
+  const [loginInputEmail, setLoginInputEmail] = useState<string>(
+    'faustoefiscal@gmail.com'
+  );
+  const [loginInputPassword, setLoginInputPassword] = useState<string>('');
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    try {
+      localStorage.setItem(
+        STORAGE_KEY_AUTH,
+        JSON.stringify({ isLoggedIn: false, email: userEmail })
+      );
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleLogin = (emailToUse?: string) => {
+    const finalEmail = (emailToUse || loginInputEmail || 'faustoefiscal@gmail.com').trim();
+    setUserEmail(finalEmail);
+    setIsLoggedIn(true);
+    try {
+      localStorage.setItem(
+        STORAGE_KEY_AUTH,
+        JSON.stringify({ isLoggedIn: true, email: finalEmail })
+      );
+    } catch {
+      // ignore
+    }
+  };
 
   // Master Report State for the 3 requested fields (Vendas, A Receber, A Pagar) and 3 periods (Diário, Semanal, Mensal)
   const [activePeriod, setActivePeriod] = useState<ReportPeriod>('diario');
@@ -324,6 +385,108 @@ export default function App() {
     setActiveNav('painel');
   };
 
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-[#0a0f1d] text-slate-100 flex flex-col justify-between">
+        {/* Top Emergency / Fire Mode Banner */}
+        <div className="bg-gradient-to-r from-[#450a0a] via-[#7f1d1d] to-[#1e1b4b] border-b border-rose-500/30 px-4 py-2.5">
+          <div className="max-w-[1360px] mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-extrabold tracking-wide text-white uppercase">
+              <span role="img" aria-label="Fogo">🔥</span>
+              <span>MODO APAGA INCÊNDIO</span>
+            </div>
+            <span className="text-[11px] text-rose-200 hidden sm:inline">
+              Controle Rápido Diário · Semanal · Mensal
+            </span>
+          </div>
+        </div>
+
+        {/* Login Card */}
+        <div className="flex-1 flex items-center justify-center px-4 py-10">
+          <div className="w-full max-w-md bg-[#111a2e] border border-[#1e2d4a] rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                <Crown className="w-6 h-6" />
+              </div>
+              <div>
+                <h1 className="text-xl font-extrabold text-white">
+                  Copiloto Financeiro
+                </h1>
+                <p className="text-xs text-slate-400">
+                  Gestão inteligente para o seu negócio
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-xs text-slate-300">
+              Você saiu da sua sessão com segurança. Faça login abaixo para acessar seus{' '}
+              <strong className="text-amber-400">
+                Relatórios Diários, Semanais e Mensais
+              </strong>
+              .
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleLogin(loginInputEmail);
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  E-mail de Acesso
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={loginInputEmail}
+                  onChange={(e) => setLoginInputEmail(e.target.value)}
+                  placeholder="seuemail@exemplo.com"
+                  className="w-full bg-[#0b1120] border border-[#1e2d4a] focus:border-amber-500 rounded-xl px-4 py-3 text-sm text-white outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Senha
+                </label>
+                <input
+                  type="password"
+                  value={loginInputPassword}
+                  onChange={(e) => setLoginInputPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-[#0b1120] border border-[#1e2d4a] focus:border-amber-500 rounded-xl px-4 py-3 text-sm text-white outline-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition-colors shadow-md cursor-pointer"
+              >
+                Entrar no Copiloto Financeiro
+              </button>
+            </form>
+
+            <div className="pt-3 border-t border-[#1e2d4a]">
+              <button
+                type="button"
+                onClick={() => handleLogin('faustoefiscal@gmail.com')}
+                className="w-full py-2.5 px-4 rounded-xl bg-[#17233d] hover:bg-[#1f2f52] border border-[#263961] text-slate-200 text-xs font-semibold transition-colors cursor-pointer"
+              >
+                Acesso Rápido: faustoefiscal@gmail.com
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-center py-4 text-[11px] text-slate-500">
+          Copiloto Financeiro — Vendas · Contas a Receber · Contas a Pagar
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0a0f1d] text-slate-100">
       {/* Top Emergency / Fire Mode Banner matching mobile app */}
@@ -343,14 +506,12 @@ export default function App() {
       <div className="bg-[#0d1424] border-b border-[#1e2d4a] px-4 py-2.5 no-print">
         <div className="max-w-[1360px] mx-auto flex items-center justify-between text-xs">
           <div className="text-slate-300 truncate">
-            Logado como: <strong className="text-white">faustoefiscal@gmail.com</strong>
+            Logado como: <strong className="text-white">{userEmail}</strong>
           </div>
           <button
             type="button"
-            onClick={() =>
-              showNotification('Sessão ativa como faustoefiscal@gmail.com')
-            }
-            className="px-3 py-1 rounded-lg bg-rose-950/60 hover:bg-rose-900/70 border border-rose-500/30 text-rose-200 font-medium transition-colors cursor-pointer"
+            onClick={handleLogout}
+            className="px-3.5 py-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-800/80 border border-rose-500/40 text-rose-100 font-semibold transition-colors cursor-pointer"
           >
             Sair
           </button>
@@ -961,14 +1122,24 @@ export default function App() {
 
         {activeNav === 'perfil' && (
           <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-6 space-y-4">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <User className="w-5 h-5 text-amber-400" />
-              Perfil da Empresa & Preferências de Relatório
-            </h2>
-            <p className="text-xs text-slate-400">
-              Seus lançamentos de Vendas, Contas a Receber e Contas a Pagar ficam salvos
-              automaticamente neste dispositivo.
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <User className="w-5 h-5 text-amber-400" />
+                  Perfil da Empresa & Preferências de Relatório
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  Conta conectada: <strong className="text-white">{userEmail}</strong> · Seus lançamentos de Vendas, Contas a Receber e Contas a Pagar ficam salvos neste dispositivo.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="px-4 py-2 text-xs font-semibold bg-rose-600/20 hover:bg-rose-600/30 text-rose-200 rounded-lg border border-rose-500/40 cursor-pointer"
+              >
+                Sair da Conta
+              </button>
+            </div>
             <div className="flex flex-wrap gap-3 pt-2">
               <button
                 type="button"
