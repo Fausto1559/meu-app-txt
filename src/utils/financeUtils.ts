@@ -886,7 +886,7 @@ export function parsePortugueseVoiceCommand(
     for (const m of matches) {
       const rawNum = m[1].replace(/\./g, '').replace(',', '.');
       const parsed = parseFloat(rawNum);
-      if (!isNaN(parsed) && parsed > grossAmount) {
+      if (parsed > grossAmount) {
         grossAmount = parsed;
       }
     }
@@ -1023,3 +1023,5 @@ export function exportReportToCSV(
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
+
+

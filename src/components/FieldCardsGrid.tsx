@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   CheckCircle2,
   Clock,
@@ -63,19 +63,17 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
   const [localPeriod, setLocalPeriod] = useState<ReportPeriod>('diario');
   const [isListening, setIsListening] = useState(false);
   const [quickCommand, setQuickCommand] = useState('');
-  const [showVoiceBox, setShowVoiceBox] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null);
 
   const summary = computeFieldSummary(records, referenceDate, localPeriod, field);
   const list = filterRecordsByPeriod(records, referenceDate, localPeriod, field);
 
   const handleVoiceToggle = () => {
+    const win = window as unknown as Record<string, unknown>;
     const SpeechRecognitionAPI =
-      (window as unknown as Record<string, unknown>).SpeechRecognition ||
-      (window as unknown as Record<string, unknown>).webkitSpeechRecognition;
+      win.SpeechRecognition || win.webkitSpeechRecognition;
 
     if (!SpeechRecognitionAPI) {
-      setShowVoiceBox((prev) => !prev);
       setFeedbackMsg(
         'Digite ou fale o comando abaixo (ex: "350 reais no Pix hoje")'
       );
@@ -88,19 +86,16 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const recognition = new (SpeechRecognitionAPI as any)();
       recognition.lang = 'pt-BR';
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
 
       setIsListening(true);
-      setShowVoiceBox(true);
       setFeedbackMsg(`Ouvindo voz para ${title} (${PERIOD_LABELS[localPeriod]})...`);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       recognition.onresult = (event: any) => {
-        const transcript = event.results?.[0]?.[0]?.transcript || '';
+        const transcript = event?.results?.[0]?.[0]?.transcript || '';
         if (transcript) {
           setQuickCommand(transcript);
           const parsed = parsePortugueseVoiceCommand(transcript, field, todayISO);
@@ -114,7 +109,6 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
 
       recognition.onerror = () => {
         setIsListening(false);
-        setShowVoiceBox(true);
         setFeedbackMsg(
           'Microfone bloqueado no navegador. Digite o valor abaixo para lançar:'
         );
@@ -127,7 +121,6 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
       recognition.start();
     } catch {
       setIsListening(false);
-      setShowVoiceBox(true);
     }
   };
 
@@ -167,7 +160,6 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
     <div
       className={`bg-[#111a2e] border border-[#1e2d4a] ${colorClasses.borderHover} rounded-xl p-5 flex flex-col justify-between transition-colors space-y-4`}
     >
-      {/* Top Row: Title + Microphone Button + "X" Clear Field Button + Add Button */}
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div>
@@ -176,7 +168,6 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
-            {/* MICROFONE DO CAMPO */}
             <button
               type="button"
               onClick={handleVoiceToggle}
@@ -195,7 +186,6 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
               <span>Voz</span>
             </button>
 
-            {/* BOTÃO "X" PARA APAGAR / EXCLUIR O VALOR DO CAMPO */}
             <button
               type="button"
               onClick={() => onClearFieldValue(field, localPeriod)}
@@ -210,7 +200,6 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
               <X className="w-4 h-4" />
             </button>
 
-            {/* BOTÃO + NOVO */}
             <button
               type="button"
               onClick={() => onOpenNewModal(field)}
@@ -222,7 +211,6 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
           </div>
         </div>
 
-        {/* Period Switcher inside each panel: Diário | Semanal | Mensal */}
         <div className="grid grid-cols-3 gap-1 p-1 bg-[#0b1120] border border-[#1e2d4a] rounded-lg">
           {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map((p) => (
             <button
@@ -240,14 +228,15 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
           ))}
         </div>
 
-        {/* Main Monetary Value for Selected Period with Inline Mic & "X" Clear */}
         <div className="pt-1 flex items-center justify-between bg-[#0b1120]/80 border border-[#1e2d4a] rounded-xl px-3.5 py-2.5">
           <div>
             <div className="text-[11px] text-slate-400">
               Total {PERIOD_LABELS[localPeriod]} ({summary.count}{' '}
               {summary.count === 1 ? 'lançamento' : 'lançamentos'})
             </div>
-            <div className={`text-2xl font-bold font-mono-num ${colorClasses.valueText}`}>
+            <div
+              className={`text-2xl font-bold font-mono-num ${colorClasses.valueText}`}
+            >
               {formatBRL(summary.totalGross)}
             </div>
           </div>
@@ -273,7 +262,6 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
               )}
             </div>
 
-            {/* Inline "X" next to the field's main value to zero it out */}
             {summary.totalGross > 0 && (
               <button
                 type="button"
@@ -287,7 +275,6 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
           </div>
         </div>
 
-        {/* Quick Voice / Smart Text Input Drawer (Always available, with Mic & "X") */}
         <form
           onSubmit={handleQuickSubmit}
           className="bg-[#0b1120] border border-[#263961] rounded-lg p-2.5 space-y-1.5"
@@ -297,6 +284,7 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
               <span>{feedbackMsg}</span>
               <button
                 type="button"
+                title="Fechar mensagem do campo"
                 onClick={() => setFeedbackMsg(null)}
                 className="text-slate-400 hover:text-white cursor-pointer"
               >
@@ -333,7 +321,7 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
                 <button
                   type="button"
                   onClick={handleVoiceToggle}
-                  title="Ditar por voz neste campo"
+                  title={`Ditar por voz em ${title}`}
                   className={`p-1 rounded cursor-pointer ${
                     isListening
                       ? 'text-rose-400 animate-pulse'
@@ -355,7 +343,6 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
         </form>
       </div>
 
-      {/* Records List for this field & period (Each item has an "X" to delete its value) */}
       <div className="space-y-2 pt-2 border-t border-[#1e2d4a]">
         <div className="flex items-center justify-between text-[11px] text-slate-400">
           <span>Lançamentos ({PERIOD_LABELS[localPeriod]})</span>
@@ -412,7 +399,6 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
                     </button>
                   </div>
 
-                  {/* "X" BUTTON TO DELETE THIS SPECIFIC VALUE */}
                   <button
                     type="button"
                     onClick={() => onDeleteRecord(item.id)}
@@ -428,7 +414,6 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
         )}
       </div>
 
-      {/* Footer Action */}
       <div className="pt-2 border-t border-[#1e2d4a] flex items-center justify-between">
         <span className="text-[11px] text-slate-400 font-mono-num">
           Ticket médio: {formatBRL(summary.averageTicket)}
@@ -437,8 +422,9 @@ const SingleFieldPanel: React.FC<SingleFieldPanelProps> = ({
           type="button"
           onClick={() => {
             onFocusReport(field, localPeriod);
-            const el = document.getElementById('relatorios-detalhados');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
+            document
+              .getElementById('relatorios-detalhados')
+              ?.scrollIntoView?.({ behavior: 'smooth' });
           }}
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400 hover:text-amber-300 transition-colors cursor-pointer"
         >

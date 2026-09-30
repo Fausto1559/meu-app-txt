@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   Calculator,
   FileCheck2,
@@ -62,9 +62,13 @@ export const NewTransactionModal: React.FC<NewTransactionModalProps> = ({
   React.useEffect(() => {
     setType(defaultType);
     setStatus(defaultType === 'vendas' ? 'confirmado' : 'pendente');
-    if (defaultType === 'vendas') setSubcategory('Maquininha Stone');
-    if (defaultType === 'receber') setSubcategory('Clientes / Boletos');
-    if (defaultType === 'pagar') setSubcategory('Fornecedores');
+    setSubcategory(
+      defaultType === 'vendas'
+        ? 'Maquininha Stone'
+        : defaultType === 'receber'
+        ? 'Clientes / Boletos'
+        : 'Fornecedores'
+    );
   }, [defaultType, isOpen]);
 
   if (!isOpen) return null;
@@ -95,7 +99,8 @@ export const NewTransactionModal: React.FC<NewTransactionModalProps> = ({
     onSave({
       type,
       title: title.trim(),
-      entityName: entityName.trim() || (type === 'vendas' ? 'Cliente Balcão' : 'Cadastro Geral'),
+      entityName:
+        entityName.trim() || (type === 'vendas' ? 'Cliente Balcão' : 'Cadastro Geral'),
       grossAmount: numericGross,
       feeAmount: calculatedFee,
       netAmount: calculatedNet,
@@ -132,7 +137,6 @@ export const NewTransactionModal: React.FC<NewTransactionModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Select Field Type */}
           <div>
             <label className="block text-xs font-medium text-slate-300 mb-1.5">
               Campo do Relatório
@@ -194,6 +198,7 @@ export const NewTransactionModal: React.FC<NewTransactionModalProps> = ({
               </label>
               <input
                 type="date"
+                aria-label="Data do Lançamento"
                 required
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
@@ -220,6 +225,7 @@ export const NewTransactionModal: React.FC<NewTransactionModalProps> = ({
                 Forma de Pagamento
               </label>
               <select
+                aria-label="Forma de Pagamento"
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
                 className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
@@ -237,6 +243,7 @@ export const NewTransactionModal: React.FC<NewTransactionModalProps> = ({
                 Status / Situação
               </label>
               <select
+                aria-label="Status / Situação"
                 value={status}
                 onChange={(e) => setStatus(e.target.value as TransactionStatus)}
                 className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
@@ -254,6 +261,7 @@ export const NewTransactionModal: React.FC<NewTransactionModalProps> = ({
                   Maquininha Utilizada (Cálculo automático de taxa)
                 </label>
                 <select
+                  aria-label="Maquininha Utilizada"
                   value={machineId}
                   onChange={(e) => setMachineId(e.target.value)}
                   className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
@@ -269,7 +277,6 @@ export const NewTransactionModal: React.FC<NewTransactionModalProps> = ({
             )}
           </div>
 
-          {/* Net Preview */}
           {numericGross > 0 && (
             <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-lg p-3 flex items-center justify-between text-xs font-mono-num">
               <span className="text-slate-400">
@@ -438,10 +445,9 @@ export const CardMachinesModal: React.FC<CardMachinesModalProps> = ({
   );
 };
 
-/* --- SECONDARY TOP-BAR VIEWS --- */
 export const FeeCalculatorView: React.FC<{ machines: CardMachine[] }> = ({ machines }) => {
   const [saleAmount, setSaleAmount] = useState('1000');
-  const [selectedMachineId, setSelectedMachineId] = useState(machines[0]?.id || '');
+  const [selectedMachineId, setSelectedMachineId] = useState(machines[0].id);
   const [modality, setModality] = useState<'debito' | 'credito_vista' | 'credito_parcelado'>(
     'credito_vista'
   );
@@ -449,7 +455,7 @@ export const FeeCalculatorView: React.FC<{ machines: CardMachine[] }> = ({ machi
 
   const val = parseFloat(saleAmount) || 0;
   const cost = parseFloat(costAmount) || 0;
-  const machine = machines.find((m) => m.id === selectedMachineId) || machines[0];
+  const machine = machines.find((m) => m.id === selectedMachineId)!;
 
   const rate =
     modality === 'debito'
@@ -498,6 +504,7 @@ export const FeeCalculatorView: React.FC<{ machines: CardMachine[] }> = ({ machi
               Maquininha de Cartão
             </label>
             <select
+              aria-label="Maquininha de Cartão"
               value={selectedMachineId}
               onChange={(e) => setSelectedMachineId(e.target.value)}
               className="w-full bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3.5 py-2.5 text-xs text-white"

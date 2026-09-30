@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+﻿import React, { useMemo, useRef, useState } from 'react';
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -59,6 +59,48 @@ interface ReportsSectionProps {
   onOpenNewModal: (defaultType: TransactionType) => void;
 }
 
+const MATRIX_CONFIG: {
+  field: TransactionType;
+  title: string;
+  unitSingular: string;
+  unitPlural: string;
+  borderActive: string;
+  titleColor: string;
+  rowActiveBg: string;
+  barColor: string;
+}[] = [
+  {
+    field: 'vendas',
+    title: 'Campo: Vendas',
+    unitSingular: 'venda',
+    unitPlural: 'vendas',
+    borderActive: 'border-amber-500/80',
+    titleColor: 'text-white',
+    rowActiveBg: 'bg-amber-500/10',
+    barColor: 'bg-amber-400',
+  },
+  {
+    field: 'receber',
+    title: 'Campo: A Receber',
+    unitSingular: 'título',
+    unitPlural: 'títulos',
+    borderActive: 'border-emerald-500/80',
+    titleColor: 'text-emerald-400',
+    rowActiveBg: 'bg-emerald-500/10',
+    barColor: 'bg-emerald-400',
+  },
+  {
+    field: 'pagar',
+    title: 'Campo: A Pagar',
+    unitSingular: 'conta',
+    unitPlural: 'contas',
+    borderActive: 'border-rose-500/80',
+    titleColor: 'text-rose-400',
+    rowActiveBg: 'bg-rose-500/10',
+    barColor: 'bg-rose-400',
+  },
+];
+
 export const ReportsSection: React.FC<ReportsSectionProps> = ({
   records,
   referenceDate,
@@ -85,7 +127,6 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
     [referenceDate, activePeriod]
   );
 
-  // Compute all 9 summaries (3 fields x 3 periods) for the instant Daily / Weekly / Monthly Matrix
   const matrixSummaries = useMemo(() => {
     const fields: TransactionType[] = ['vendas', 'receber', 'pagar'];
     const periods: ReportPeriod[] = ['diario', 'semanal', 'mensal'];
@@ -110,15 +151,16 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
 
   const periodRecords = useMemo(() => {
     const base = filterRecordsByPeriod(records, referenceDate, activePeriod, activeField);
+    const q = searchQuery.trim().toLowerCase();
     return base.filter((r) => {
-      const matchesStatus = statusFilter === 'todos' ? true : r.status === statusFilter;
+      const matchesStatus = statusFilter === 'todos' || r.status === statusFilter;
       const matchesPayment =
-        paymentFilter === 'todos' ? true : r.paymentMethod === paymentFilter;
+        paymentFilter === 'todos' || r.paymentMethod === paymentFilter;
       const matchesSearch =
-        !searchQuery.trim() ||
-        r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        r.entityName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        r.subcategory.toLowerCase().includes(searchQuery.toLowerCase());
+        !q ||
+        r.title.toLowerCase().includes(q) ||
+        r.entityName.toLowerCase().includes(q) ||
+        r.subcategory.toLowerCase().includes(q);
       return matchesStatus && matchesPayment && matchesSearch;
     });
   }, [records, referenceDate, activePeriod, activeField, statusFilter, paymentFilter, searchQuery]);
@@ -156,7 +198,6 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
 
   return (
     <section className="space-y-6" id="relatorios-detalhados">
-      {/* Header & Master Filter Controls */}
       <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-5 space-y-5">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-[#1e2d4a] pb-4">
           <div>
@@ -173,7 +214,6 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
             </p>
           </div>
 
-          {/* Export & Print Actions */}
           <div className="flex flex-wrap items-center gap-2.5 no-print">
             <button
               type="button"
@@ -211,9 +251,7 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
           </div>
         </div>
 
-        {/* Filter Row: Period Selector (Diário | Semanal | Mensal) + Field Selector (Vendas | A Receber | A Pagar) + Date Stepper */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center no-print">
-          {/* 1. Period Tabs: Diário, Semanal, Mensal */}
           <div className="lg:col-span-4">
             <span className="block text-xs text-slate-400 mb-1.5 font-medium">
               1. Periodicidade do Relatório
@@ -239,60 +277,35 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
             </div>
           </div>
 
-          {/* 2. Field Tabs: Todos, Vendas, A Receber, A Pagar */}
           <div className="lg:col-span-5">
             <span className="block text-xs text-slate-400 mb-1.5 font-medium">
               2. Campo do Relatório
             </span>
             <div className="grid grid-cols-4 gap-1 p-1 bg-[#0b1120] border border-[#1e2d4a] rounded-lg">
-              <button
-                type="button"
-                onClick={() => onChangeField('todos')}
-                className={`py-2 px-2.5 text-xs font-semibold rounded-md transition-colors whitespace-nowrap truncate cursor-pointer ${
-                  activeField === 'todos'
-                    ? 'bg-sky-500 text-slate-950'
-                    : 'text-slate-300 hover:text-white hover:bg-[#16213a]'
-                }`}
-              >
-                Todos (3)
-              </button>
-              <button
-                type="button"
-                onClick={() => onChangeField('vendas')}
-                className={`py-2 px-2.5 text-xs font-semibold rounded-md transition-colors whitespace-nowrap truncate cursor-pointer ${
-                  activeField === 'vendas'
-                    ? 'bg-amber-500 text-slate-950'
-                    : 'text-slate-300 hover:text-white hover:bg-[#16213a]'
-                }`}
-              >
-                Vendas
-              </button>
-              <button
-                type="button"
-                onClick={() => onChangeField('receber')}
-                className={`py-2 px-2.5 text-xs font-semibold rounded-md transition-colors whitespace-nowrap truncate cursor-pointer ${
-                  activeField === 'receber'
-                    ? 'bg-emerald-500 text-slate-950'
-                    : 'text-slate-300 hover:text-white hover:bg-[#16213a]'
-                }`}
-              >
-                A Receber
-              </button>
-              <button
-                type="button"
-                onClick={() => onChangeField('pagar')}
-                className={`py-2 px-2.5 text-xs font-semibold rounded-md transition-colors whitespace-nowrap truncate cursor-pointer ${
-                  activeField === 'pagar'
-                    ? 'bg-rose-500 text-white'
-                    : 'text-slate-300 hover:text-white hover:bg-[#16213a]'
-                }`}
-              >
-                A Pagar
-              </button>
+              {(
+                [
+                  { id: 'todos', label: 'Todos (3)', activeCls: 'bg-sky-500 text-slate-950' },
+                  { id: 'vendas', label: 'Vendas', activeCls: 'bg-amber-500 text-slate-950' },
+                  { id: 'receber', label: 'A Receber', activeCls: 'bg-emerald-500 text-slate-950' },
+                  { id: 'pagar', label: 'A Pagar', activeCls: 'bg-rose-500 text-white' },
+                ] as { id: ReportField; label: string; activeCls: string }[]
+              ).map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => onChangeField(tab.id)}
+                  className={`py-2 px-2.5 text-xs font-semibold rounded-md transition-colors whitespace-nowrap truncate cursor-pointer ${
+                    activeField === tab.id
+                      ? tab.activeCls
+                      : 'text-slate-300 hover:text-white hover:bg-[#16213a]'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* 3. Date Navigator */}
           <div className="lg:col-span-3">
             <span className="block text-xs text-slate-400 mb-1.5 font-medium">
               3. Data de Referência
@@ -310,10 +323,9 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
               </button>
               <input
                 type="date"
+                aria-label="Data de Referência"
                 value={referenceDate}
-                onChange={(e) => {
-                  if (e.target.value) onChangeReferenceDate(e.target.value);
-                }}
+                onChange={(e) => onChangeReferenceDate(e.target.value)}
                 className="bg-transparent text-xs font-mono-num text-slate-200 flex-1 text-center focus:outline-none cursor-pointer"
               />
               <button
@@ -340,241 +352,106 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
         </div>
       </div>
 
-      {/* MATRIX: Comparativo Direto Diário vs Semanal vs Mensal para Vendas, A Receber e A Pagar (Com Microfone e "X" em cada linha) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Card 1: Matriz de VENDAS */}
-        <div
-          onClick={() => onChangeField('vendas')}
-          className={`bg-[#111a2e] border rounded-xl p-5 transition-colors cursor-pointer ${
-            activeField === 'vendas'
-              ? 'border-amber-500/80'
-              : 'border-[#1e2d4a] hover:border-slate-700'
-          }`}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <span className="text-xs text-slate-400">Relatório Consolidado</span>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                Campo: Vendas
-              </h3>
-            </div>
-            <DollarSign className="w-5 h-5 text-amber-400" />
-          </div>
-
-          <div className="space-y-3 divide-y divide-[#1e2d4a]">
-            {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map((p) => {
-              const s = matrixSummaries.vendas[p];
-              const isSelected = activePeriod === p;
-              return (
-                <div
-                  key={p}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onChangeField('vendas');
-                    onChangePeriod(p);
-                  }}
-                  className={`pt-2.5 first:pt-0 flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 transition-colors ${
-                    isSelected ? 'bg-amber-500/10' : 'hover:bg-[#16213a]/60'
-                  }`}
-                >
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className={`text-xs font-semibold ${
-                          isSelected ? 'text-amber-400' : 'text-slate-200'
-                        }`}
-                      >
-                        Relatório {PERIOD_LABELS[p]}
-                      </span>
-                      <span className="text-[11px] text-slate-400">
-                        · {s.count} {s.count === 1 ? 'venda' : 'vendas'}
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-slate-400 font-mono-num truncate">
-                      Líquido: {formatBRL(s.totalNet)}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <div className="text-right">
-                      <div className="text-sm font-bold text-white font-mono-num">
-                        {formatBRL(s.totalGross)}
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-mono-num">
-                        Ticket: {formatBRL(s.averageTicket)}
-                      </div>
-                    </div>
-                    <FieldVoiceAndClearBar
-                      field="vendas"
-                      period={p}
-                      currentValue={s.totalGross}
-                      todayISO={referenceDate}
-                      onAddRecord={onAddRecord}
-                      onClearFieldValue={onClearFieldValue}
-                      compact
-                    />
-                  </div>
+        {MATRIX_CONFIG.map((cfg) => {
+          const f = cfg.field;
+          return (
+            <div
+              key={f}
+              data-testid={`matrix-card-${f}`}
+              onClick={() => onChangeField(f)}
+              className={`bg-[#111a2e] border rounded-xl p-5 transition-colors cursor-pointer ${
+                activeField === f
+                  ? cfg.borderActive
+                  : 'border-[#1e2d4a] hover:border-slate-700'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <span className="text-xs text-slate-400">Relatório Consolidado</span>
+                  <h3 className={`text-base font-bold ${cfg.titleColor} flex items-center gap-2`}>
+                    {cfg.title}
+                  </h3>
                 </div>
-              );
-            })}
-          </div>
-        </div>
+                {f === 'vendas' ? (
+                  <DollarSign className="w-5 h-5 text-amber-400" />
+                ) : f === 'receber' ? (
+                  <ArrowUpRight className="w-5 h-5 text-emerald-400" />
+                ) : (
+                  <ArrowDownRight className="w-5 h-5 text-rose-400" />
+                )}
+              </div>
 
-        {/* Card 2: Matriz de A RECEBER */}
-        <div
-          onClick={() => onChangeField('receber')}
-          className={`bg-[#111a2e] border rounded-xl p-5 transition-colors cursor-pointer ${
-            activeField === 'receber'
-              ? 'border-emerald-500/80'
-              : 'border-[#1e2d4a] hover:border-slate-700'
-          }`}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <span className="text-xs text-slate-400">Relatório Consolidado</span>
-              <h3 className="text-base font-bold text-emerald-400 flex items-center gap-2">
-                Campo: A Receber
-              </h3>
+              <div className="space-y-3 divide-y divide-[#1e2d4a]">
+                {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map((p) => {
+                  const s = matrixSummaries[f][p];
+                  const isSelected = activePeriod === p;
+                  return (
+                    <div
+                      key={p}
+                      data-testid={`matrix-row-${f}-${p}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onChangeField(f);
+                        onChangePeriod(p);
+                      }}
+                      className={`pt-2.5 first:pt-0 flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 transition-colors ${
+                        isSelected ? cfg.rowActiveBg : 'hover:bg-[#16213a]/60'
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={`text-xs font-semibold ${
+                              isSelected ? cfg.titleColor : 'text-slate-200'
+                            }`}
+                          >
+                            Relatório {PERIOD_LABELS[p]}
+                          </span>
+                          <span className="text-[11px] text-slate-400">
+                            · {s.count} {s.count === 1 ? cfg.unitSingular : cfg.unitPlural}
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-slate-400 font-mono-num truncate">
+                          {f === 'vendas'
+                            ? `Líquido: ${formatBRL(s.totalNet)}`
+                            : f === 'receber'
+                            ? `Pendente: ${formatBRL(s.pendingAmount)}`
+                            : `Aberto: ${formatBRL(s.pendingAmount)}`}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="text-right">
+                          <div className={`text-sm font-bold ${cfg.titleColor} font-mono-num`}>
+                            {formatBRL(s.totalGross)}
+                          </div>
+                          <div className="text-[10px] text-slate-400 font-mono-num">
+                            {f === 'vendas'
+                              ? `Ticket: ${formatBRL(s.averageTicket)}`
+                              : f === 'receber'
+                              ? `Recebido: ${formatBRL(s.completedAmount)}`
+                              : `Pago: ${formatBRL(s.completedAmount)}`}
+                          </div>
+                        </div>
+                        <FieldVoiceAndClearBar
+                          field={f}
+                          period={p}
+                          currentValue={s.totalGross}
+                          todayISO={referenceDate}
+                          onAddRecord={onAddRecord}
+                          onClearFieldValue={onClearFieldValue}
+                          compact
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-            <ArrowUpRight className="w-5 h-5 text-emerald-400" />
-          </div>
-
-          <div className="space-y-3 divide-y divide-[#1e2d4a]">
-            {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map((p) => {
-              const s = matrixSummaries.receber[p];
-              const isSelected = activePeriod === p;
-              return (
-                <div
-                  key={p}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onChangeField('receber');
-                    onChangePeriod(p);
-                  }}
-                  className={`pt-2.5 first:pt-0 flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 transition-colors ${
-                    isSelected ? 'bg-emerald-500/10' : 'hover:bg-[#16213a]/60'
-                  }`}
-                >
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className={`text-xs font-semibold ${
-                          isSelected ? 'text-emerald-400' : 'text-slate-200'
-                        }`}
-                      >
-                        Relatório {PERIOD_LABELS[p]}
-                      </span>
-                      <span className="text-[11px] text-slate-400">
-                        · {s.count} {s.count === 1 ? 'título' : 'títulos'}
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-slate-400 font-mono-num truncate">
-                      Pendente: {formatBRL(s.pendingAmount)}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <div className="text-right">
-                      <div className="text-sm font-bold text-emerald-400 font-mono-num">
-                        {formatBRL(s.totalGross)}
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-mono-num">
-                        Recebido: {formatBRL(s.completedAmount)}
-                      </div>
-                    </div>
-                    <FieldVoiceAndClearBar
-                      field="receber"
-                      period={p}
-                      currentValue={s.totalGross}
-                      todayISO={referenceDate}
-                      onAddRecord={onAddRecord}
-                      onClearFieldValue={onClearFieldValue}
-                      compact
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Card 3: Matriz de A PAGAR */}
-        <div
-          onClick={() => onChangeField('pagar')}
-          className={`bg-[#111a2e] border rounded-xl p-5 transition-colors cursor-pointer ${
-            activeField === 'pagar'
-              ? 'border-rose-500/80'
-              : 'border-[#1e2d4a] hover:border-slate-700'
-          }`}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <span className="text-xs text-slate-400">Relatório Consolidado</span>
-              <h3 className="text-base font-bold text-rose-400 flex items-center gap-2">
-                Campo: A Pagar
-              </h3>
-            </div>
-            <ArrowDownRight className="w-5 h-5 text-rose-400" />
-          </div>
-
-          <div className="space-y-3 divide-y divide-[#1e2d4a]">
-            {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map((p) => {
-              const s = matrixSummaries.pagar[p];
-              const isSelected = activePeriod === p;
-              return (
-                <div
-                  key={p}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onChangeField('pagar');
-                    onChangePeriod(p);
-                  }}
-                  className={`pt-2.5 first:pt-0 flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 transition-colors ${
-                    isSelected ? 'bg-rose-500/10' : 'hover:bg-[#16213a]/60'
-                  }`}
-                >
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className={`text-xs font-semibold ${
-                          isSelected ? 'text-rose-400' : 'text-slate-200'
-                        }`}
-                      >
-                        Relatório {PERIOD_LABELS[p]}
-                      </span>
-                      <span className="text-[11px] text-slate-400">
-                        · {s.count} {s.count === 1 ? 'conta' : 'contas'}
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-slate-400 font-mono-num truncate">
-                      Aberto: {formatBRL(s.pendingAmount)}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <div className="text-right">
-                      <div className="text-sm font-bold text-rose-400 font-mono-num">
-                        {formatBRL(s.totalGross)}
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-mono-num">
-                        Pago: {formatBRL(s.completedAmount)}
-                      </div>
-                    </div>
-                    <FieldVoiceAndClearBar
-                      field="pagar"
-                      period={p}
-                      currentValue={s.totalGross}
-                      todayISO={referenceDate}
-                      onAddRecord={onAddRecord}
-                      onClearFieldValue={onClearFieldValue}
-                      compact
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+          );
+        })}
       </div>
 
-      {/* Evolução Gráfica por Turno (Diário), Dia da Semana (Semanal) ou Semana do Mês (Mensal) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-8 bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-5 flex flex-col justify-between">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
@@ -611,7 +488,6 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
             </div>
           </div>
 
-          {/* Interactive Bar Chart */}
           <div className="grid grid-cols-4 sm:grid-cols-7 gap-3 items-end pt-4 pb-2 min-h-[210px] border-b border-[#1e2d4a]">
             {buckets.map((b) => {
               const vPct = Math.max(4, Math.round((b.vendasBruto / maxChartValue) * 100));
@@ -667,7 +543,6 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
             })}
           </div>
 
-          {/* Mini Bucket Summary Table below chart */}
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
@@ -709,7 +584,6 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
           </div>
         </div>
 
-        {/* Right Column: Composição por Forma de Pagamento & Categorias */}
         <div className="lg:col-span-4 bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-5 flex flex-col justify-between space-y-5">
           <div>
             <span className="text-xs text-slate-400">
@@ -813,57 +687,30 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
           ) : (
             <div className="space-y-4">
               <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-lg p-3.5 space-y-2.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Vendas ({PERIOD_LABELS[activePeriod]})</span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono-num font-bold text-amber-400">
-                      {formatBRL(matrixSummaries.vendas[activePeriod].totalGross)}
-                    </span>
-                    <FieldVoiceAndClearBar
-                      field="vendas"
-                      period={activePeriod}
-                      currentValue={matrixSummaries.vendas[activePeriod].totalGross}
-                      todayISO={referenceDate}
-                      onAddRecord={onAddRecord}
-                      onClearFieldValue={onClearFieldValue}
-                      compact
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">A Receber ({PERIOD_LABELS[activePeriod]})</span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono-num font-bold text-emerald-400">
-                      {formatBRL(matrixSummaries.receber[activePeriod].totalGross)}
-                    </span>
-                    <FieldVoiceAndClearBar
-                      field="receber"
-                      period={activePeriod}
-                      currentValue={matrixSummaries.receber[activePeriod].totalGross}
-                      todayISO={referenceDate}
-                      onAddRecord={onAddRecord}
-                      onClearFieldValue={onClearFieldValue}
-                      compact
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">A Pagar ({PERIOD_LABELS[activePeriod]})</span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono-num font-bold text-rose-400">
-                      {formatBRL(matrixSummaries.pagar[activePeriod].totalGross)}
-                    </span>
-                    <FieldVoiceAndClearBar
-                      field="pagar"
-                      period={activePeriod}
-                      currentValue={matrixSummaries.pagar[activePeriod].totalGross}
-                      todayISO={referenceDate}
-                      onAddRecord={onAddRecord}
-                      onClearFieldValue={onClearFieldValue}
-                      compact
-                    />
-                  </div>
-                </div>
+                {MATRIX_CONFIG.map((cfg) => {
+                  const f = cfg.field;
+                  return (
+                    <div key={f} className="flex items-center justify-between text-xs">
+                      <span className="text-slate-400">
+                        {FIELD_LABELS[f]} ({PERIOD_LABELS[activePeriod]})
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`font-mono-num font-bold ${cfg.titleColor}`}>
+                          {formatBRL(matrixSummaries[f][activePeriod].totalGross)}
+                        </span>
+                        <FieldVoiceAndClearBar
+                          field={f}
+                          period={activePeriod}
+                          currentValue={matrixSummaries[f][activePeriod].totalGross}
+                          todayISO={referenceDate}
+                          onAddRecord={onAddRecord}
+                          onClearFieldValue={onClearFieldValue}
+                          compact
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
                 <div className="pt-2 border-t border-[#1e2d4a] flex items-center justify-between text-xs">
                   <span className="text-slate-200 font-semibold">Resultado Previsto</span>
                   <span className="font-mono-num font-bold text-sky-400">
@@ -895,7 +742,6 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
         </div>
       </div>
 
-      {/* Detailed Ledger Table for the Selected Period & Field */}
       <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-5 space-y-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
@@ -911,7 +757,6 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
             </p>
           </div>
 
-          {/* Search with Voice + "X" Clear & Secondary Filters */}
           <div className="flex flex-wrap items-center gap-2 no-print">
             <div className="relative flex items-center">
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
@@ -953,6 +798,7 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
             </div>
 
             <select
+              aria-label="Filtrar por Status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as TransactionStatus | 'todos')}
               className="bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500 cursor-pointer"
@@ -965,6 +811,7 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
             </select>
 
             <select
+              aria-label="Filtrar por Forma de Pagamento"
               value={paymentFilter}
               onChange={(e) => setPaymentFilter(e.target.value as PaymentMethod | 'todos')}
               className="bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500 cursor-pointer"

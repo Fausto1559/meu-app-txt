@@ -1,9 +1,4 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -64,68 +59,38 @@ type NavTab =
   | 'openfinance'
   | 'perfil';
 
-const STORAGE_KEY_RECORDS = 'copiloto_financeiro_records_v1';
-const STORAGE_KEY_MACHINES = 'copiloto_financeiro_machines_v1';
-const STORAGE_KEY_AUTH = 'copiloto_financeiro_auth_v1';
+export const STORAGE_KEY_RECORDS = 'copiloto_financeiro_records_v1';
+export const STORAGE_KEY_MACHINES = 'copiloto_financeiro_machines_v1';
+export const STORAGE_KEY_AUTH = 'copiloto_financeiro_auth_v1';
 
 export default function App() {
   const todayISO = useMemo(() => toISODate(new Date()), []);
   const [referenceDate, setReferenceDate] = useState<string>(todayISO);
   const [activeNav, setActiveNav] = useState<NavTab>('painel');
-
-  // User session email
   const [userEmail] = useState<string>('faustoefiscal@gmail.com');
 
   const handleLogout = () => {
-    try {
-      localStorage.removeItem(STORAGE_KEY_AUTH);
-    } catch {
-      // ignore
-    }
-    try {
-      window.close();
-    } catch {
-      // ignore
-    }
-    window.location.assign('https://www.google.com.br');
+    localStorage.removeItem(STORAGE_KEY_AUTH);
+    window.open('https://www.google.com', '_self');
   };
 
-  // Master Report State for the 3 requested fields (Vendas, A Receber, A Pagar) and 3 periods (Diário, Semanal, Mensal)
   const [activePeriod, setActivePeriod] = useState<ReportPeriod>('diario');
   const [activeField, setActiveField] = useState<ReportField>('todos');
 
-  // Records State with localStorage persistence
   const [records, setRecords] = useState<FinancialRecord[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY_RECORDS);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
-      }
-    } catch {
-      // ignore storage errors
-    }
-    return generateInitialSeedRecords(toISODate(new Date()));
+    const saved = localStorage.getItem(STORAGE_KEY_RECORDS);
+    return saved
+      ? JSON.parse(saved)
+      : generateInitialSeedRecords(toISODate(new Date()));
   });
 
-  // Undo Backup State when the user clicks "X" to clear a field
   const [undoBackup, setUndoBackup] = useState<FinancialRecord[] | null>(null);
 
-  // Card Machines State
   const [machines, setMachines] = useState<CardMachine[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY_MACHINES);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
-      }
-    } catch {
-      // ignore
-    }
-    return INITIAL_CARD_MACHINES;
+    const saved = localStorage.getItem(STORAGE_KEY_MACHINES);
+    return saved ? JSON.parse(saved) : INITIAL_CARD_MACHINES;
   });
 
-  // Modals State
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [newModalDefaultType, setNewModalDefaultType] =
     useState<TransactionType>('vendas');
@@ -133,29 +98,20 @@ export default function App() {
   const [toastBanner, setToastBanner] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records));
-    } catch {
-      // ignore
-    }
+    localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records));
   }, [records]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_MACHINES, JSON.stringify(machines));
-    } catch {
-      // ignore
-    }
+    localStorage.setItem(STORAGE_KEY_MACHINES, JSON.stringify(machines));
   }, [machines]);
 
   const showNotification = (msg: string) => {
     setToastBanner(msg);
     setTimeout(() => {
-      setToastBanner((prev) => (prev === msg ? null : prev));
+      setToastBanner(null);
     }, 5000);
   };
 
-  // KPI Summaries for the currently selected period (Diário, Semanal, or Mensal)
   const vendasSummary = useMemo(
     () => computeFieldSummary(records, referenceDate, activePeriod, 'vendas'),
     [records, referenceDate, activePeriod]
@@ -169,34 +125,47 @@ export default function App() {
     [records, referenceDate, activePeriod]
   );
 
-  // Also compute Diário, Semanal, Mensal quick values for each of the 3 KPI cards
   const quickAllPeriods = useMemo(() => {
     return {
       vendas: {
-        diario: computeFieldSummary(records, referenceDate, 'diario', 'vendas').totalGross,
-        semanal: computeFieldSummary(records, referenceDate, 'semanal', 'vendas').totalGross,
-        mensal: computeFieldSummary(records, referenceDate, 'mensal', 'vendas').totalGross,
+        diario: computeFieldSummary(records, referenceDate, 'diario', 'vendas')
+          .totalGross,
+        semanal: computeFieldSummary(records, referenceDate, 'semanal', 'vendas')
+          .totalGross,
+        mensal: computeFieldSummary(records, referenceDate, 'mensal', 'vendas')
+          .totalGross,
       },
       receber: {
-        diario: computeFieldSummary(records, referenceDate, 'diario', 'receber').totalGross,
-        semanal: computeFieldSummary(records, referenceDate, 'semanal', 'receber').totalGross,
-        mensal: computeFieldSummary(records, referenceDate, 'mensal', 'receber').totalGross,
+        diario: computeFieldSummary(records, referenceDate, 'diario', 'receber')
+          .totalGross,
+        semanal: computeFieldSummary(
+          records,
+          referenceDate,
+          'semanal',
+          'receber'
+        ).totalGross,
+        mensal: computeFieldSummary(records, referenceDate, 'mensal', 'receber')
+          .totalGross,
       },
       pagar: {
-        diario: computeFieldSummary(records, referenceDate, 'diario', 'pagar').totalGross,
-        semanal: computeFieldSummary(records, referenceDate, 'semanal', 'pagar').totalGross,
-        mensal: computeFieldSummary(records, referenceDate, 'mensal', 'pagar').totalGross,
+        diario: computeFieldSummary(records, referenceDate, 'diario', 'pagar')
+          .totalGross,
+        semanal: computeFieldSummary(records, referenceDate, 'semanal', 'pagar')
+          .totalGross,
+        mensal: computeFieldSummary(records, referenceDate, 'mensal', 'pagar')
+          .totalGross,
       },
     };
   }, [records, referenceDate]);
 
   const saldoPrevisto =
-    vendasSummary.totalNet + receberSummary.totalGross - pagarSummary.totalGross;
+    vendasSummary.totalNet +
+    receberSummary.totalGross -
+    pagarSummary.totalGross;
 
   const connectedMachinesCount = machines.filter((m) => m.connected).length;
   const periodRange = getPeriodRange(referenceDate, activePeriod);
 
-  // Handlers
   const handleAddRecord = (newRec: Omit<FinancialRecord, 'id'>) => {
     const created: FinancialRecord = {
       ...newRec,
@@ -212,7 +181,8 @@ export default function App() {
     setRecords((prev) =>
       prev.map((r) => {
         if (r.id !== id) return r;
-        const nextStatus = r.status === 'confirmado' ? 'pendente' : 'confirmado';
+        const nextStatus =
+          r.status === 'confirmado' ? 'pendente' : 'confirmado';
         return { ...r, status: nextStatus };
       })
     );
@@ -221,13 +191,11 @@ export default function App() {
   const handleDeleteRecord = (id: string) => {
     setUndoBackup(records);
     setRecords((prev) => prev.filter((r) => r.id !== id));
-    showNotification('Valor excluído com sucesso. Clique em "Desfazer" se quiser restaurar.');
+    showNotification(
+      'Valor excluído com sucesso. Clique em "Desfazer" se quiser restaurar.'
+    );
   };
 
-  /**
-   * Clears/deletes the value of a specific field (vendas, receber, pagar, or todos)
-   * for the specified period (diario, semanal, mensal, or todos) when the user clicks "X".
-   */
   const handleClearFieldValue = (
     field: TransactionType | 'todos',
     period: ReportPeriod | 'todos'
@@ -235,13 +203,9 @@ export default function App() {
     setUndoBackup(records);
 
     if (period === 'todos') {
-      setRecords((prev) =>
-        field === 'todos' ? [] : prev.filter((r) => r.type !== field)
-      );
+      setRecords([]);
       showNotification(
-        `Todos os valores de ${
-          field === 'todos' ? 'todos os campos' : FIELD_LABELS[field]
-        } foram apagados (R$ 0,00).`
+        'Todos os valores de todos os campos foram apagados (R$ 0,00).'
       );
       return;
     }
@@ -255,18 +219,19 @@ export default function App() {
       })
     );
 
-    const fieldLabel = field === 'todos' ? 'Saldo Previsto / Todos os Campos' : FIELD_LABELS[field];
+    const fieldLabel =
+      field === 'todos'
+        ? 'Saldo Previsto / Todos os Campos'
+        : FIELD_LABELS[field];
     showNotification(
       `Valor ${PERIOD_LABELS[period]} do campo "${fieldLabel}" apagado (R$ 0,00).`
     );
   };
 
   const handleUndoClear = () => {
-    if (undoBackup) {
-      setRecords(undoBackup);
-      setUndoBackup(null);
-      setToastBanner(null);
-    }
+    setRecords(undoBackup!);
+    setUndoBackup(null);
+    setToastBanner(null);
   };
 
   const handleToggleMachine = (id: string) => {
@@ -342,13 +307,19 @@ export default function App() {
     setActiveNav('painel');
   };
 
+  const scrollToReports = () => {
+    const el = document.getElementById('relatorios-detalhados');
+    el?.scrollIntoView?.({ behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0f1d] text-slate-100">
-      {/* Top Emergency / Fire Mode Banner matching mobile app */}
       <div className="bg-gradient-to-r from-[#450a0a] via-[#7f1d1d] to-[#1e1b4b] border-b border-rose-500/30 px-4 py-2.5 no-print">
         <div className="max-w-[1360px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs sm:text-sm font-extrabold tracking-wide text-white uppercase">
-            <span role="img" aria-label="Fogo">🔥</span>
+            <span role="img" aria-label="Fogo">
+              🔥
+            </span>
             <span>MODO APAGA INCÊNDIO</span>
           </div>
           <span className="text-[11px] text-rose-200 hidden sm:inline">
@@ -357,7 +328,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Logged-in User Bar matching mobile app */}
       <div className="bg-[#0d1424] border-b border-[#1e2d4a] px-4 py-2.5 no-print">
         <div className="max-w-[1360px] mx-auto flex items-center justify-between text-xs">
           <div className="text-slate-300 truncate">
@@ -374,9 +344,7 @@ export default function App() {
       </div>
 
       <div className="max-w-[1360px] mx-auto px-4 sm:px-6 py-5 space-y-5">
-        {/* TOP HEADER BAR (3-Zone Contract matching Copiloto Financeiro) */}
         <header className="bg-[#111a2e] border border-[#1e2d4a] rounded-2xl px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 no-print">
-          {/* Zone 1: Brand Title */}
           <div className="flex items-center gap-2.5 shrink-0">
             <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
               <Crown className="w-5 h-5" />
@@ -393,7 +361,6 @@ export default function App() {
             </a>
           </div>
 
-          {/* Zone 2: Navigation Links */}
           <nav className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs font-medium text-slate-300">
             {[
               { id: 'painel', label: 'Painel', icon: LayoutGrid },
@@ -431,7 +398,6 @@ export default function App() {
             })}
           </nav>
 
-          {/* Zone 3: Primary Action */}
           <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
@@ -444,7 +410,6 @@ export default function App() {
           </div>
         </header>
 
-        {/* Plan & Quick Reset Status Bar */}
         <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 no-print">
           <div className="flex items-center gap-2.5 text-xs">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block shrink-0" />
@@ -484,10 +449,7 @@ export default function App() {
 
             <button
               type="button"
-              onClick={() => {
-                const el = document.getElementById('relatorios-detalhados');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
+              onClick={scrollToReports}
               className="px-4 py-1.5 text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
             >
               Ver Relatórios Completos
@@ -495,14 +457,12 @@ export default function App() {
           </div>
         </div>
 
-        {/* REAL-TIME GEMINI 3.8 LIVE VOICE CONVERSATION BAR */}
         <LiveVoiceCopilotWidget
           todayISO={referenceDate}
           onAddRecord={handleAddRecord}
           onClearFieldValue={handleClearFieldValue}
         />
 
-        {/* Toast Notification with Undo ("Desfazer") when user deletes/clears a field */}
         {toastBanner && (
           <div className="bg-emerald-950/90 border border-emerald-500/50 text-emerald-200 px-4 py-3 rounded-xl text-xs flex items-center justify-between gap-3 no-print">
             <div className="flex items-center gap-2">
@@ -522,6 +482,7 @@ export default function App() {
               )}
               <button
                 type="button"
+                title="Fechar aviso"
                 onClick={() => setToastBanner(null)}
                 className="text-emerald-400 hover:text-white text-xs font-semibold cursor-pointer"
               >
@@ -531,10 +492,8 @@ export default function App() {
           </div>
         )}
 
-        {/* MAIN VIEW: PAINEL */}
         {activeNav === 'painel' && (
           <main className="space-y-6">
-            {/* MASTER PERIOD BAR FOR TOP KPI CARDS (DIÁRIO | SEMANAL | MENSAL) */}
             <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 no-print">
               <div className="flex items-center gap-3">
                 <Calendar className="w-5 h-5 text-amber-400 shrink-0" />
@@ -552,26 +511,27 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Segmented Period Selector: Diário | Semanal | Mensal */}
               <div className="flex flex-wrap items-center gap-2">
                 <div className="inline-flex items-center p-1 bg-[#0b1120] border border-[#1e2d4a] rounded-xl">
-                  {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map((period) => {
-                    const active = activePeriod === period;
-                    return (
-                      <button
-                        key={period}
-                        type="button"
-                        onClick={() => setActivePeriod(period)}
-                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors whitespace-nowrap cursor-pointer ${
-                          active
-                            ? 'bg-amber-500 text-slate-950 shadow-sm'
-                            : 'text-slate-300 hover:text-white'
-                        }`}
-                      >
-                        Relatório {PERIOD_LABELS[period]}
-                      </button>
-                    );
-                  })}
+                  {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map(
+                    (period) => {
+                      const active = activePeriod === period;
+                      return (
+                        <button
+                          key={period}
+                          type="button"
+                          onClick={() => setActivePeriod(period)}
+                          className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors whitespace-nowrap cursor-pointer ${
+                            active
+                              ? 'bg-amber-500 text-slate-950 shadow-sm'
+                              : 'text-slate-300 hover:text-white'
+                          }`}
+                        >
+                          Relatório {PERIOD_LABELS[period]}
+                        </button>
+                      );
+                    }
+                  )}
                 </div>
 
                 <button
@@ -597,14 +557,12 @@ export default function App() {
               </div>
             </div>
 
-            {/* 4 MAIN KPI CARDS — Each with Microphone (Voz) AND "X" (Apagar/Excluir Valor) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* KPI 1: VENDAS */}
               <div
+                data-testid="kpi-card-vendas"
                 onClick={() => {
                   setActiveField('vendas');
-                  const el = document.getElementById('relatorios-detalhados');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  scrollToReports();
                 }}
                 className={`bg-[#131d33] border rounded-2xl p-5 flex flex-col justify-between transition-colors cursor-pointer ${
                   activeField === 'vendas'
@@ -641,46 +599,49 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Mini Daily / Weekly / Monthly Breakdown inside Vendas Card */}
                 <div className="mt-4 pt-3 border-t border-[#1e2d4a] space-y-1.5 text-[11px] font-mono-num">
-                  {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map((p) => (
-                    <div key={p} className="flex items-center justify-between text-slate-400">
-                      <span>{PERIOD_LABELS[p]}:</span>
-                      <div className="flex items-center gap-1.5">
-                        <span
-                          className={
-                            p === activePeriod
-                              ? 'text-amber-400 font-bold'
-                              : 'text-slate-200 font-semibold'
-                          }
-                        >
-                          {formatBRL(quickAllPeriods.vendas[p])}
-                        </span>
-                        {quickAllPeriods.vendas[p] > 0 && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleClearFieldValue('vendas', p);
-                            }}
-                            title={`Apagar Vendas (${PERIOD_LABELS[p]})`}
-                            className="text-rose-400 hover:text-white p-0.5 rounded hover:bg-rose-500/20 cursor-pointer"
+                  {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map(
+                    (p) => (
+                      <div
+                        key={p}
+                        className="flex items-center justify-between text-slate-400"
+                      >
+                        <span>{PERIOD_LABELS[p]}:</span>
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={
+                              p === activePeriod
+                                ? 'text-amber-400 font-bold'
+                                : 'text-slate-200 font-semibold'
+                            }
                           >
-                            <X className="w-3 h-3" />
-                          </button>
-                        )}
+                            {formatBRL(quickAllPeriods.vendas[p])}
+                          </span>
+                          {quickAllPeriods.vendas[p] > 0 && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleClearFieldValue('vendas', p);
+                              }}
+                              title={`Apagar Vendas (${PERIOD_LABELS[p]})`}
+                              className="text-rose-400 hover:text-white p-0.5 rounded hover:bg-rose-500/20 cursor-pointer"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
               </div>
 
-              {/* KPI 2: A RECEBER */}
               <div
+                data-testid="kpi-card-receber"
                 onClick={() => {
                   setActiveField('receber');
-                  const el = document.getElementById('relatorios-detalhados');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  scrollToReports();
                 }}
                 className={`bg-[#131d33] border rounded-2xl p-5 flex flex-col justify-between transition-colors cursor-pointer ${
                   activeField === 'receber'
@@ -711,46 +672,49 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Mini Daily / Weekly / Monthly Breakdown inside A Receber Card */}
                 <div className="mt-4 pt-3 border-t border-[#1e2d4a] space-y-1.5 text-[11px] font-mono-num">
-                  {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map((p) => (
-                    <div key={p} className="flex items-center justify-between text-slate-400">
-                      <span>{PERIOD_LABELS[p]}:</span>
-                      <div className="flex items-center gap-1.5">
-                        <span
-                          className={
-                            p === activePeriod
-                              ? 'text-emerald-400 font-bold'
-                              : 'text-slate-200 font-semibold'
-                          }
-                        >
-                          {formatBRL(quickAllPeriods.receber[p])}
-                        </span>
-                        {quickAllPeriods.receber[p] > 0 && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleClearFieldValue('receber', p);
-                            }}
-                            title={`Apagar A Receber (${PERIOD_LABELS[p]})`}
-                            className="text-rose-400 hover:text-white p-0.5 rounded hover:bg-rose-500/20 cursor-pointer"
+                  {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map(
+                    (p) => (
+                      <div
+                        key={p}
+                        className="flex items-center justify-between text-slate-400"
+                      >
+                        <span>{PERIOD_LABELS[p]}:</span>
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={
+                              p === activePeriod
+                                ? 'text-emerald-400 font-bold'
+                                : 'text-slate-200 font-semibold'
+                            }
                           >
-                            <X className="w-3 h-3" />
-                          </button>
-                        )}
+                            {formatBRL(quickAllPeriods.receber[p])}
+                          </span>
+                          {quickAllPeriods.receber[p] > 0 && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleClearFieldValue('receber', p);
+                              }}
+                              title={`Apagar A Receber (${PERIOD_LABELS[p]})`}
+                              className="text-rose-400 hover:text-white p-0.5 rounded hover:bg-rose-500/20 cursor-pointer"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
               </div>
 
-              {/* KPI 3: A PAGAR */}
               <div
+                data-testid="kpi-card-pagar"
                 onClick={() => {
                   setActiveField('pagar');
-                  const el = document.getElementById('relatorios-detalhados');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  scrollToReports();
                 }}
                 className={`bg-[#131d33] border rounded-2xl p-5 flex flex-col justify-between transition-colors cursor-pointer ${
                   activeField === 'pagar'
@@ -781,46 +745,49 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Mini Daily / Weekly / Monthly Breakdown inside A Pagar Card */}
                 <div className="mt-4 pt-3 border-t border-[#1e2d4a] space-y-1.5 text-[11px] font-mono-num">
-                  {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map((p) => (
-                    <div key={p} className="flex items-center justify-between text-slate-400">
-                      <span>{PERIOD_LABELS[p]}:</span>
-                      <div className="flex items-center gap-1.5">
-                        <span
-                          className={
-                            p === activePeriod
-                              ? 'text-rose-400 font-bold'
-                              : 'text-slate-200 font-semibold'
-                          }
-                        >
-                          {formatBRL(quickAllPeriods.pagar[p])}
-                        </span>
-                        {quickAllPeriods.pagar[p] > 0 && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleClearFieldValue('pagar', p);
-                            }}
-                            title={`Apagar A Pagar (${PERIOD_LABELS[p]})`}
-                            className="text-rose-400 hover:text-white p-0.5 rounded hover:bg-rose-500/20 cursor-pointer"
+                  {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map(
+                    (p) => (
+                      <div
+                        key={p}
+                        className="flex items-center justify-between text-slate-400"
+                      >
+                        <span>{PERIOD_LABELS[p]}:</span>
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={
+                              p === activePeriod
+                                ? 'text-rose-400 font-bold'
+                                : 'text-slate-200 font-semibold'
+                            }
                           >
-                            <X className="w-3 h-3" />
-                          </button>
-                        )}
+                            {formatBRL(quickAllPeriods.pagar[p])}
+                          </span>
+                          {quickAllPeriods.pagar[p] > 0 && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleClearFieldValue('pagar', p);
+                              }}
+                              title={`Apagar A Pagar (${PERIOD_LABELS[p]})`}
+                              className="text-rose-400 hover:text-white p-0.5 rounded hover:bg-rose-500/20 cursor-pointer"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
               </div>
 
-              {/* KPI 4: SALDO PREVISTO */}
               <div
+                data-testid="kpi-card-saldo"
                 onClick={() => {
                   setActiveField('todos');
-                  const el = document.getElementById('relatorios-detalhados');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  scrollToReports();
                 }}
                 className="bg-[#131d33] border border-[#1e2d4a] hover:border-sky-500/50 rounded-2xl p-5 flex flex-col justify-between transition-colors cursor-pointer"
               >
@@ -830,7 +797,10 @@ export default function App() {
                       <RefreshCw className="w-3.5 h-3.5 text-sky-400" />
                       Saldo Previsto
                     </span>
-                    <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    <div
+                      className="flex items-center gap-1.5"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <FieldVoiceAndClearBar
                         field="vendas"
                         period={activePeriod}
@@ -841,7 +811,9 @@ export default function App() {
                         }
                         todayISO={referenceDate}
                         onAddRecord={handleAddRecord}
-                        onClearFieldValue={(_, p) => handleClearFieldValue('todos', p)}
+                        onClearFieldValue={(_, p) =>
+                          handleClearFieldValue('todos', p)
+                        }
                       />
                     </div>
                   </div>
@@ -880,7 +852,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* GREEN CARD MACHINES BANNER */}
             <div className="bg-[#092922] border border-emerald-500/30 rounded-xl px-5 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 no-print">
               <div className="flex items-center gap-2.5 text-xs sm:text-sm text-emerald-300">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -897,7 +868,6 @@ export default function App() {
               </button>
             </div>
 
-            {/* DIRECT FIELD PANELS WITH MICROPHONE & "X" CLEAR BUTTONS */}
             <FieldCardsGrid
               records={records}
               referenceDate={referenceDate}
@@ -910,7 +880,6 @@ export default function App() {
               onOpenNewModal={handleOpenNewModal}
             />
 
-            {/* COMPLETE INTERACTIVE DAILY, WEEKLY, MONTHLY REPORTS SECTION */}
             <ReportsSection
               records={records}
               referenceDate={referenceDate}
@@ -929,8 +898,9 @@ export default function App() {
           </main>
         )}
 
-        {/* SECONDARY NAV VIEWS */}
-        {activeNav === 'calculadora' && <FeeCalculatorView machines={machines} />}
+        {activeNav === 'calculadora' && (
+          <FeeCalculatorView machines={machines} />
+        )}
 
         {activeNav === 'fechamento' && (
           <DailyClosingView records={records} referenceDate={referenceDate} />
@@ -951,26 +921,32 @@ export default function App() {
               conciliação automática dos relatórios Diário, Semanal e Mensal.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-              {['Nubank PJ', 'Banco Inter Empresas', 'Itaú Empresas'].map((bank) => (
-                <div
-                  key={bank}
-                  className="p-4 rounded-xl bg-[#0b1120] border border-[#1e2d4a] flex items-center justify-between"
-                >
-                  <div>
-                    <div className="text-sm font-bold text-white">{bank}</div>
-                    <div className="text-xs text-emerald-400">Sincronização automática</div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      showNotification(`Sincronização Open Finance iniciada com ${bank}.`)
-                    }
-                    className="px-3 py-1.5 text-xs font-semibold bg-amber-500 text-slate-950 rounded-lg cursor-pointer"
+              {['Nubank PJ', 'Banco Inter Empresas', 'Itaú Empresas'].map(
+                (bank) => (
+                  <div
+                    key={bank}
+                    className="p-4 rounded-xl bg-[#0b1120] border border-[#1e2d4a] flex items-center justify-between"
                   >
-                    Sincronizar
-                  </button>
-                </div>
-              ))}
+                    <div>
+                      <div className="text-sm font-bold text-white">{bank}</div>
+                      <div className="text-xs text-emerald-400">
+                        Sincronização automática
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        showNotification(
+                          `Sincronização Open Finance iniciada com ${bank}.`
+                        )
+                      }
+                      className="px-3 py-1.5 text-xs font-semibold bg-amber-500 text-slate-950 rounded-lg cursor-pointer"
+                    >
+                      Sincronizar
+                    </button>
+                  </div>
+                )
+              )}
             </div>
           </div>
         )}
@@ -984,7 +960,10 @@ export default function App() {
                   Perfil da Empresa & Preferências de Relatório
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
-                  Conta conectada: <strong className="text-white">{userEmail}</strong> · Seus lançamentos de Vendas, Contas a Receber e Contas a Pagar ficam salvos neste dispositivo.
+                  Conta conectada:{' '}
+                  <strong className="text-white">{userEmail}</strong> · Seus
+                  lançamentos de Vendas, Contas a Receber e Contas a Pagar ficam
+                  salvos neste dispositivo.
                 </p>
               </div>
               <button
@@ -1000,7 +979,9 @@ export default function App() {
                 type="button"
                 onClick={() => {
                   setRecords(generateInitialSeedRecords(todayISO));
-                  showNotification('Base de demonstração recarregada com sucesso.');
+                  showNotification(
+                    'Base de demonstração recarregada com sucesso.'
+                  );
                 }}
                 className="px-4 py-2 text-xs font-semibold bg-[#17233d] text-slate-200 rounded-lg border border-[#263961] cursor-pointer"
               >
@@ -1018,7 +999,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Modals */}
         <NewTransactionModal
           isOpen={isNewModalOpen}
           defaultType={newModalDefaultType}

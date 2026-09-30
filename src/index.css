@@ -1,27 +1,64 @@
-﻿@tailwind base;
-@tailwind components;
-@tailwind utilities;
+﻿@import "tailwindcss";
 
 @layer base {
   :root {
-    color-scheme: dark;
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
   }
+
   body {
-    background-color: #0a0f1d;
+    font-family: var(--font-sans);
+    background: radial-gradient(circle at 50% 0%, #38bdf8 0%, #0284c7 30%, #0b316e 68%, #071c42 100%);
+    background-attachment: fixed;
     color: #f8fafc;
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    -webkit-font-smoothing: antialiased;
   }
 }
 
+.bg-\[\#0a0f1d\] {
+  background: radial-gradient(circle at 50% 0%, #38bdf8 0%, #0284c7 28%, #0b316e 65%, #071c42 100%) !important;
+  background-attachment: fixed !important;
+}
+
+.bg-\[\#0d1424\] {
+  background-color: rgba(7, 30, 68, 0.85) !important;
+  backdrop-filter: blur(10px);
+}
+
+.bg-\[\#111a2e\],
+.bg-\[\#131d33\] {
+  background: linear-gradient(180deg, rgba(12, 45, 97, 0.92) 0%, rgba(8, 30, 68, 0.95) 100%) !important;
+  box-shadow: 0 10px 30px -8px rgba(2, 132, 199, 0.35), inset 0 1px 0 0 rgba(125, 211, 252, 0.25);
+  backdrop-filter: blur(12px);
+}
+
+.bg-\[\#0b1120\] {
+  background-color: rgba(6, 23, 54, 0.88) !important;
+}
+
+.bg-\[\#17233d\] {
+  background-color: rgba(14, 58, 118, 0.9) !important;
+}
+
+.border-\[\#1e2d4a\],
+.border-\[\#243659\],
+.border-\[\#263961\],
+.border-\[\#293d66\] {
+  border-color: rgba(56, 189, 248, 0.38) !important;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
 .font-mono-num {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
 @media print {
-  body {
-    background-color: #ffffff !important;
+  body,
+  .bg-\[\#0a0f1d\] {
+    background: #ffffff !important;
     color: #0f172a !important;
   }
   .no-print {
