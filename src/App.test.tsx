@@ -1,11 +1,12 @@
 import React from 'react';
 import { render, screen, fireEvent, within, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import App, { STORAGE_KEY_RECORDS, STORAGE_KEY_MACHINES } from './App';
+import App, { STORAGE_KEY_RECORDS, STORAGE_KEY_MACHINES, STORAGE_KEY_AUTH } from './App';
 
 describe('App.tsx - 100% Cobertura Total', () => {
   beforeEach(() => {
     localStorage.clear();
+    localStorage.setItem(STORAGE_KEY_AUTH, 'faustoefiscal@gmail.com');
     vi.spyOn(window, 'open').mockImplementation(() => null);
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
     Object.defineProperty(URL, 'createObjectURL', {
@@ -24,7 +25,9 @@ describe('App.tsx - 100% Cobertura Total', () => {
   });
 
   it('1 - inicializa sem e com localStorage, alterna períodos, cards KPI, exportação CSV e fechamento do toast', () => {
+    localStorage.removeItem(STORAGE_KEY_AUTH);
     const { unmount } = render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /Entrar com o Google/i }));
 
     expect(localStorage.getItem(STORAGE_KEY_RECORDS)).toBeTruthy();
     expect(localStorage.getItem(STORAGE_KEY_MACHINES)).toBeTruthy();
@@ -176,10 +179,12 @@ describe('App.tsx - 100% Cobertura Total', () => {
     fireEvent.click(
       screen.getByRole('button', { name: /Limpar Todos os Dados/i })
     );
-    fireEvent.click(screen.getByRole('button', { name: /Sair da Conta/i }));
-    expect(window.open).toHaveBeenCalledWith('https://www.google.com', '_self');
-
     fireEvent.click(screen.getByRole('link', { name: /Copiloto Financeiro/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Perfil/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Sair da Conta/i }));
+    fireEvent.change(screen.getByPlaceholderText(/Ex: faustoefiscal@gmail.com/i), { target: { value: 'faustoefiscal@gmail.com' } });
+    fireEvent.change(screen.getByPlaceholderText(/Digite sua senha/i), { target: { value: '123456' } });
+    fireEvent.click(screen.getByRole('button', { name: /Entrar no Copiloto Financeiro/i }));
     fireEvent.click(screen.getByRole('button', { name: /^Sair$/i }));
   }, 30000);
 });
