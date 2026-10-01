@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -61,17 +61,28 @@ type NavTab =
 
 export const STORAGE_KEY_RECORDS = 'copiloto_financeiro_records_v1';
 export const STORAGE_KEY_MACHINES = 'copiloto_financeiro_machines_v1';
-export const STORAGE_KEY_AUTH = 'copiloto_financeiro_auth_v1';
+export const STORAGE_KEY_AUTH = 'copiloto_financeiro_auth_v2';
 
 export default function App() {
   const todayISO = useMemo(() => toISODate(new Date()), []);
   const [referenceDate, setReferenceDate] = useState<string>(todayISO);
   const [activeNav, setActiveNav] = useState<NavTab>('painel');
-  const [userEmail] = useState<string>('faustoefiscal@gmail.com');
+  const [userEmail, setUserEmail] = useState<string | null>(() =>
+    localStorage.getItem(STORAGE_KEY_AUTH)
+  );
+  const [loginEmail, setLoginEmail] = useState<string>('');
+  const [loginPassword, setLoginPassword] = useState<string>('');
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const emailToSave = loginEmail.trim() || 'faustoefiscal@gmail.com';
+    localStorage.setItem(STORAGE_KEY_AUTH, emailToSave);
+    setUserEmail(emailToSave);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem(STORAGE_KEY_AUTH);
-    window.open('https://www.google.com', '_self');
+    setUserEmail(null);
   };
 
   const [activePeriod, setActivePeriod] = useState<ReportPeriod>('diario');
@@ -311,6 +322,81 @@ export default function App() {
     const el = document.getElementById('relatorios-detalhados');
     el?.scrollIntoView?.({ behavior: 'smooth' });
   };
+
+  if (!userEmail) {
+    return (
+      <div className="min-h-screen bg-[#0a0f1d] text-slate-100 flex items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md bg-[#111a2e] border border-[#1e2d4a] rounded-2xl p-6 sm:p-8 space-y-6">
+          <div className="flex flex-col items-center text-center space-y-2">
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400">
+              <Crown className="w-7 h-7" />
+            </div>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+              Copiloto Financeiro
+            </h1>
+            <p className="text-xs text-slate-300">
+              Entre na sua conta para acessar o Painel Financeiro
+            </p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <button
+              type="submit"
+              className="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm flex items-center justify-center gap-3 shadow-md transition-colors cursor-pointer"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v2.98h3.86c2.26-2.09 3.56-5.17 3.56-8.8z" />
+                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-2.98c-1.08.72-2.45 1.16-4.07 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z" />
+                <path fill="#FBBC05" d="M5.28 14.31c-.24-.72-.38-1.49-.38-2.31s.14-1.59.38-2.31V6.6H1.29C.47 8.23 0 10.06 0 12s.47 3.77 1.29 5.4l3.99-3.09z" />
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.6l3.99 3.09c.95-2.85 3.6-4.94 6.72-4.94z" />
+              </svg>
+              <span>Entrar com o Google</span>
+            </button>
+
+            <div className="flex items-center gap-3 py-1">
+              <div className="h-px flex-1 bg-[#1e2d4a]" />
+              <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
+                ou acesse com e-mail
+              </span>
+              <div className="h-px flex-1 bg-[#1e2d4a]" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                Seu E-mail de Acesso
+              </label>
+              <input
+                type="email"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                placeholder="Ex: faustoefiscal@gmail.com"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                Sua Senha
+              </label>
+              <input
+                type="password"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                placeholder="Digite sua senha"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm transition-colors cursor-pointer"
+            >
+              Entrar no Copiloto Financeiro
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0f1d] text-slate-100">
