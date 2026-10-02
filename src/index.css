@@ -16,7 +16,7 @@
   }
 }
 
-/* Nova Paleta Dark Obsidian & Champagne Gold */
+/* Paleta Luxury Obsidian & Champagne Gold (conforme imagem simulada) */
 [class*="bg-[#0a0f1d]"] {
   background: #090e17 !important;
 }
@@ -30,7 +30,7 @@
 [class*="bg-[#131d33]"] {
   background: #121a28 !important;
   border-color: #1e2a3c !important;
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.55) !important;
+  box-shadow: 0 10px 30px -6px rgba(0, 0, 0, 0.65) !important;
 }
 
 [class*="bg-[#0b1120]"] {
@@ -58,7 +58,7 @@
   color: #171206 !important;
   font-weight: 700 !important;
   border: 1px solid #ecc98a !important;
-  box-shadow: 0 4px 14px -2px rgba(223, 183, 118, 0.25) !important;
+  box-shadow: 0 4px 14px -2px rgba(223, 183, 118, 0.28) !important;
 }
 
 .bg-amber-500:hover,
@@ -69,6 +69,15 @@
 .text-amber-400,
 .text-amber-500 {
   color: #dfb776 !important;
+}
+
+/* Cores nobres e refinadas para KPIs financeiros */
+.text-emerald-400 {
+  color: #34d399 !important;
+}
+
+.text-rose-400 {
+  color: #fb7185 !important;
 }
 
 .tabular-nums {
