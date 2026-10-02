@@ -405,7 +405,6 @@ export default function App() {
                 <label className="block text-xs font-semibold text-slate-300 mb-1.5">Sua Senha</label>
                 <input type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder="Digite sua senha" className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500" />
               </div>
-              <button type="submit" className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm transition-colors cursor-pointer">Entrar no Copiloto Financeiro</button>
             </form>
           )}
         </div>
