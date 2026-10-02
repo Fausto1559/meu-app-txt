@@ -10,42 +10,65 @@
 
   body {
     font-family: var(--font-sans);
-    background: radial-gradient(circle at 50% 0%, #0c4a6e 0%, #082f49 32%, #061c38 68%, #041024 100%);
-    background-attachment: fixed;
+    background: #090e17 !important;
+    background-attachment: fixed !important;
     color: #f8fafc;
   }
 }
 
-.bg-\[\#0a0f1d\] {
-  background: radial-gradient(circle at 50% 0%, #0c4a6e 0%, #082f49 32%, #061c38 68%, #041024 100%) !important;
-  background-attachment: fixed !important;
+/* Nova Paleta Dark Obsidian & Champagne Gold */
+[class*="bg-[#0a0f1d]"] {
+  background: #090e17 !important;
 }
 
-.bg-\[\#0d1424\] {
-  background-color: rgba(5, 20, 46, 0.92) !important;
-  backdrop-filter: blur(10px);
+[class*="bg-[#0d1424]"] {
+  background-color: #0b101b !important;
+  border-color: #162030 !important;
 }
 
-.bg-\[\#111a2e\],
-.bg-\[\#131d33\] {
-  background: linear-gradient(180deg, rgba(12, 42, 87, 0.95) 0%, rgba(7, 26, 58, 0.98) 100%) !important;
-  box-shadow: 0 10px 28px -6px rgba(2, 10, 28, 0.7), inset 0 1px 0 0 rgba(56, 189, 248, 0.22);
-  backdrop-filter: blur(12px);
+[class*="bg-[#111a2e]"],
+[class*="bg-[#131d33]"] {
+  background: #121a28 !important;
+  border-color: #1e2a3c !important;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.55) !important;
 }
 
-.bg-\[\#0b1120\] {
-  background-color: rgba(5, 18, 42, 0.92) !important;
+[class*="bg-[#0b1120]"] {
+  background-color: #0a0f18 !important;
+  border-color: #182232 !important;
 }
 
-.bg-\[\#17233d\] {
-  background-color: rgba(14, 52, 105, 0.92) !important;
+[class*="bg-[#17233d]"] {
+  background-color: #182232 !important;
+  border-color: #243348 !important;
+  color: #94a3b8 !important;
 }
 
-.border-\[\#1e2d4a\],
-.border-\[\#243659\],
-.border-\[\#263961\],
-.border-\[\#293d66\] {
-  border-color: rgba(56, 189, 248, 0.32) !important;
+[class*="border-[#1e2d4a]"],
+[class*="border-[#243659]"],
+[class*="border-[#263961]"],
+[class*="border-[#293d66]"] {
+  border-color: #1e2a3c !important;
+}
+
+/* Botões Dourado Champanhe Luxo (+ Novo Lançamento, Relatório Diário ativo, Conversar por Voz) */
+.bg-amber-500,
+[class*="bg-amber-500"] {
+  background: linear-gradient(180deg, #dfb776 0%, #c4984e 100%) !important;
+  color: #171206 !important;
+  font-weight: 700 !important;
+  border: 1px solid #ecc98a !important;
+  box-shadow: 0 4px 14px -2px rgba(223, 183, 118, 0.25) !important;
+}
+
+.bg-amber-500:hover,
+[class*="bg-amber-500"]:hover {
+  background: linear-gradient(180deg, #e8c488 0%, #d4a75c 100%) !important;
+}
+
+.text-amber-400,
+.text-amber-500 {
+  color: #dfb776 !important;
 }
 
 .tabular-nums {
@@ -59,7 +82,7 @@
 
 @media print {
   body,
-  .bg-\[\#0a0f1d\] {
+  [class*="bg-[#0a0f1d]"] {
     background: #ffffff !important;
     color: #0f172a !important;
   }
