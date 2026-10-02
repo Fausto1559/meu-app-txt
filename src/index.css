@@ -7,28 +7,28 @@
     --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
   }
-
   body {
     font-family: var(--font-sans);
-    background: #090e17 !important;
-    background-attachment: fixed !important;
+    background-color: #090e17 !important;
+    background-image: none !important;
     color: #f8fafc;
   }
 }
 
-/* Paleta Luxury Obsidian & Champagne Gold (conforme imagem simulada) */
-[class*="bg-[#0a0f1d]"] {
-  background: #090e17 !important;
+/* Fundo geral e Containers */
+body, [class*="bg-[#0a0f1d]"] {
+  background-color: #090e17 !important;
+  background-image: none !important;
 }
 
-[class*="bg-[#0d1424]"] {
+[class*="bg-[#0d1424]"], [class*="bg-[#0b101b]"] {
   background-color: #0b101b !important;
   border-color: #162030 !important;
 }
 
-[class*="bg-[#111a2e]"],
-[class*="bg-[#131d33]"] {
-  background: #121a28 !important;
+[class*="bg-[#111a2e]"], [class*="bg-[#131d33]"] {
+  background-color: #121a28 !important;
+  background-image: none !important;
   border-color: #1e2a3c !important;
   box-shadow: 0 10px 30px -6px rgba(0, 0, 0, 0.65) !important;
 }
@@ -44,16 +44,14 @@
   color: #94a3b8 !important;
 }
 
-[class*="border-[#1e2d4a]"],
-[class*="border-[#243659]"],
-[class*="border-[#263961]"],
-[class*="border-[#293d66]"] {
-  border-color: #1e2a3c !important;
+/* Força a remoção da faixa vermelha no topo */
+[class*="from-[#450a0a]"], [class*="via-[#7f1d1d]"] {
+  background: #0b101b !important;
+  border-color: #162030 !important;
 }
 
-/* Botões Dourado Champanhe Luxo (+ Novo Lançamento, Relatório Diário ativo, Conversar por Voz) */
-.bg-amber-500,
-[class*="bg-amber-500"] {
+/* Botões Dourado Champanhe Luxo */
+.bg-amber-500, [class*="bg-amber-500"] {
   background: linear-gradient(180deg, #dfb776 0%, #c4984e 100%) !important;
   color: #171206 !important;
   font-weight: 700 !important;
@@ -61,41 +59,14 @@
   box-shadow: 0 4px 14px -2px rgba(223, 183, 118, 0.28) !important;
 }
 
-.bg-amber-500:hover,
-[class*="bg-amber-500"]:hover {
-  background: linear-gradient(180deg, #e8c488 0%, #d4a75c 100%) !important;
-}
-
-.text-amber-400,
-.text-amber-500 {
+.text-amber-400, .text-amber-500 {
   color: #dfb776 !important;
 }
 
-/* Cores nobres e refinadas para KPIs financeiros */
+/* Cores nobres e calibradas dos KPIs */
 .text-emerald-400 {
   color: #34d399 !important;
 }
-
 .text-rose-400 {
   color: #fb7185 !important;
-}
-
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
-}
-
-.font-mono-num {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-}
-
-@media print {
-  body,
-  [class*="bg-[#0a0f1d]"] {
-    background: #ffffff !important;
-    color: #0f172a !important;
-  }
-  .no-print {
-    display: none !important;
-  }
 }
