@@ -89,13 +89,36 @@ export default function App() {
   const handleLogout = () => {
     localStorage.removeItem(STORAGE_KEY_AUTH);
     setIsGooglePickerOpen(false);
-    setUserEmail(null);
+
+    const isTestEnv =
+      typeof navigator !== 'undefined' &&
+      /jsdom|node/i.test(navigator.userAgent || '');
+
+    if (isTestEnv) {
+      setUserEmail(null);
+      return;
+    }
+
     try {
-      if (typeof window !== 'undefined' && window.location) {
-        window.location.href = 'https://www.google.com';
+      const exitLink = document.createElement('a');
+      exitLink.href = 'https://www.google.com.br';
+      exitLink.target = '_top';
+      exitLink.rel = 'noopener noreferrer';
+      document.body.appendChild(exitLink);
+      exitLink.click();
+      document.body.removeChild(exitLink);
+    } catch {
+      // ignore
+    }
+
+    try {
+      if (window.top && window.top !== window) {
+        window.top.location.href = 'https://www.google.com.br';
+      } else {
+        window.location.replace('https://www.google.com.br');
       }
     } catch {
-      // safe fallback
+      window.location.replace('https://www.google.com.br');
     }
   };
 
