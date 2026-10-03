@@ -90,6 +90,13 @@ export default function App() {
     localStorage.removeItem(STORAGE_KEY_AUTH);
     setIsGooglePickerOpen(false);
     setUserEmail(null);
+    try {
+      if (typeof window !== 'undefined' && window.location) {
+        window.location.href = 'https://www.google.com';
+      }
+    } catch {
+      // safe fallback
+    }
   };
 
   const [activePeriod, setActivePeriod] = useState<ReportPeriod>('diario');
