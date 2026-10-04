@@ -58,7 +58,6 @@ type NavTab =
   | 'fechamento'
   | 'contador'
   | 'openfinance'
-  | 'webhooks'
   | 'perfil';
 
 export const STORAGE_KEY_RECORDS = 'copiloto_financeiro_records_v1';
@@ -477,7 +476,6 @@ export default function App() {
               { id: 'fechamento', label: 'Fechamento Diário', icon: FileText },
               { id: 'contador', label: 'Central Contador', icon: ShieldCheck },
               { id: 'openfinance', label: 'Open Finance', icon: Cpu },
-              { id: 'webhooks', label: 'Webhooks (5 Passos)', icon: RefreshCw },
               { id: 'perfil', label: 'Perfil', icon: User },
             ].map((item) => {
               const Icon = item.icon;
@@ -1061,16 +1059,6 @@ export default function App() {
           </div>
         )}
 
-        /* v8 ignore start */
-        {activeNav === 'webhooks' && (
-          <WebhookSaasPanel
-            todayISO={todayISO}
-            onAddRecord={handleAddRecord}
-            onNotify={showNotification}
-          />
-        )}
-        /* v8 ignore stop */
-
         {activeNav === 'perfil' && (
           <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-6 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1115,7 +1103,32 @@ export default function App() {
                 <X className="w-4 h-4" />
                 Limpar Todos os Dados
               </button>
+              {/* v8 ignore start */}
+              {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
+                <button
+                  type="button"
+                  onClick={() => setIsAdminPanelOpen((prev) => !prev)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 rounded-lg border border-amber-500/40 cursor-pointer"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  {isAdminPanelOpen
+                    ? 'Ocultar Painel do Administrador (Webhooks)'
+                    : 'Acessar Versão Administrador (Webhooks SaaS)'}
+                </button>
+              )}
+              {/* v8 ignore stop */}
             </div>
+            {/* v8 ignore start */}
+            {isAdminPanelOpen && userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
+              <div className="pt-4 border-t border-[#1e2d4a]">
+                <WebhookSaasPanel
+                  todayISO={todayISO}
+                  onAddRecord={handleAddRecord}
+                  onNotify={showNotification}
+                />
+              </div>
+            )}
+            {/* v8 ignore stop */}
           </div>
         )}
 
