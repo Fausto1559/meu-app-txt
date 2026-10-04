@@ -1,4 +1,4 @@
-﻿import React, { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Mic, MicOff, Radio, Volume2, X } from 'lucide-react';
 import {
   FinancialRecord,

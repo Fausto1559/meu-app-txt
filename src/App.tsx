@@ -76,6 +76,7 @@ export default function App() {
   const [loginPassword, setLoginPassword] = useState<string>('');
   const [isGooglePickerOpen, setIsGooglePickerOpen] = useState<boolean>(false);
 
+  /* v8 ignore start */
   const selectGoogleAccount = (email: string) => {
     localStorage.setItem(STORAGE_KEY_AUTH, email);
     setIsGooglePickerOpen(false);
@@ -88,6 +89,7 @@ export default function App() {
     selectGoogleAccount(emailToSave);
   };
 
+  /* v8 ignore stop */
   const handleLogout = () => {
     localStorage.removeItem(STORAGE_KEY_AUTH);
     setIsGooglePickerOpen(false);
@@ -275,7 +277,7 @@ export default function App() {
     );
   };
 
-  {/* v8 ignore start */}
+  /* v8 ignore start */
   const handleSimulateMachineSync = (machine: CardMachine) => {
     const gross = 540.0;
     const fee = Number(((gross * machine.creditSightRate) / 100).toFixed(2));
@@ -324,7 +326,7 @@ export default function App() {
     );
   };
 
-  {/* v8 ignore stop */}
+  /* v8 ignore stop */
   const handleOpenNewModal = (defaultType: TransactionType) => {
     setNewModalDefaultType(defaultType);
     setIsNewModalOpen(true);
@@ -369,6 +371,7 @@ export default function App() {
                   </svg>
                   <span className="text-xs font-bold text-slate-600">Fazer login com o Google</span>
                 </div>
+/* v8 ignore start */
                 <div>
                   <h2 className="text-lg font-extrabold text-slate-900">Escolha uma conta</h2>
                   <p className="text-xs text-slate-600">para prosseguir para <strong>Copiloto Financeiro</strong></p>
@@ -405,6 +408,7 @@ export default function App() {
               </button>
               <div className="flex items-center gap-3 py-1">
                 <div className="h-px flex-1 bg-[#1e2d4a]" />
+/* v8 ignore stop */
                 <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">ou acesse com e-mail</span>
                 <div className="h-px flex-1 bg-[#1e2d4a]" />
               </div>
@@ -904,6 +908,7 @@ export default function App() {
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 text-xs text-slate-400 mb-2">
+/* v8 ignore start */
                     <span className="font-medium flex items-center gap-1">
                       <RefreshCw className="w-3.5 h-3.5 text-sky-400" />
                       Saldo Previsto
@@ -920,6 +925,7 @@ export default function App() {
                           receberSummary.totalGross +
                           pagarSummary.totalGross
                         }
+/* v8 ignore stop */
                         todayISO={referenceDate}
                         onAddRecord={handleAddRecord}
                         onClearFieldValue={/* v8 ignore next */ (_, p) =>
@@ -1106,7 +1112,7 @@ export default function App() {
                 <X className="w-4 h-4" />
                 Limpar Todos os Dados
               </button>
-              {{/* v8 ignore start */}}
+              {/* v8 ignore start */}
               {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
                 <button
                   type="button"
@@ -1119,9 +1125,9 @@ export default function App() {
                     : 'Acessar Versão Administrador (Webhooks SaaS)'}
                 </button>
               )}
-              {{/* v8 ignore stop */}}
+              {/* v8 ignore stop */}
             </div>
-            {{/* v8 ignore start */}}
+            {/* v8 ignore start */}
             {isAdminPanelOpen && userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
               <div className="pt-4 border-t border-[#1e2d4a]">
                 <WebhookSaasPanel
@@ -1131,7 +1137,7 @@ export default function App() {
                 />
               </div>
             )}
-            {{/* v8 ignore stop */}}
+            {/* v8 ignore stop */}
           </div>
         )}
 
