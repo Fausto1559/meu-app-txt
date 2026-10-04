@@ -522,7 +522,7 @@ export default function App() {
   if (isTrialExpiredDay31) {
     return (
       <div className="min-h-screen bg-[#0a0f1d] text-slate-100 flex items-center justify-center px-4 py-10">
-        <div className="w-full max-w-2xl bg-[#111a2e] border border-[#1e2d4a] rounded-2xl p-6 sm:p-8 space-y-6">
+        <div className="w-full max-w-4xl bg-[#111a2e] border border-[#1e2d4a] rounded-2xl p-6 sm:p-8 space-y-6">
           <div className="flex flex-col items-center text-center space-y-2">
             <div className="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400">
               <Crown className="w-7 h-7" />
@@ -531,66 +531,115 @@ export default function App() {
               31º Dia Iniciado · Período Gratuito de 30 Dias Encerrado
             </span>
             <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-              Escolha um Plano para Continuar Usando o Copiloto Financeiro
+              Escolha seu Plano para Continuar Usando o Copiloto Financeiro
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-lg">
-              Seus 30 dias de avaliação gratuita terminaram. Todos os seus lançamentos de{' '}
-              <strong className="text-white">{userEmail}</strong> estão salvos e seguros.
-              Selecione um plano abaixo para liberar seu acesso imediatamente:
+            <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
+              Seus 30 dias gratuitos terminaram. Todos os lançamentos da conta{' '}
+              <strong className="text-white">{userEmail}</strong> estão salvos.
+              Escolha um dos 3 planos abaixo para liberar seu acesso agora:
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* PLANO 1: ESSENCIAL / BASICO - R$ 19,90 */}
             <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-2xl p-5 flex flex-col justify-between space-y-4">
               <div className="space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Plano Mensal</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  1. Essencial / Básico
+                </span>
                 <div className="text-2xl font-extrabold text-white">
-                  R$ 47,00<span className="text-xs font-normal text-slate-400">/mês</span>
+                  R$ 19,90<span className="text-xs font-normal text-slate-400">/mês</span>
                 </div>
+                <p className="text-[11px] text-slate-400">
+                  Ideal para controle manual rápido do caixa diário.
+                </p>
                 <ul className="text-xs text-slate-300 space-y-1.5 pt-2">
-                  <li>✓ Lançamentos ilimitados por Voz e Texto</li>
-                  <li>✓ Relatórios Diário, Semanal e Mensal</li>
-                  <li>✓ Simulador de Taxas e Fechamento de Caixa</li>
-                  <li>✓ Exportação CSV/PDF para Contador</li>
+                  <li>✓ Lançamentos Manuais (Digitados)</li>
+                  <li>✓ Painel Vendas, A Receber e A Pagar</li>
+                  <li>✓ Relatórios Diário e Semanal</li>
+                  <li>✓ Fechamento Diário de Caixa</li>
                 </ul>
               </div>
               <button
                 type="button"
-                onClick={() => handleSelectPaidPlan('Plano Mensal PRO (R$ 47/mês)')}
-                className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm transition-colors cursor-pointer"
+                onClick={() => handleSelectPaidPlan('Essencial Básico (R$ 19,90/mês)')}
+                className="w-full py-3 rounded-xl bg-[#1a2744] hover:bg-[#24355c] border border-[#2e4372] text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer"
               >
-                Optar pelo Plano Mensal (R$ 47,00)
+                Escolher Essencial (R$ 19,90)
               </button>
             </div>
 
-            <div className="bg-[#0b1120] border-2 border-amber-500/60 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            {/* PLANO 2: COPILOTO / INTERMEDIARIO - R$ 29,90 */}
+            <div className="bg-[#0b1120] border-2 border-sky-500/60 rounded-2xl p-5 flex flex-col justify-between space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-amber-400">Plano Anual VIP</span>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">MAIS VANTAJOSO</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-sky-400">
+                    2. Copiloto / Intermediário
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 text-[10px] font-bold">
+                    VOZ + CALCULADORA
+                  </span>
                 </div>
                 <div className="text-2xl font-extrabold text-white">
-                  R$ 397,00<span className="text-xs font-normal text-slate-400">/ano</span>
+                  R$ 29,90<span className="text-xs font-normal text-slate-400">/mês</span>
                 </div>
+                <p className="text-[11px] text-slate-400">
+                  Para quem quer lançar falando e simular taxas de maquininha.
+                </p>
                 <ul className="text-xs text-slate-300 space-y-1.5 pt-2">
-                  <li>✓ Tudo do Plano Mensal incluso</li>
-                  <li>✓ Economia de mais de 29% no ano</li>
-                  <li>✓ Integração Maquininhas & Open Finance</li>
-                  <li>✓ Suporte Prioritário Copiloto</li>
+                  <li>✓ Tudo do Plano Essencial incluso</li>
+                  <li>✓ 🎙️ Lançamento por Comando de Voz nos 3 campos</li>
+                  <li>✓ 🧮 Calculadora de Taxas com Comando de Voz</li>
+                  <li>✓ 📊 Relatório Mensal Completo (Bruto x Líquido)</li>
+                  <li>✓ 🔊 Assistente Copiloto de Voz em Tempo Real</li>
                 </ul>
               </div>
               <button
                 type="button"
-                onClick={() => handleSelectPaidPlan('Plano Anual VIP (R$ 397/ano)')}
+                onClick={() => handleSelectPaidPlan('Copiloto Intermediário (R$ 29,90/mês)')}
+                className="w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs sm:text-sm transition-colors cursor-pointer"
+              >
+                Escolher Intermediário (R$ 29,90)
+              </button>
+            </div>
+
+            {/* PLANO 3: COPILOTO PRO - R$ 39,90 */}
+            <div className="bg-[#0b1120] border-2 border-amber-500/70 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
+                    3. Copiloto PRO
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold">
+                    100% LIBERADO
+                  </span>
+                </div>
+                <div className="text-2xl font-extrabold text-white">
+                  R$ 39,90<span className="text-xs font-normal text-slate-400">/mês</span>
+                </div>
+                <p className="text-[11px] text-slate-400">
+                  Gestão completa com Central do Contador e Integrações.
+                </p>
+                <ul className="text-xs text-slate-300 space-y-1.5 pt-2">
+                  <li>✓ Tudo do Plano Intermediário incluso</li>
+                  <li>✓ 🛡️ Central do Contador (Exportação CSV e PDF)</li>
+                  <li>✓ 💳 Sincronização de Maquininhas de Cartão</li>
+                  <li>✓ 🏦 Conexão Open Finance (Bancos & PIX)</li>
+                  <li>✓ 👑 Suporte Prioritário VIP</li>
+                </ul>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleSelectPaidPlan('Copiloto PRO (R$ 39,90/mês)')}
                 className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm transition-colors cursor-pointer"
               >
-                Optar pelo Plano Anual (R$ 397,00)
+                Escolher Copiloto PRO (R$ 39,90)
               </button>
             </div>
           </div>
 
           <div className="flex items-center justify-between pt-2 border-t border-[#1e2d4a] text-xs text-slate-400">
-            <span>Conta: {userEmail}</span>
+            <span>Conta conectada: {userEmail}</span>
             <button type="button" onClick={handleLogout} className="text-rose-300 hover:text-rose-200 font-semibold cursor-pointer">
               Sair da Conta
             </button>
