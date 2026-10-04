@@ -1345,7 +1345,7 @@ export default function App() {
               </button>
               <button
                 type="button"
-                onClick={/* v8 ignore next */ () => handleSimulateDay31Lock()}
+                onClick={handleSimulateDay31Lock}
                 className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 rounded-lg border border-amber-500/40 cursor-pointer"
               >
                 🔒 Simular 31º Dia (Testar Bloqueio de Plano)

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1791150688066" clover="3.2.0">
-  <project timestamp="1791150688066" name="All files">
-    <metrics statements="718" coveredstatements="717" conditionals="578" coveredconditionals="575" methods="239" coveredmethods="238" elements="1535" coveredelements="1530" complexity="0" loc="718" ncloc="718" packages="3" files="6" classes="6"/>
+<coverage generated="1791151095553" clover="3.2.0">
+  <project timestamp="1791151095554" name="All files">
+    <metrics statements="717" coveredstatements="717" conditionals="578" coveredconditionals="575" methods="238" coveredmethods="238" elements="1533" coveredelements="1530" complexity="0" loc="717" ncloc="717" packages="3" files="6" classes="6"/>
     <package name="src">
-      <metrics statements="141" coveredstatements="140" conditionals="82" coveredconditionals="81" methods="62" coveredmethods="61"/>
+      <metrics statements="140" coveredstatements="140" conditionals="82" coveredconditionals="81" methods="61" coveredmethods="61"/>
       <file name="App.tsx" path="C:\Users\USER\Desktop\MEU APP.TXT\src\App.tsx">
-        <metrics statements="141" coveredstatements="140" conditionals="82" coveredconditionals="81" methods="62" coveredmethods="61"/>
+        <metrics statements="140" coveredstatements="140" conditionals="82" coveredconditionals="81" methods="61" coveredmethods="61"/>
         <line num="63" count="1" type="stmt"/>
         <line num="64" count="1" type="stmt"/>
         <line num="65" count="1" type="stmt"/>
@@ -144,7 +144,6 @@
         <line num="1329" count="1" type="stmt"/>
         <line num="1330" count="1" type="stmt"/>
         <line num="1340" count="1" type="stmt"/>
-        <line num="1348" count="0" type="stmt"/>
         <line num="1396" count="2" type="stmt"/>
         <line num="1403" count="2" type="stmt"/>
       </file>
