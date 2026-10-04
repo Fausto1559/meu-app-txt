@@ -103,6 +103,46 @@ export default function App() {
     setActivePlan(null);
     setTrialStartMs(thirtyOneDaysAgo);
   };
+
+  const handleExportMultiDeviceBackup = () => {
+    const payload = {
+      version: '1.0',
+      exportedAt: new Date().toISOString(),
+      userEmail,
+      activePlan,
+      records,
+      machines,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: 'application/json;charset=utf-8;',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `copiloto-backup-${todayISO}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showNotification('Backup completo multi-dispositivo (.JSON) exportado com sucesso!');
+  };
+
+  const handleImportMultiDeviceBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(String(reader.result || '{}'));
+        if (Array.isArray(parsed.records)) setRecords(parsed.records);
+        if (Array.isArray(parsed.machines)) setMachines(parsed.machines);
+        showNotification('Backup sincronizado e restaurado com sucesso neste dispositivo!');
+      } catch {
+        showNotification('Arquivo de backup inválido.');
+      }
+    };
+    reader.readAsText(file);
+  };
   /* v8 ignore stop */
 
   /* v8 ignore start */
@@ -1358,6 +1398,22 @@ export default function App() {
               >
                 🔒 Simular 31º Dia (Testar Bloqueio de Plano)
               </button>
+              <button
+                type="button"
+                onClick={handleExportMultiDeviceBackup}
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 rounded-lg border border-sky-500/40 cursor-pointer"
+              >
+                ☁️ Exportar Backup Multi-Dispositivo (.JSON)
+              </button>
+              <label className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 rounded-lg border border-indigo-500/40 cursor-pointer">
+                <span>🔄 Restaurar / Sincronizar Backup (.JSON)</span>
+                <input
+                  type="file"
+                  accept=".json,application/json"
+                  onChange={handleImportMultiDeviceBackup}
+                  className="hidden"
+                />
+              </label>
               <a
                 href="https://wa.me/?text=Ol%C3%A1!%20Conhe%C3%A7a%20o%20Copiloto%20Financeiro%20para%20controlar%20Vendas%2C%20Contas%20a%20Receber%2C%20Contas%20a%20Pagar%20e%20Taxas%20de%20Maquininha%20por%20voz%20(Relat%C3%B3rios%20Di%C3%A1rio%2C%20Semanal%20e%20Mensal).%20Acesse%20gr%C3%A1tis%3A%20https%3A%2F%2Fcopilotofinanc.app.br"
                 target="_blank"
