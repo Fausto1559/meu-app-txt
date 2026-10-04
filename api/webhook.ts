@@ -1,53 +1,80 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
-
-// Inicialização modular do Firebase Admin
-if (!getApps().length) {
-  initializeApp({
-    credential: cert({
-      projectId: process.env.VITE_FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
+export interface StoredWebhookEvent {
+  id: string;
+  gateway: string;
+  eventType: 'pagamento_aprovado' | 'pagamento_recusado' | 'pagamento_estornado';
+  customerEmail: string;
+  amount: number;
+  status: 'processado' | 'falha';
+  httpStatus: 200 | 500;
+  attempts: number;
+  createdAt: string;
+  processedAt?: string;
+  errorMessage?: string;
 }
 
-const db = getFirestore();
-const ASAAS_WEBHOOK_TOKEN = process.env.ASAAS_WEBHOOK_TOKEN || "CRIE_SEU_TOKEN_SECRETO_AQUI";
+const webhookEventsStore: StoredWebhookEvent[] = [];
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Método não permitido' });
+export default async function handler(req: any, res: any) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Webhook-Signature');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
 
-  const authToken = req.headers['asaas-access-token'];
-  if (authToken !== ASAAS_WEBHOOK_TOKEN) {
-    return res.status(401).json({ error: 'Acesso não autorizado' });
+  if (req.method === 'GET') {
+    return res.status(200).json({
+      ok: true,
+      endpoint: '/api/webhook',
+      events: webhookEventsStore,
+    });
   }
 
-  const { event, payment } = req.body || {};
-
-  if (event === 'PAYMENT_RECEIVED' || event === 'PAYMENT_CONFIRMED') {
-    const userUid = payment?.externalReference;
-
-    if (!userUid) {
-      return res.status(400).json({ error: 'externalReference ausente' });
-    }
-
+  if (req.method === 'POST') {
     try {
-      await db.collection('users').doc(userUid).set({
-        isPremium: true,
-        subscriptionStatus: 'ACTIVE',
-        asaasCustomerId: payment?.customer,
-        updatedAt: FieldValue.serverTimestamp(),
-      }, { merge: true });
+      const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
 
-      return res.status(200).json({ success: true });
-    } catch (error) {
-      return res.status(500).json({ error: 'Erro ao atualizar Firestore' });
+      if (body.action === 'reprocess' && body.eventId) {
+        const existing = webhookEventsStore.find((e) => e.id === body.eventId);
+        if (existing) {
+          existing.status = 'processado';
+          existing.httpStatus = 200;
+          existing.attempts += 1;
+          existing.processedAt = new Date().toISOString();
+          existing.errorMessage = undefined;
+          return res.status(200).json({ ok: true, httpStatus: 200, event: existing });
+        }
+      }
+
+      const eventId = body.id || `evt_${Date.now()}`;
+      const simulateFailure = Boolean(body.simulateFailure);
+
+      const savedEvent: StoredWebhookEvent = {
+        id: eventId,
+        gateway: body.gateway || 'Asaas / Stripe / Mercado Pago',
+        eventType: body.eventType || 'pagamento_aprovado',
+        customerEmail: body.customerEmail || 'cliente@empresa.com.br',
+        amount: Number(body.amount ?? 197.0),
+        status: simulateFailure ? 'falha' : 'processado',
+        httpStatus: simulateFailure ? 500 : 200,
+        attempts: 1,
+        createdAt: new Date().toISOString(),
+        processedAt: simulateFailure ? undefined : new Date().toISOString(),
+        errorMessage: simulateFailure ? 'Falha salva no banco aguardando reprocessamento.' : undefined,
+      };
+
+      webhookEventsStore.unshift(savedEvent);
+
+      if (simulateFailure) {
+        return res.status(500).json({ ok: false, httpStatus: 500, event: savedEvent });
+      }
+
+      return res.status(200).json({ ok: true, httpStatus: 200, event: savedEvent });
+    } catch (err: any) {
+      return res.status(500).json({ ok: false, httpStatus: 500, message: err?.message });
     }
   }
 
-  return res.status(200).json({ received: true });
+  return res.status(405).json({ ok: false, message: 'Method Not Allowed' });
 }

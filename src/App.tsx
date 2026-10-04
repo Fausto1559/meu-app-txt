@@ -31,6 +31,7 @@ import {
   FieldVoiceAndClearBar,
   LiveVoiceCopilotWidget,
 } from './components/VoiceFieldControls';
+import { WebhookSaasPanel } from './components/WebhookSaasPanel';
 import {
   CardMachine,
   FinancialRecord,
@@ -57,6 +58,7 @@ type NavTab =
   | 'fechamento'
   | 'contador'
   | 'openfinance'
+  | 'webhooks'
   | 'perfil';
 
 export const STORAGE_KEY_RECORDS = 'copiloto_financeiro_records_v1';
@@ -498,6 +500,7 @@ export default function App() {
               { id: 'fechamento', label: 'Fechamento Diário', icon: FileText },
               { id: 'contador', label: 'Central Contador', icon: ShieldCheck },
               { id: 'openfinance', label: 'Open Finance', icon: Cpu },
+              { id: 'webhooks', label: 'Webhooks (5 Passos)', icon: RefreshCw },
               { id: 'perfil', label: 'Perfil', icon: User },
             ].map((item) => {
               const Icon = item.icon;
@@ -1079,6 +1082,14 @@ export default function App() {
               )}
             </div>
           </div>
+        )}
+
+        {activeNav === 'webhooks' && (
+          <WebhookSaasPanel
+            todayISO={todayISO}
+            onAddRecord={handleAddRecord}
+            onNotify={showNotification}
+          />
         )}
 
         {activeNav === 'perfil' && (
