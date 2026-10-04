@@ -481,12 +481,6 @@ export default function App() {
                 />
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition-colors cursor-pointer"
-              >
-                Continuar com E-mail
-              </button>
             </form>
           )}
         </div>
