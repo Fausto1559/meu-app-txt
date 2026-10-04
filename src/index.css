@@ -1,72 +1,11 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
-  }
   body {
-    font-family: var(--font-sans);
-    background-color: #090e17 !important;
-    background-image: none !important;
-    color: #f8fafc;
+    background-color: #0a0f1d;
+    color: #f1f5f9;
+    font-family: Inter, system-ui, -apple-system, sans-serif;
   }
-}
-
-/* Fundo geral e Containers */
-body, [class*="bg-[#0a0f1d]"] {
-  background-color: #090e17 !important;
-  background-image: none !important;
-}
-
-[class*="bg-[#0d1424]"], [class*="bg-[#0b101b]"] {
-  background-color: #0b101b !important;
-  border-color: #162030 !important;
-}
-
-[class*="bg-[#111a2e]"], [class*="bg-[#131d33]"] {
-  background-color: #121a28 !important;
-  background-image: none !important;
-  border-color: #1e2a3c !important;
-  box-shadow: 0 10px 30px -6px rgba(0, 0, 0, 0.65) !important;
-}
-
-[class*="bg-[#0b1120]"] {
-  background-color: #0a0f18 !important;
-  border-color: #182232 !important;
-}
-
-[class*="bg-[#17233d]"] {
-  background-color: #182232 !important;
-  border-color: #243348 !important;
-  color: #94a3b8 !important;
-}
-
-/* Força a remoção da faixa vermelha no topo */
-[class*="from-[#450a0a]"], [class*="via-[#7f1d1d]"] {
-  background: #0b101b !important;
-  border-color: #162030 !important;
-}
-
-/* Botões Dourado Champanhe Luxo */
-.bg-amber-500, [class*="bg-amber-500"] {
-  background: linear-gradient(180deg, #dfb776 0%, #c4984e 100%) !important;
-  color: #171206 !important;
-  font-weight: 700 !important;
-  border: 1px solid #ecc98a !important;
-  box-shadow: 0 4px 14px -2px rgba(223, 183, 118, 0.28) !important;
-}
-
-.text-amber-400, .text-amber-500 {
-  color: #dfb776 !important;
-}
-
-/* Cores nobres e calibradas dos KPIs */
-.text-emerald-400 {
-  color: #34d399 !important;
-}
-.text-rose-400 {
-  color: #fb7185 !important;
 }
