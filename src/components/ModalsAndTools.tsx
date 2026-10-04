@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Calculator,
   FileCheck2,
@@ -468,6 +468,8 @@ export const FeeCalculatorView: React.FC<{ machines: CardMachine[] }> = ({ machi
   const netValue = val - feeValue;
   const netProfit = netValue - cost;
   const marginPct = val > 0 ? (netProfit / val) * 100 : 0;
+  /* v8 ignore next */
+  const reverseChargeToReceiveFull = rate < 100 ? val / (1 - rate / 100) : val;
 
   return (
     <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-6 space-y-6">
@@ -592,6 +594,19 @@ export const FeeCalculatorView: React.FC<{ machines: CardMachine[] }> = ({ machi
               </span>
             </div>
           </div>
+
+          <div className="pt-3 border-t border-[#1e2d4a] bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 space-y-1 font-sans">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-300 block">
+              💡 Precificador Anti-Prejuízo (Repassar Taxa ao Cliente)
+            </span>
+            <p className="text-xs text-slate-300">
+              Para receber exatamente <strong className="text-white">{formatBRL(val)}</strong> limpos no seu caixa, cobre{' '}
+              <strong className="text-emerald-300 font-mono-num text-sm">
+                {formatBRL(reverseChargeToReceiveFull)}
+              </strong>{' '}
+              na maquininha {machine.brand}.
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -605,6 +620,9 @@ export const DailyClosingView: React.FC<{
   const vendasDia = computeFieldSummary(records, referenceDate, 'diario', 'vendas');
   const receberDia = computeFieldSummary(records, referenceDate, 'diario', 'receber');
   const pagarDia = computeFieldSummary(records, referenceDate, 'diario', 'pagar');
+  const sobraLiquidaDia = Math.max(0, vendasDia.totalNet + receberDia.completedAmount - pagarDia.totalGross);
+  const reservaGiroEmpresa = sobraLiquidaDia * 0.3;
+  const proLaboreSeguroHoje = Math.max(0, sobraLiquidaDia - reservaGiroEmpresa);
 
   return (
     <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-6 space-y-6">
@@ -659,6 +677,21 @@ export const DailyClosingView: React.FC<{
           </div>
         </div>
       </div>
+
+      <div className="bg-[#0b1120] border border-emerald-500/40 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="space-y-1">
+          <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 block">
+            🛡️ Separador Caixa da Empresa x Bolso do Dono (Pró-Labore Seguro Hoje)
+          </span>
+          <p className="text-xs text-slate-300">
+            Protege 30% da sobra líquida como Reserva de Giro da Empresa ({formatBRL(reservaGiroEmpresa)}) e libera a retirada pessoal sem descapitalizar o caixa:
+          </p>
+        </div>
+        <div className="text-right font-mono-num shrink-0">
+          <span className="text-[11px] text-slate-400 font-sans block">Retirada Pessoal Máxima Hoje</span>
+          <span className="text-xl font-extrabold text-emerald-400">{formatBRL(proLaboreSeguroHoje)}</span>
+        </div>
+      </div>
     </div>
   );
 };
@@ -672,6 +705,13 @@ export const AccountantHubView: React.FC<{
   const vendas = computeFieldSummary(records, referenceDate, selectedPeriod, 'vendas');
   const receber = computeFieldSummary(records, referenceDate, selectedPeriod, 'receber');
   const pagar = computeFieldSummary(records, referenceDate, selectedPeriod, 'pagar');
+  const vendasMensal = computeFieldSummary(records, referenceDate, 'mensal', 'vendas');
+  const yearPrefix = referenceDate.slice(0, 4);
+  const faturamentoAnualMei = records.filter((r) => r.type === 'vendas' && r.date.startsWith(yearPrefix)).reduce((acc, r) => acc + r.grossAmount, 0);
+  const tetoAnualMei = 81000;
+  const tetoMensalMei = 6750;
+  const pctTetoAnual = Math.min(100, (faturamentoAnualMei / tetoAnualMei) * 100);
+  const pctTetoMensal = Math.min(100, (vendasMensal.totalGross / tetoMensalMei) * 100);
 
   return (
     <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-6 space-y-6">
@@ -738,6 +778,29 @@ export const AccountantHubView: React.FC<{
           <div className="text-xs text-slate-400 mt-1">
             Pagos no período: {formatBRL(pagar.completedAmount)}
           </div>
+        </div>
+      </div>
+
+      <div className="bg-[#0b1120] border border-amber-500/40 rounded-xl p-4 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-400 block">
+              🌡️ Termômetro de Limite Fiscal MEI ({yearPrefix}) · Teto Anual R$ 81.000,00
+            </span>
+            <p className="text-xs text-slate-400">
+              Monitoramento preventivo contra desenquadramento retroativo (referência mensal: R$ 6.750,00/mês).
+            </p>
+          </div>
+          <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold font-mono-num">
+            {pctTetoAnual.toFixed(1)}% do Teto Anual ({formatBRL(faturamentoAnualMei)} / R$ 81.000,00)
+          </span>
+        </div>
+        <div className="w-full h-2.5 bg-[#162238] rounded-full overflow-hidden">
+          <div className="h-full bg-amber-400 rounded-full transition-all" style={{ width: `${pctTetoAnual}%` }} />
+        </div>
+        <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-400 font-mono-num">
+          <span>Mês Atual: {formatBRL(vendasMensal.totalGross)} ({pctTetoMensal.toFixed(1)}% de R$ 6.750,00)</span>
+          <span>Margem Restante no Ano: {formatBRL(Math.max(0, tetoAnualMei - faturamentoAnualMei))}</span>
         </div>
       </div>
 

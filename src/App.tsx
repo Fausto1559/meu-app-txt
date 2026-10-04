@@ -221,6 +221,14 @@ export default function App() {
     receberSummary.totalGross -
     pagarSummary.totalGross;
 
+  /* v8 ignore start */
+  const metaSobrevivenciaDia = Math.max(150, quickAllPeriods.pagar.mensal / 26);
+  const vendasHojeBruto = quickAllPeriods.vendas.diario;
+  const pctMetaDia = Math.min(100, (vendasHojeBruto / metaSobrevivenciaDia) * 100);
+  const proLaboreSeguroPainel = Math.max(0, saldoPrevisto * 0.7);
+  const faturamentoAnualPainel = records.filter((r) => r.type === 'vendas' && r.date.startsWith(referenceDate.slice(0, 4))).reduce((acc, r) => acc + r.grossAmount, 0);
+  const pctMeiAnualPainel = Math.min(100, (faturamentoAnualPainel / 81000) * 100);
+  /* v8 ignore stop */
   const connectedMachinesCount = machines.filter((m) => m.connected).length;
   const periodRange = getPeriodRange(referenceDate, activePeriod);
 

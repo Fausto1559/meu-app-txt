@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>129/129</span>
+                <span class='fraction'>131/131</span>
             </div>
         
             
@@ -1015,7 +1015,23 @@
 <a name='L950'></a><a href='#L950'>950</a>
 <a name='L951'></a><a href='#L951'>951</a>
 <a name='L952'></a><a href='#L952'>952</a>
-<a name='L953'></a><a href='#L953'>953</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L953'></a><a href='#L953'>953</a>
+<a name='L954'></a><a href='#L954'>954</a>
+<a name='L955'></a><a href='#L955'>955</a>
+<a name='L956'></a><a href='#L956'>956</a>
+<a name='L957'></a><a href='#L957'>957</a>
+<a name='L958'></a><a href='#L958'>958</a>
+<a name='L959'></a><a href='#L959'>959</a>
+<a name='L960'></a><a href='#L960'>960</a>
+<a name='L961'></a><a href='#L961'>961</a>
+<a name='L962'></a><a href='#L962'>962</a>
+<a name='L963'></a><a href='#L963'>963</a>
+<a name='L964'></a><a href='#L964'>964</a>
+<a name='L965'></a><a href='#L965'>965</a>
+<a name='L966'></a><a href='#L966'>966</a>
+<a name='L967'></a><a href='#L967'>967</a>
+<a name='L968'></a><a href='#L968'>968</a>
+<a name='L969'></a><a href='#L969'>969</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1950,6 +1966,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1967,7 +1998,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">﻿import React, { useMemo, useRef, useState } from 'react';
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useMemo, useRef, useState } from 'react';
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -2900,14 +2932,30 @@ export const ReportsSection: React.FC&lt;ReportsSectionProps&gt; = ({
                       {formatBRL(r.netAmount)}
                     &lt;/td&gt;
                     &lt;td className="py-3 px-2 text-right whitespace-nowrap no-print"&gt;
-                      &lt;button
-                        type="button"
-                        onClick={() =&gt; onDeleteRecord(r.id)}
-                        title="Apagar / Excluir este valor (X)"
-                        className="inline-flex items-center justify-center p-1.5 text-rose-400 hover:text-white bg-rose-500/10 hover:bg-rose-500/30 border border-rose-500/30 rounded-lg transition-colors cursor-pointer"
-                      &gt;
-                        &lt;X className="w-4 h-4" /&gt;
-                      &lt;/button&gt;
+                      &lt;div className="inline-flex items-center gap-1.5 justify-end"&gt;
+                        {r.type === 'receber' &amp;&amp; (
+                          &lt;a
+                            href={`https://wa.me/?text=${encodeURIComponent(
+                              `Olá, ${r.entityName}! Tudo bem? Passando para lembrar do título referente a "${r.title}" no valor de ${formatBRL(r.grossAmount)} (vencimento ${formatShortDateBR(r.date)}). Caso já tenha efetuado o pagamento, desconsidere. Obrigado!`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Cobrar cliente educadamente pelo WhatsApp em 1 clique"
+                            className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-bold text-emerald-300 hover:text-white bg-emerald-500/15 hover:bg-emerald-500/30 border border-emerald-500/40 rounded-lg transition-colors cursor-pointer"
+                          &gt;
+                            &lt;span role="img" aria-label="WhatsApp"&gt;📲&lt;/span&gt;
+                            &lt;span&gt;Cobrar&lt;/span&gt;
+                          &lt;/a&gt;
+                        )}
+                        &lt;button
+                          type="button"
+                          onClick={() =&gt; onDeleteRecord(r.id)}
+                          title="Apagar / Excluir este valor (X)"
+                          className="inline-flex items-center justify-center p-1.5 text-rose-400 hover:text-white bg-rose-500/10 hover:bg-rose-500/30 border border-rose-500/30 rounded-lg transition-colors cursor-pointer"
+                        &gt;
+                          &lt;X className="w-4 h-4" /&gt;
+                        &lt;/button&gt;
+                      &lt;/div&gt;
                     &lt;/td&gt;
                   &lt;/tr&gt;
                 ))}
@@ -2926,7 +2974,7 @@ export const ReportsSection: React.FC&lt;ReportsSectionProps&gt; = ({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-04T21:58:15.465Z
+                at 2026-10-04T22:59:24.451Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

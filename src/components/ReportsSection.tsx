@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -931,14 +931,30 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
                       {formatBRL(r.netAmount)}
                     </td>
                     <td className="py-3 px-2 text-right whitespace-nowrap no-print">
-                      <button
-                        type="button"
-                        onClick={() => onDeleteRecord(r.id)}
-                        title="Apagar / Excluir este valor (X)"
-                        className="inline-flex items-center justify-center p-1.5 text-rose-400 hover:text-white bg-rose-500/10 hover:bg-rose-500/30 border border-rose-500/30 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+                      <div className="inline-flex items-center gap-1.5 justify-end">
+                        {r.type === 'receber' && (
+                          <a
+                            href={`https://wa.me/?text=${encodeURIComponent(
+                              `Olá, ${r.entityName}! Tudo bem? Passando para lembrar do título referente a "${r.title}" no valor de ${formatBRL(r.grossAmount)} (vencimento ${formatShortDateBR(r.date)}). Caso já tenha efetuado o pagamento, desconsidere. Obrigado!`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Cobrar cliente educadamente pelo WhatsApp em 1 clique"
+                            className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-bold text-emerald-300 hover:text-white bg-emerald-500/15 hover:bg-emerald-500/30 border border-emerald-500/40 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <span role="img" aria-label="WhatsApp">📲</span>
+                            <span>Cobrar</span>
+                          </a>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => onDeleteRecord(r.id)}
+                          title="Apagar / Excluir este valor (X)"
+                          className="inline-flex items-center justify-center p-1.5 text-rose-400 hover:text-white bg-rose-500/10 hover:bg-rose-500/30 border border-rose-500/30 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
