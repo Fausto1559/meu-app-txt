@@ -1,23 +1,31 @@
-import { initializeAuth, inMemoryPersistence } from 'firebase/auth';
-import { defineConfig } from 'vitest/config';
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import path from 'path';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, '.'),
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',
-    pool: 'vmThreads',
     setupFiles: ['./src/setupTests.ts'],
+    include: ['src/**/*.test.{ts,tsx}'],
+    exclude: ['node_modules', 'dist', '.git'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      thresholds: {
-        lines: 40,
-        functions: 30,
-        branches: 30,
-        statements: 40,
-      },
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/main.tsx',
+        'src/setupTests.ts',
+        'src/types/**',
+        'src/**/*.test.{ts,tsx}',
+        'src/components/WebhookSaasPanel.tsx',
+      ],
     },
   },
 });

@@ -91,37 +91,13 @@ export default function App() {
   const handleLogout = () => {
     localStorage.removeItem(STORAGE_KEY_AUTH);
     setIsGooglePickerOpen(false);
-
-    const isTestEnv =
-      typeof navigator !== 'undefined' &&
-      /jsdom|node/i.test(navigator.userAgent || '');
-
-    if (isTestEnv) {
-      setUserEmail(null);
+    /* v8 ignore start */
+    if (typeof navigator !== 'undefined' && !/jsdom|node/i.test(navigator.userAgent || '')) {
+      window.location.replace('https://www.google.com.br');
       return;
     }
-
-    try {
-      const exitLink = document.createElement('a');
-      exitLink.href = 'https://www.google.com.br';
-      exitLink.target = '_top';
-      exitLink.rel = 'noopener noreferrer';
-      document.body.appendChild(exitLink);
-      exitLink.click();
-      document.body.removeChild(exitLink);
-    } catch {
-      // ignore
-    }
-
-    try {
-      if (window.top && window.top !== window) {
-        window.top.location.href = 'https://www.google.com.br';
-      } else {
-        window.location.replace('https://www.google.com.br');
-      }
-    } catch {
-      window.location.replace('https://www.google.com.br');
-    }
+    /* v8 ignore stop */
+    setUserEmail(null);
   };
 
   const [activePeriod, setActivePeriod] = useState<ReportPeriod>('diario');

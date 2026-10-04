@@ -171,6 +171,7 @@ describe('App.tsx - 100% Cobertura Total', () => {
     fireEvent.click(screen.getByRole('button', { name: /Open Finance/i }));
     const syncBtns = screen.getAllByRole('button', { name: 'Sincronizar' });
     fireEvent.click(syncBtns[0]);
+    fireEvent.click(screen.getByRole('button', { name: /Webhooks/i }));
 
     fireEvent.click(screen.getByRole('button', { name: /Perfil/i }));
     fireEvent.click(

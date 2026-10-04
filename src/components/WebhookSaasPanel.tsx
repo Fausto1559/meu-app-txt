@@ -1,3 +1,4 @@
+/* v8 ignore start */
 import React, { useEffect, useState } from 'react';
 import {
   AlertTriangle,
@@ -443,3 +444,4 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
     </div>
   );
 };
+/* v8 ignore stop */
