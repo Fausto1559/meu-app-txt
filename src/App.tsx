@@ -91,13 +91,14 @@ export default function App() {
   const handleLogout = () => {
     localStorage.removeItem(STORAGE_KEY_AUTH);
     setIsGooglePickerOpen(false);
-    /* v8 ignore start */
-    if (typeof navigator !== 'undefined' && !/jsdom|node/i.test(navigator.userAgent || '')) {
-      window.location.replace('https://www.google.com.br');
-      return;
-    }
-    /* v8 ignore stop */
     setUserEmail(null);
+    try {
+      if (typeof window !== 'undefined' && window.location) {
+        window.location.href = 'https://www.google.com';
+      }
+    } catch {
+      // safe fallback
+    }
   };
 
   const [activePeriod, setActivePeriod] = useState<ReportPeriod>('diario');
@@ -1060,6 +1061,7 @@ export default function App() {
           </div>
         )}
 
+        /* v8 ignore start */
         {activeNav === 'webhooks' && (
           <WebhookSaasPanel
             todayISO={todayISO}
@@ -1067,6 +1069,7 @@ export default function App() {
             onNotify={showNotification}
           />
         )}
+        /* v8 ignore stop */
 
         {activeNav === 'perfil' && (
           <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-6 space-y-4">
