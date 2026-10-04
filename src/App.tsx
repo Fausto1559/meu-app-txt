@@ -510,6 +510,16 @@ export default function App() {
           <div className="text-slate-300 truncate">
             Logado como: <strong className="text-white">{userEmail}</strong>
           </div>
+          <a
+            href="https://wa.me/?text=Ol%C3%A1!%20Conhe%C3%A7a%20o%20Copiloto%20Financeiro%20para%20controlar%20Vendas%2C%20Contas%20a%20Receber%2C%20Contas%20a%20Pagar%20e%20Taxas%20de%20Maquininha%20por%20voz%20(Relat%C3%B3rios%20Di%C3%A1rio%2C%20Semanal%20e%20Mensal).%20Acesse%20gr%C3%A1tis%3A%20https%3A%2F%2Fcopilotofinanc.app.br"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5 mr-2"
+            title="Compartilhar o Copiloto Financeiro no WhatsApp"
+          >
+            <span role="img" aria-label="WhatsApp">📲</span>
+            <span>Indicar no WhatsApp</span>
+          </a>
           <button
             type="button"
             onClick={handleLogout}
@@ -1172,6 +1182,15 @@ export default function App() {
                 <X className="w-4 h-4" />
                 Limpar Todos os Dados
               </button>
+              <a
+                href="https://wa.me/?text=Ol%C3%A1!%20Conhe%C3%A7a%20o%20Copiloto%20Financeiro%20para%20controlar%20Vendas%2C%20Contas%20a%20Receber%2C%20Contas%20a%20Pagar%20e%20Taxas%20de%20Maquininha%20por%20voz%20(Relat%C3%B3rios%20Di%C3%A1rio%2C%20Semanal%20e%20Mensal).%20Acesse%20gr%C3%A1tis%3A%20https%3A%2F%2Fcopilotofinanc.app.br"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded-lg border border-emerald-500/40 cursor-pointer"
+              >
+                <span role="img" aria-label="WhatsApp">📲</span>
+                Indicar para um Amigo Empreendedor (WhatsApp)
+              </a>
               {/* v8 ignore start */}
               {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
                 <button
