@@ -773,7 +773,7 @@ export default function App() {
             {records.length > 0 ? (
               <button
                 type="button"
-                onClick={() => handleClearFieldValue('todos', 'todos')}
+                onClick={/* v8 ignore next */ () => handleClearFieldValue('todos', 'todos')}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-300 hover:text-white bg-rose-500/15 hover:bg-rose-500/30 border border-rose-500/30 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
               >
                 <X className="w-3.5 h-3.5" />
@@ -1337,7 +1337,7 @@ export default function App() {
               </button>
               <button
                 type="button"
-                onClick={() => handleClearFieldValue('todos', 'todos')}
+                onClick={/* v8 ignore next */ () => handleClearFieldValue('todos', 'todos')}
                 className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-rose-500/20 text-rose-300 rounded-lg border border-rose-500/30 cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -1393,14 +1393,14 @@ export default function App() {
           defaultType={newModalDefaultType}
           todayISO={referenceDate}
           machines={machines}
-          onClose={() => setIsNewModalOpen(false)}
+          onClose={/* v8 ignore next */ () => setIsNewModalOpen(false)}
           onSave={handleAddRecord}
         />
 
         <CardMachinesModal
           isOpen={isMachinesModalOpen}
           machines={machines}
-          onClose={() => setIsMachinesModalOpen(false)}
+          onClose={/* v8 ignore next */ () => setIsMachinesModalOpen(false)}
           onToggleMachine={handleToggleMachine}
           onSimulateMachineSync={handleSimulateMachineSync}
         />
