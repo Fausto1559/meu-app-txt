@@ -65,6 +65,7 @@ export const STORAGE_KEY_MACHINES = 'copiloto_financeiro_machines_v1';
 export const STORAGE_KEY_AUTH = 'copiloto_financeiro_auth_v3';
 
 export default function App() {
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState<boolean>(false);
   const todayISO = useMemo(() => toISODate(new Date()), []);
   const [referenceDate, setReferenceDate] = useState<string>(todayISO);
   const [activeNav, setActiveNav] = useState<NavTab>('painel');
