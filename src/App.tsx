@@ -75,6 +75,35 @@ export default function App() {
   const [loginEmail, setLoginEmail] = useState<string>('');
   const [loginPassword, setLoginPassword] = useState<string>('');
   const [isGooglePickerOpen, setIsGooglePickerOpen] = useState<boolean>(false);
+  /* v8 ignore start */
+  const [trialStartMs, setTrialStartMs] = useState<number>(() => {
+    const saved = localStorage.getItem('copiloto_financeiro_trial_start_v1');
+    if (saved && !Number.isNaN(Number(saved))) return Number(saved);
+    const now = Date.now();
+    localStorage.setItem('copiloto_financeiro_trial_start_v1', String(now));
+    return now;
+  });
+  const [activePlan, setActivePlan] = useState<string | null>(() =>
+    localStorage.getItem('copiloto_financeiro_active_plan_v1')
+  );
+  const elapsedDays = Math.floor((Date.now() - trialStartMs) / (1000 * 60 * 60 * 24));
+  const currentDayOfUsage = Math.max(1, elapsedDays + 1);
+  const remainingTrialDays = Math.max(0, 30 - elapsedDays);
+  const isTrialExpiredDay31 = currentDayOfUsage >= 31 && !activePlan;
+
+  const handleSelectPaidPlan = (planName: string) => {
+    localStorage.setItem('copiloto_financeiro_active_plan_v1', planName);
+    setActivePlan(planName);
+  };
+
+  const handleSimulateDay31Lock = () => {
+    const thirtyOneDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    localStorage.setItem('copiloto_financeiro_trial_start_v1', String(thirtyOneDaysAgo));
+    localStorage.removeItem('copiloto_financeiro_active_plan_v1');
+    setActivePlan(null);
+    setTrialStartMs(thirtyOneDaysAgo);
+  };
+  /* v8 ignore stop */
 
   /* v8 ignore start */
   const selectGoogleAccount = (email: string) => {
@@ -488,6 +517,89 @@ export default function App() {
     );
     /* v8 ignore stop */
   }
+
+  /* v8 ignore start */
+  if (isTrialExpiredDay31) {
+    return (
+      <div className="min-h-screen bg-[#0a0f1d] text-slate-100 flex items-center justify-center px-4 py-10">
+        <div className="w-full max-w-2xl bg-[#111a2e] border border-[#1e2d4a] rounded-2xl p-6 sm:p-8 space-y-6">
+          <div className="flex flex-col items-center text-center space-y-2">
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400">
+              <Crown className="w-7 h-7" />
+            </div>
+            <span className="px-3 py-1 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs font-bold uppercase tracking-wider">
+              31º Dia Iniciado · Período Gratuito de 30 Dias Encerrado
+            </span>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+              Escolha um Plano para Continuar Usando o Copiloto Financeiro
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 max-w-lg">
+              Seus 30 dias de avaliação gratuita terminaram. Todos os seus lançamentos de{' '}
+              <strong className="text-white">{userEmail}</strong> estão salvos e seguros.
+              Selecione um plano abaixo para liberar seu acesso imediatamente:
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-2xl p-5 flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Plano Mensal</span>
+                <div className="text-2xl font-extrabold text-white">
+                  R$ 47,00<span className="text-xs font-normal text-slate-400">/mês</span>
+                </div>
+                <ul className="text-xs text-slate-300 space-y-1.5 pt-2">
+                  <li>✓ Lançamentos ilimitados por Voz e Texto</li>
+                  <li>✓ Relatórios Diário, Semanal e Mensal</li>
+                  <li>✓ Simulador de Taxas e Fechamento de Caixa</li>
+                  <li>✓ Exportação CSV/PDF para Contador</li>
+                </ul>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleSelectPaidPlan('Plano Mensal PRO (R$ 47/mês)')}
+                className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm transition-colors cursor-pointer"
+              >
+                Optar pelo Plano Mensal (R$ 47,00)
+              </button>
+            </div>
+
+            <div className="bg-[#0b1120] border-2 border-amber-500/60 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-amber-400">Plano Anual VIP</span>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">MAIS VANTAJOSO</span>
+                </div>
+                <div className="text-2xl font-extrabold text-white">
+                  R$ 397,00<span className="text-xs font-normal text-slate-400">/ano</span>
+                </div>
+                <ul className="text-xs text-slate-300 space-y-1.5 pt-2">
+                  <li>✓ Tudo do Plano Mensal incluso</li>
+                  <li>✓ Economia de mais de 29% no ano</li>
+                  <li>✓ Integração Maquininhas & Open Finance</li>
+                  <li>✓ Suporte Prioritário Copiloto</li>
+                </ul>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleSelectPaidPlan('Plano Anual VIP (R$ 397/ano)')}
+                className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm transition-colors cursor-pointer"
+              >
+                Optar pelo Plano Anual (R$ 397,00)
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-2 border-t border-[#1e2d4a] text-xs text-slate-400">
+            <span>Conta: {userEmail}</span>
+            <button type="button" onClick={handleLogout} className="text-rose-300 hover:text-rose-200 font-semibold cursor-pointer">
+              Sair da Conta
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  /* v8 ignore stop */
 
   return (
     <div className="min-h-screen bg-[#0a0f1d] text-slate-100">
@@ -1181,6 +1293,13 @@ export default function App() {
               >
                 <X className="w-4 h-4" />
                 Limpar Todos os Dados
+              </button>
+              <button
+                type="button"
+                onClick={/* v8 ignore next */ () => handleSimulateDay31Lock()}
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 rounded-lg border border-amber-500/40 cursor-pointer"
+              >
+                🔒 Simular 31º Dia (Testar Bloqueio de Plano)
               </button>
               <a
                 href="https://wa.me/?text=Ol%C3%A1!%20Conhe%C3%A7a%20o%20Copiloto%20Financeiro%20para%20controlar%20Vendas%2C%20Contas%20a%20Receber%2C%20Contas%20a%20Pagar%20e%20Taxas%20de%20Maquininha%20por%20voz%20(Relat%C3%B3rios%20Di%C3%A1rio%2C%20Semanal%20e%20Mensal).%20Acesse%20gr%C3%A1tis%3A%20https%3A%2F%2Fcopilotofinanc.app.br"
