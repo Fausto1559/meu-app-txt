@@ -1716,7 +1716,41 @@
 <a name='L1651'></a><a href='#L1651'>1651</a>
 <a name='L1652'></a><a href='#L1652'>1652</a>
 <a name='L1653'></a><a href='#L1653'>1653</a>
-<a name='L1654'></a><a href='#L1654'>1654</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L1654'></a><a href='#L1654'>1654</a>
+<a name='L1655'></a><a href='#L1655'>1655</a>
+<a name='L1656'></a><a href='#L1656'>1656</a>
+<a name='L1657'></a><a href='#L1657'>1657</a>
+<a name='L1658'></a><a href='#L1658'>1658</a>
+<a name='L1659'></a><a href='#L1659'>1659</a>
+<a name='L1660'></a><a href='#L1660'>1660</a>
+<a name='L1661'></a><a href='#L1661'>1661</a>
+<a name='L1662'></a><a href='#L1662'>1662</a>
+<a name='L1663'></a><a href='#L1663'>1663</a>
+<a name='L1664'></a><a href='#L1664'>1664</a>
+<a name='L1665'></a><a href='#L1665'>1665</a>
+<a name='L1666'></a><a href='#L1666'>1666</a>
+<a name='L1667'></a><a href='#L1667'>1667</a>
+<a name='L1668'></a><a href='#L1668'>1668</a>
+<a name='L1669'></a><a href='#L1669'>1669</a>
+<a name='L1670'></a><a href='#L1670'>1670</a>
+<a name='L1671'></a><a href='#L1671'>1671</a>
+<a name='L1672'></a><a href='#L1672'>1672</a>
+<a name='L1673'></a><a href='#L1673'>1673</a>
+<a name='L1674'></a><a href='#L1674'>1674</a>
+<a name='L1675'></a><a href='#L1675'>1675</a>
+<a name='L1676'></a><a href='#L1676'>1676</a>
+<a name='L1677'></a><a href='#L1677'>1677</a>
+<a name='L1678'></a><a href='#L1678'>1678</a>
+<a name='L1679'></a><a href='#L1679'>1679</a>
+<a name='L1680'></a><a href='#L1680'>1680</a>
+<a name='L1681'></a><a href='#L1681'>1681</a>
+<a name='L1682'></a><a href='#L1682'>1682</a>
+<a name='L1683'></a><a href='#L1683'>1683</a>
+<a name='L1684'></a><a href='#L1684'>1684</a>
+<a name='L1685'></a><a href='#L1685'>1685</a>
+<a name='L1686'></a><a href='#L1686'>1686</a>
+<a name='L1687'></a><a href='#L1687'>1687</a>
+<a name='L1688'></a><a href='#L1688'>1688</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2007,6 +2041,40 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">53x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -3664,11 +3732,45 @@ export default function App() {
     pagarSummary.totalGross;
 &nbsp;
   /* v8 ignore start */
+  const isOwnerWithdrawal = (r: FinancialRecord) =&gt;
+    r.type === 'pagar' &amp;&amp;
+    /pr[oó]-?labore|retirada|s[oó]cio|dono|pessoal|particular|bolso/i.test(
+      `${r.title} ${r.subcategory} ${r.entityName}`
+    );
+&nbsp;
+  const periodRecordsAll = filterRecordsByPeriod(records, referenceDate, activePeriod, 'todos');
+  const retiradoPeloDono = periodRecordsAll.filter(isOwnerWithdrawal).reduce((acc, r) =&gt; acc + r.grossAmount, 0);
+  const despesasSomenteFirma = Math.max(0, pagarSummary.totalGross - retiradoPeloDono);
+  const geracaoCaixaFirma = Math.max(0, vendasSummary.totalNet + receberSummary.totalGross - despesasSomenteFirma);
+  const proLaboreSeguroPainel = geracaoCaixaFirma * 0.7;
+  const saldoProLaboreRestante = proLaboreSeguroPainel - retiradoPeloDono;
+&nbsp;
+  const handleQuickOwnerWithdrawal = () =&gt; {
+    handleAddRecord({
+      type: 'pagar',
+      title: 'Retirada Pró-Labore do Dono (Caixa -&gt; Bolso)',
+      subcategory: 'Pró-Labore / Retirada Sócio',
+      entityName: userEmail || 'Sócio / Proprietário',
+      grossAmount: 200,
+      feeAmount: 0,
+      netAmount: 200,
+      date: referenceDate,
+      time: '12:00',
+      paymentMethod: 'pix',
+      status: 'confirmado',
+    });
+  };
+&nbsp;
   const metaSobrevivenciaDia = Math.max(150, quickAllPeriods.pagar.mensal / 26);
   const vendasHojeBruto = quickAllPeriods.vendas.diario;
   const pctMetaDia = Math.min(100, (vendasHojeBruto / metaSobrevivenciaDia) * 100);
-  const proLaboreSeguroPainel = Math.max(0, saldoPrevisto * 0.7);
-  const faturamentoAnualPainel = records.filter((r) =&gt; r.type === 'vendas' &amp;&amp; r.date.startsWith(referenceDate.slice(0, 4))).reduce((acc, r) =&gt; acc + r.grossAmount, 0);
+&nbsp;
+  const currentYearPrefix = referenceDate.slice(0, 4);
+  const faturamentoAnualPainel = records
+    .filter((r) =&gt; (r.type === 'vendas' || r.type === 'receber') &amp;&amp; r.date.startsWith(currentYearPrefix))
+    .reduce((acc, r) =&gt; acc + r.grossAmount, 0);
+  const faltaParaEstourarMei = Math.max(0, 81000 - faturamentoAnualPainel);
+  const faltaParaEstourarPme = Math.max(0, 360000 - faturamentoAnualPainel);
   const pctMeiAnualPainel = Math.min(100, (faturamentoAnualPainel / 81000) * 100);
   /* v8 ignore stop */
   const connectedMachinesCount = machines.filter((m) =&gt; m.connected).length;
@@ -5029,7 +5131,7 @@ export default function App() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-05T18:39:37.059Z
+                at 2026-10-05T18:51:20.495Z
             </div>
         <script src="../prettify.js"></script>
         <script>

@@ -293,11 +293,45 @@ export default function App() {
     pagarSummary.totalGross;
 
   /* v8 ignore start */
+  const isOwnerWithdrawal = (r: FinancialRecord) =>
+    r.type === 'pagar' &&
+    /pr[oó]-?labore|retirada|s[oó]cio|dono|pessoal|particular|bolso/i.test(
+      `${r.title} ${r.subcategory} ${r.entityName}`
+    );
+
+  const periodRecordsAll = filterRecordsByPeriod(records, referenceDate, activePeriod, 'todos');
+  const retiradoPeloDono = periodRecordsAll.filter(isOwnerWithdrawal).reduce((acc, r) => acc + r.grossAmount, 0);
+  const despesasSomenteFirma = Math.max(0, pagarSummary.totalGross - retiradoPeloDono);
+  const geracaoCaixaFirma = Math.max(0, vendasSummary.totalNet + receberSummary.totalGross - despesasSomenteFirma);
+  const proLaboreSeguroPainel = geracaoCaixaFirma * 0.7;
+  const saldoProLaboreRestante = proLaboreSeguroPainel - retiradoPeloDono;
+
+  const handleQuickOwnerWithdrawal = () => {
+    handleAddRecord({
+      type: 'pagar',
+      title: 'Retirada Pró-Labore do Dono (Caixa -> Bolso)',
+      subcategory: 'Pró-Labore / Retirada Sócio',
+      entityName: userEmail || 'Sócio / Proprietário',
+      grossAmount: 200,
+      feeAmount: 0,
+      netAmount: 200,
+      date: referenceDate,
+      time: '12:00',
+      paymentMethod: 'pix',
+      status: 'confirmado',
+    });
+  };
+
   const metaSobrevivenciaDia = Math.max(150, quickAllPeriods.pagar.mensal / 26);
   const vendasHojeBruto = quickAllPeriods.vendas.diario;
   const pctMetaDia = Math.min(100, (vendasHojeBruto / metaSobrevivenciaDia) * 100);
-  const proLaboreSeguroPainel = Math.max(0, saldoPrevisto * 0.7);
-  const faturamentoAnualPainel = records.filter((r) => r.type === 'vendas' && r.date.startsWith(referenceDate.slice(0, 4))).reduce((acc, r) => acc + r.grossAmount, 0);
+
+  const currentYearPrefix = referenceDate.slice(0, 4);
+  const faturamentoAnualPainel = records
+    .filter((r) => (r.type === 'vendas' || r.type === 'receber') && r.date.startsWith(currentYearPrefix))
+    .reduce((acc, r) => acc + r.grossAmount, 0);
+  const faltaParaEstourarMei = Math.max(0, 81000 - faturamentoAnualPainel);
+  const faltaParaEstourarPme = Math.max(0, 360000 - faturamentoAnualPainel);
   const pctMeiAnualPainel = Math.min(100, (faturamentoAnualPainel / 81000) * 100);
   /* v8 ignore stop */
   const connectedMachinesCount = machines.filter((m) => m.connected).length;
