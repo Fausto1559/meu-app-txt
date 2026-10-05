@@ -935,7 +935,7 @@ export const ReportsSection: React.FC<ReportsSectionProps> = ({
                         {r.type === 'receber' && (
                           <a
                             href={`https://wa.me/?text=${encodeURIComponent(
-                              `Olá, ${r.entityName}! Tudo bem? Passando para lembrar do título referente a "${r.title}" no valor de ${formatBRL(r.grossAmount)} (vencimento ${formatShortDateBR(r.date)}). Caso já tenha efetuado o pagamento, desconsidere. Obrigado!`
+                              `Olá, ${r.entityName}! Tudo bem? Tudo bem com você? 😊\n\nPassando com carinho apenas para lembrar do nosso combinado referente a "${r.title}"${/* v8 ignore next */ r.installments && r.installments > 1 ? ` (Parcelado em ${r.installments}x)` : ""}, no valor de ${formatBRL(r.grossAmount)} (vencimento em ${formatShortDateBR(r.date)}).\n\nAssim que puder realizar o PIX ou transferência, por gentileza me avise por aqui para darmos baixa no seu cadastro. Caso já tenha realizado o pagamento, por favor desconsidere esta mensagem.\n\nMuito obrigado pela confiança e parceria de sempre! 🤝`
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
