@@ -88,6 +88,8 @@ export default function App() {
   );
   const [isSupportModalOpen, setIsSupportModalOpen] = useState<boolean>(false);
   const [supportTopic, setSupportTopic] = useState<string>('Dúvida sobre Comando de Voz');
+  const [supportUserMessage, setSupportUserMessage] = useState<string>('');
+  const supportProtocol = CF-${todayISO.replace(/-/g, '')}-${(userEmail || 'CLI').slice(0, 3).toUpperCase()};
   const [supportVirtualNumber, setSupportVirtualNumber] = useState<string>(() =>
     localStorage.getItem('copiloto_support_virtual_whatsapp_v1') || ''
   );
@@ -1501,17 +1503,23 @@ export default function App() {
         {/* v8 ignore start */}
         {isSupportModalOpen && (
           <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-2xl w-full max-w-xl p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+            <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-2xl w-full max-w-xl p-6 space-y-5 max-h-[90vh] overflow-y-auto shadow-2xl">
               <div className="flex items-start justify-between gap-3 border-b border-[#1e2d4a] pb-4">
-                <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-sky-400">
-                    Atendimento Inteligente · Copiloto Financeiro
-                  </span>
-                  <h3 className="text-lg font-extrabold text-white mt-0.5">
-                    💬 Central de Ajuda Rápida & Suporte Oficial
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+                      ● Central de Relacionamento & Cuidado ao Empreendedor
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#0b1120] border border-[#24334a] text-[10px] font-mono-num text-amber-300 font-bold">
+                      Protocolo #{supportProtocol}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-extrabold text-white pt-1">
+                    🤝 Estamos Aqui por Você e pelo Seu Negócio
                   </h3>
-                  <p className="text-xs text-slate-400 mt-1">
-                    90% das dúvidas são resolvidas em 5 segundos abaixo. Se precisar falar conosco, seu chamado já vai triado para nossa Central Virtual!
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Sabemos o quanto o seu dia a dia é corrido e que cada centavo do seu caixa importa.
+                    Abaixo estão respostas imediatas para você não perder nem 1 minuto — e, se precisar da nossa equipe, você será atendido com total prioridade e respeito.
                   </p>
                 </div>
                 <button
@@ -1523,24 +1531,51 @@ export default function App() {
                 </button>
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-[11px]">
+                <div className="p-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] flex items-center gap-2">
+                  <span>🛡️</span>
+                  <div>
+                    <strong className="text-white block">Sigilo Total</strong>
+                    <span className="text-slate-400">Dados 100% protegidos</span>
+                  </div>
+                </div>
+                <div className="p-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] flex items-center gap-2">
+                  <span>⚡</span>
+                  <div>
+                    <strong className="text-white block">Retorno Ágil</strong>
+                    <span className="text-slate-400">Prioridade ao lojista</span>
+                  </div>
+                </div>
+                <div className="p-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] flex items-center gap-2">
+                  <span>❤️</span>
+                  <div>
+                    <strong className="text-white block">Atendimento Humano</strong>
+                    <span className="text-slate-400">De empreendedor p/ empreendedor</span>
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-2.5 text-xs">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Soluções Imediatas (Em 5 Segundos):
+                </span>
                 <div className="p-3 rounded-xl bg-[#0b1120] border border-[#1e2d4a]">
                   <strong className="text-amber-400 block mb-0.5">1. Como lançar por Comando de Voz?</strong>
                   <span className="text-slate-300">Clique no ícone de Microfone (🎙️) em qualquer card e fale naturalmente, ex: "Vendi 250 reais no PIX" ou "Pagar fornecedor 180".</span>
                 </div>
                 <div className="p-3 rounded-xl bg-[#0b1120] border border-[#1e2d4a]">
-                  <strong className="text-emerald-400 block mb-0.5">2. Como cobrar cliente no Fiado / A Receber pelo WhatsApp?</strong>
+                  <strong className="text-emerald-400 block mb-0.5">2. Como cobrar cliente no Fiado / A Receber com elegância?</strong>
                   <span className="text-slate-300">Na tabela da Central de Relatórios, clique no botão verde "📲 Cobrar" ao lado do lançamento de Contas a Receber.</span>
                 </div>
                 <div className="p-3 rounded-xl bg-[#0b1120] border border-[#1e2d4a]">
-                  <strong className="text-sky-400 block mb-0.5">3. Como transferir meus dados do Celular para o Computador?</strong>
+                  <strong className="text-sky-400 block mb-0.5">3. Como transferir ou salvar meus dados entre Celular e Computador?</strong>
                   <span className="text-slate-300">Vá na aba Perfil e clique em "☁️ Exportar Backup (.JSON)" e depois em "🔄 Restaurar Backup" no outro aparelho.</span>
                 </div>
               </div>
 
               <div className="pt-3 border-t border-[#1e2d4a] space-y-3">
-                <label className="block text-xs font-semibold text-slate-300">
-                  Precisa de atendimento humano? Escolha o assunto para triagem rápida:
+                <label className="block text-xs font-semibold text-slate-200">
+                  Deseja falar com nosso Especialista? Selecione o tema e conte como podemos ajudar:
                 </label>
                 <select
                   value={supportTopic}
@@ -1551,8 +1586,16 @@ export default function App() {
                   <option value="Assinatura e Planos (19,90 / 29,90 / 39,90)">💳 Assinatura e Planos (19,90 / 29,90 / 39,90)</option>
                   <option value="Taxas de Maquininha e Calculadora">🧮 Taxas de Maquininha e Calculadora</option>
                   <option value="Exportação para Contador (CSV / PDF)">🛡️ Exportação para Contador (CSV / PDF)</option>
-                  <option value="Sugestão ou Outro Assunto">💡 Sugestão ou Outro Assunto</option>
+                  <option value="Sugestão, Elogio ou Apoio Operacional">🤝 Sugestão, Elogio ou Apoio Operacional</option>
                 </select>
+
+                <textarea
+                  rows={2}
+                  value={supportUserMessage}
+                  onChange={(e) => setSupportUserMessage(e.target.value)}
+                  placeholder="Conte brevemente como podemos te ajudar hoje (opcional)..."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-xs text-white placeholder-slate-500"
+                />
 
                 {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
                   <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-1.5">
@@ -1574,12 +1617,12 @@ export default function App() {
                     href={
                       supportVirtualNumber
                         ? `https://wa.me/${supportVirtualNumber}?text=${encodeURIComponent(
-                            `Olá, Central de Suporte Copiloto Financeiro!\n\n• Conta: ${userEmail}\n• Plano: ${activePlan || `Período Grátis (Dia ${currentDayOfUsage}/30)`}\n• Assunto: ${supportTopic}\n\nMinha dúvida é: `
+                            `Olá, Equipe de Relacionamento Copiloto Financeiro! 🤝\n\n• Protocolo: #${supportProtocol}\n• Conta: ${userEmail}\n• Plano: ${activePlan || `Período Grátis (Dia ${currentDayOfUsage}/30)`}\n• Tema: ${supportTopic}\n• Mensagem: ${supportUserMessage || 'Gostaria de auxílio personalizado neste tema.'}\n\nAguardo retorno, muito obrigado!`
                           )}`
                         : `mailto:contato@copilotofinanc.app.br?subject=${encodeURIComponent(
-                            `[Suporte Copiloto] ${supportTopic} - ${userEmail}`
+                            `[Protocolo #${supportProtocol}] ${supportTopic} - ${userEmail}`
                           )}&body=${encodeURIComponent(
-                            `Olá, Central Copiloto Financeiro!\n\nConta: ${userEmail}\nPlano: ${activePlan || `Dia ${currentDayOfUsage}/30 Grátis`}\nAssunto: ${supportTopic}\n\nEscreva sua mensagem abaixo:\n`
+                            `Olá, Equipe de Relacionamento Copiloto Financeiro!\n\n• Protocolo: #${supportProtocol}\n• Conta: ${userEmail}\n• Plano: ${activePlan || `Dia ${currentDayOfUsage}/30 Grátis`}\n• Tema: ${supportTopic}\n• Mensagem: ${supportUserMessage || 'Gostaria de auxílio personalizado neste tema.'}\n`
                           )}`
                     }
                     target="_blank"
@@ -1587,8 +1630,8 @@ export default function App() {
                     className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs text-center transition-colors cursor-pointer"
                   >
                     {supportVirtualNumber
-                      ? '📲 Iniciar Atendimento via WhatsApp Virtual'
-                      : '✉️ Enviar Chamado Triado para Central de Suporte'}
+                      ? `📲 Enviar Protocolo #${supportProtocol} via WhatsApp Oficial`
+                      : `✉️ Enviar Protocolo #${supportProtocol} para Central de Relacionamento`}
                   </a>
                   <button
                     type="button"
