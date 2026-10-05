@@ -89,7 +89,7 @@ export default function App() {
   const [isSupportModalOpen, setIsSupportModalOpen] = useState<boolean>(false);
   const [supportTopic, setSupportTopic] = useState<string>('Dúvida sobre Comando de Voz');
   const [supportUserMessage, setSupportUserMessage] = useState<string>('');
-  const supportProtocol = CF-${todayISO.replace(/-/g, '')}-${(userEmail || 'CLI').slice(0, 3).toUpperCase()};
+  const supportProtocol = 'CF-2026-' + (userEmail || 'CLI').slice(0, 3).toUpperCase();
   const [supportVirtualNumber, setSupportVirtualNumber] = useState<string>(() =>
     localStorage.getItem('copiloto_support_virtual_whatsapp_v1') || ''
   );
