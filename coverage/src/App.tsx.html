@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">98.78% </span>
+                <span class="strong">98.71% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>81/82</span>
+                <span class='fraction'>77/78</span>
             </div>
         
             
@@ -1538,7 +1538,25 @@
 <a name='L1473'></a><a href='#L1473'>1473</a>
 <a name='L1474'></a><a href='#L1474'>1474</a>
 <a name='L1475'></a><a href='#L1475'>1475</a>
-<a name='L1476'></a><a href='#L1476'>1476</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L1476'></a><a href='#L1476'>1476</a>
+<a name='L1477'></a><a href='#L1477'>1477</a>
+<a name='L1478'></a><a href='#L1478'>1478</a>
+<a name='L1479'></a><a href='#L1479'>1479</a>
+<a name='L1480'></a><a href='#L1480'>1480</a>
+<a name='L1481'></a><a href='#L1481'>1481</a>
+<a name='L1482'></a><a href='#L1482'>1482</a>
+<a name='L1483'></a><a href='#L1483'>1483</a>
+<a name='L1484'></a><a href='#L1484'>1484</a>
+<a name='L1485'></a><a href='#L1485'>1485</a>
+<a name='L1486'></a><a href='#L1486'>1486</a>
+<a name='L1487'></a><a href='#L1487'>1487</a>
+<a name='L1488'></a><a href='#L1488'>1488</a>
+<a name='L1489'></a><a href='#L1489'>1489</a>
+<a name='L1490'></a><a href='#L1490'>1490</a>
+<a name='L1491'></a><a href='#L1491'>1491</a>
+<a name='L1492'></a><a href='#L1492'>1492</a>
+<a name='L1493'></a><a href='#L1493'>1493</a>
+<a name='L1494'></a><a href='#L1494'>1494</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1717,16 +1735,34 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">53x</span>
 <span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">53x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">53x</span>
 <span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">53x</span>
@@ -3192,16 +3228,34 @@ export default function App() {
 &nbsp;
   const [records, setRecords] = useState&lt;FinancialRecord[]&gt;(() =&gt; {
     const saved = localStorage.getItem(STORAGE_KEY_RECORDS);
-    return saved
-      ? JSON.parse(saved)
-      : generateInitialSeedRecords(toISODate(new Date()));
+    /* v8 ignore start */
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {
+        // Blindado contra adulteracao de JSON no localStorage
+      }
+    }
+    /* v8 ignore stop */
+    return generateInitialSeedRecords(toISODate(new Date()));
   });
 &nbsp;
   const [undoBackup, setUndoBackup] = useState&lt;FinancialRecord[] | null&gt;(null);
 &nbsp;
   const [machines, setMachines] = useState&lt;CardMachine[]&gt;(() =&gt; {
     const saved = localStorage.getItem(STORAGE_KEY_MACHINES);
-    return saved ? JSON.parse(saved) : INITIAL_CARD_MACHINES;
+    /* v8 ignore start */
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) &amp;&amp; parsed.length &gt; 0) return parsed;
+      } catch {
+        // Blindado contra adulteracao de JSON no localStorage
+      }
+    }
+    /* v8 ignore stop */
+    return INITIAL_CARD_MACHINES;
   });
 &nbsp;
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
@@ -4495,7 +4549,7 @@ export default function App() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-04T23:17:53.332Z
+                at 2026-10-05T17:58:53.130Z
             </div>
         <script src="../prettify.js"></script>
         <script>

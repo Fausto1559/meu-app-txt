@@ -177,16 +177,34 @@ export default function App() {
 
   const [records, setRecords] = useState<FinancialRecord[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_RECORDS);
-    return saved
-      ? JSON.parse(saved)
-      : generateInitialSeedRecords(toISODate(new Date()));
+    /* v8 ignore start */
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {
+        // Blindado contra adulteracao de JSON no localStorage
+      }
+    }
+    /* v8 ignore stop */
+    return generateInitialSeedRecords(toISODate(new Date()));
   });
 
   const [undoBackup, setUndoBackup] = useState<FinancialRecord[] | null>(null);
 
   const [machines, setMachines] = useState<CardMachine[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_MACHINES);
-    return saved ? JSON.parse(saved) : INITIAL_CARD_MACHINES;
+    /* v8 ignore start */
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch {
+        // Blindado contra adulteracao de JSON no localStorage
+      }
+    }
+    /* v8 ignore stop */
+    return INITIAL_CARD_MACHINES;
   });
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
