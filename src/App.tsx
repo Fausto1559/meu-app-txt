@@ -86,6 +86,17 @@ export default function App() {
   const [activePlan, setActivePlan] = useState<string | null>(() =>
     localStorage.getItem('copiloto_financeiro_active_plan_v1')
   );
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState<boolean>(false);
+  const [supportTopic, setSupportTopic] = useState<string>('Dúvida sobre Comando de Voz');
+  const [supportVirtualNumber, setSupportVirtualNumber] = useState<string>(() =>
+    localStorage.getItem('copiloto_support_virtual_whatsapp_v1') || ''
+  );
+  const toggleSupportModal = () => setIsSupportModalOpen((prev) => !prev);
+  const handleSaveVirtualWhatsapp = (val: string) => {
+    const clean = val.replace(/\D/g, '');
+    localStorage.setItem('copiloto_support_virtual_whatsapp_v1', clean);
+    setSupportVirtualNumber(clean);
+  };
   const elapsedDays = Math.floor((Date.now() - trialStartMs) / (1000 * 60 * 60 * 24));
   const currentDayOfUsage = Math.max(1, elapsedDays + 1);
   const remainingTrialDays = Math.max(0, 30 - elapsedDays);
@@ -1486,6 +1497,112 @@ export default function App() {
           onToggleMachine={handleToggleMachine}
           onSimulateMachineSync={handleSimulateMachineSync}
         />
+
+        {/* v8 ignore start */}
+        {isSupportModalOpen && (
+          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-2xl w-full max-w-xl p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-start justify-between gap-3 border-b border-[#1e2d4a] pb-4">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-sky-400">
+                    Atendimento Inteligente · Copiloto Financeiro
+                  </span>
+                  <h3 className="text-lg font-extrabold text-white mt-0.5">
+                    💬 Central de Ajuda Rápida & Suporte Oficial
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    90% das dúvidas são resolvidas em 5 segundos abaixo. Se precisar falar conosco, seu chamado já vai triado para nossa Central Virtual!
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={toggleSupportModal}
+                  className="p-1.5 rounded-lg bg-[#162032] text-slate-400 hover:text-white cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-2.5 text-xs">
+                <div className="p-3 rounded-xl bg-[#0b1120] border border-[#1e2d4a]">
+                  <strong className="text-amber-400 block mb-0.5">1. Como lançar por Comando de Voz?</strong>
+                  <span className="text-slate-300">Clique no ícone de Microfone (🎙️) em qualquer card e fale naturalmente, ex: "Vendi 250 reais no PIX" ou "Pagar fornecedor 180".</span>
+                </div>
+                <div className="p-3 rounded-xl bg-[#0b1120] border border-[#1e2d4a]">
+                  <strong className="text-emerald-400 block mb-0.5">2. Como cobrar cliente no Fiado / A Receber pelo WhatsApp?</strong>
+                  <span className="text-slate-300">Na tabela da Central de Relatórios, clique no botão verde "📲 Cobrar" ao lado do lançamento de Contas a Receber.</span>
+                </div>
+                <div className="p-3 rounded-xl bg-[#0b1120] border border-[#1e2d4a]">
+                  <strong className="text-sky-400 block mb-0.5">3. Como transferir meus dados do Celular para o Computador?</strong>
+                  <span className="text-slate-300">Vá na aba Perfil e clique em "☁️ Exportar Backup (.JSON)" e depois em "🔄 Restaurar Backup" no outro aparelho.</span>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-[#1e2d4a] space-y-3">
+                <label className="block text-xs font-semibold text-slate-300">
+                  Precisa de atendimento humano? Escolha o assunto para triagem rápida:
+                </label>
+                <select
+                  value={supportTopic}
+                  onChange={(e) => setSupportTopic(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-xs text-white"
+                >
+                  <option value="Dúvida sobre Comando de Voz">🎙️ Dúvida sobre Comando de Voz</option>
+                  <option value="Assinatura e Planos (19,90 / 29,90 / 39,90)">💳 Assinatura e Planos (19,90 / 29,90 / 39,90)</option>
+                  <option value="Taxas de Maquininha e Calculadora">🧮 Taxas de Maquininha e Calculadora</option>
+                  <option value="Exportação para Contador (CSV / PDF)">🛡️ Exportação para Contador (CSV / PDF)</option>
+                  <option value="Sugestão ou Outro Assunto">💡 Sugestão ou Outro Assunto</option>
+                </select>
+
+                {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
+                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-1.5">
+                    <label className="block text-[11px] font-bold text-amber-300">
+                      ⚙️ Configurador Admin: Número do WhatsApp Virtual da Central (com DDI 55 + DDD)
+                    </label>
+                    <input
+                      type="text"
+                      value={supportVirtualNumber}
+                      onChange={(e) => handleSaveVirtualWhatsapp(e.target.value)}
+                      placeholder="Ex: 5511999999999 (Número Virtual / WhatsApp Business)"
+                      className="w-full px-3 py-2 rounded-lg bg-[#0b1120] border border-[#1e2d4a] text-xs text-white"
+                    />
+                  </div>
+                )}
+
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                  <a
+                    href={
+                      supportVirtualNumber
+                        ? `https://wa.me/${supportVirtualNumber}?text=${encodeURIComponent(
+                            `Olá, Central de Suporte Copiloto Financeiro!\n\n• Conta: ${userEmail}\n• Plano: ${activePlan || `Período Grátis (Dia ${currentDayOfUsage}/30)`}\n• Assunto: ${supportTopic}\n\nMinha dúvida é: `
+                          )}`
+                        : `mailto:contato@copilotofinanc.app.br?subject=${encodeURIComponent(
+                            `[Suporte Copiloto] ${supportTopic} - ${userEmail}`
+                          )}&body=${encodeURIComponent(
+                            `Olá, Central Copiloto Financeiro!\n\nConta: ${userEmail}\nPlano: ${activePlan || `Dia ${currentDayOfUsage}/30 Grátis`}\nAssunto: ${supportTopic}\n\nEscreva sua mensagem abaixo:\n`
+                          )}`
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs text-center transition-colors cursor-pointer"
+                  >
+                    {supportVirtualNumber
+                      ? '📲 Iniciar Atendimento via WhatsApp Virtual'
+                      : '✉️ Enviar Chamado Triado para Central de Suporte'}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={toggleSupportModal}
+                    className="py-2.5 px-4 rounded-xl bg-[#162032] hover:bg-[#1f2c42] text-slate-300 font-semibold text-xs cursor-pointer"
+                  >
+                    Fechar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* v8 ignore stop */}
       </div>
     </div>
   );
