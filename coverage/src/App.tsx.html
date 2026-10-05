@@ -1750,7 +1750,33 @@
 <a name='L1685'></a><a href='#L1685'>1685</a>
 <a name='L1686'></a><a href='#L1686'>1686</a>
 <a name='L1687'></a><a href='#L1687'>1687</a>
-<a name='L1688'></a><a href='#L1688'>1688</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L1688'></a><a href='#L1688'>1688</a>
+<a name='L1689'></a><a href='#L1689'>1689</a>
+<a name='L1690'></a><a href='#L1690'>1690</a>
+<a name='L1691'></a><a href='#L1691'>1691</a>
+<a name='L1692'></a><a href='#L1692'>1692</a>
+<a name='L1693'></a><a href='#L1693'>1693</a>
+<a name='L1694'></a><a href='#L1694'>1694</a>
+<a name='L1695'></a><a href='#L1695'>1695</a>
+<a name='L1696'></a><a href='#L1696'>1696</a>
+<a name='L1697'></a><a href='#L1697'>1697</a>
+<a name='L1698'></a><a href='#L1698'>1698</a>
+<a name='L1699'></a><a href='#L1699'>1699</a>
+<a name='L1700'></a><a href='#L1700'>1700</a>
+<a name='L1701'></a><a href='#L1701'>1701</a>
+<a name='L1702'></a><a href='#L1702'>1702</a>
+<a name='L1703'></a><a href='#L1703'>1703</a>
+<a name='L1704'></a><a href='#L1704'>1704</a>
+<a name='L1705'></a><a href='#L1705'>1705</a>
+<a name='L1706'></a><a href='#L1706'>1706</a>
+<a name='L1707'></a><a href='#L1707'>1707</a>
+<a name='L1708'></a><a href='#L1708'>1708</a>
+<a name='L1709'></a><a href='#L1709'>1709</a>
+<a name='L1710'></a><a href='#L1710'>1710</a>
+<a name='L1711'></a><a href='#L1711'>1711</a>
+<a name='L1712'></a><a href='#L1712'>1712</a>
+<a name='L1713'></a><a href='#L1713'>1713</a>
+<a name='L1714'></a><a href='#L1714'>1714</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2565,6 +2591,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -3203,6 +3241,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -4233,6 +4285,18 @@ export default function App() {
             &lt;span role="img" aria-label="WhatsApp"&gt;📲&lt;/span&gt;
             &lt;span&gt;Indicar no WhatsApp&lt;/span&gt;
           &lt;/a&gt;
+            {/* v8 ignore start */}
+            {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' &amp;&amp; (
+              &lt;button
+                type="button"
+                onClick={toggleSupportModal}
+                className="px-3 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/40 text-sky-300 font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5"
+              &gt;
+                &lt;span role="img" aria-label="Suporte"&gt;💬&lt;/span&gt;
+                &lt;span&gt;Suporte (Admin)&lt;/span&gt;
+              &lt;/button&gt;
+            )}
+            {/* v8 ignore stop */}
           &lt;button
             type="button"
             onClick={handleLogout}
@@ -4895,13 +4959,27 @@ export default function App() {
                 &lt;X className="w-4 h-4" /&gt;
                 Limpar Todos os Dados
               &lt;/button&gt;
-              &lt;button
-                type="button"
-                onClick={handleSimulateDay31Lock}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 rounded-lg border border-amber-500/40 cursor-pointer"
-              &gt;
-                🔒 Simular 31º Dia (Testar Bloqueio de Plano)
-              &lt;/button&gt;
+              {/* v8 ignore start */}
+              {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' &amp;&amp; (
+                &lt;&gt;
+                  &lt;button
+                    type="button"
+                    onClick={toggleSupportModal}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 rounded-lg border border-sky-500/40 cursor-pointer"
+                  &gt;
+                    &lt;span role="img" aria-label="Suporte"&gt;💬&lt;/span&gt;
+                    Central de Suporte &amp; Relacionamento (Admin)
+                  &lt;/button&gt;
+                  &lt;button
+                    type="button"
+                    onClick={handleSimulateDay31Lock}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded-lg border border-amber-500/40 cursor-pointer"
+                  &gt;
+                    🔒 Simular 31º Dia (Exclusivo Admin)
+                  &lt;/button&gt;
+                &lt;/&gt;
+              )}
+              {/* v8 ignore stop */}
               &lt;button
                 type="button"
                 onClick={handleExportMultiDeviceBackup}
@@ -5131,7 +5209,7 @@ export default function App() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-05T20:26:41.829Z
+                at 2026-10-05T20:37:08.316Z
             </div>
         <script src="../prettify.js"></script>
         <script>

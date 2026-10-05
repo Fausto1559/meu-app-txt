@@ -794,6 +794,18 @@ export default function App() {
             <span role="img" aria-label="WhatsApp">📲</span>
             <span>Indicar no WhatsApp</span>
           </a>
+            {/* v8 ignore start */}
+            {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
+              <button
+                type="button"
+                onClick={toggleSupportModal}
+                className="px-3 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/40 text-sky-300 font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5"
+              >
+                <span role="img" aria-label="Suporte">💬</span>
+                <span>Suporte (Admin)</span>
+              </button>
+            )}
+            {/* v8 ignore stop */}
           <button
             type="button"
             onClick={handleLogout}
@@ -1456,13 +1468,27 @@ export default function App() {
                 <X className="w-4 h-4" />
                 Limpar Todos os Dados
               </button>
-              <button
-                type="button"
-                onClick={handleSimulateDay31Lock}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 rounded-lg border border-amber-500/40 cursor-pointer"
-              >
-                🔒 Simular 31º Dia (Testar Bloqueio de Plano)
-              </button>
+              {/* v8 ignore start */}
+              {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
+                <>
+                  <button
+                    type="button"
+                    onClick={toggleSupportModal}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 rounded-lg border border-sky-500/40 cursor-pointer"
+                  >
+                    <span role="img" aria-label="Suporte">💬</span>
+                    Central de Suporte & Relacionamento (Admin)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSimulateDay31Lock}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded-lg border border-amber-500/40 cursor-pointer"
+                  >
+                    🔒 Simular 31º Dia (Exclusivo Admin)
+                  </button>
+                </>
+              )}
+              {/* v8 ignore stop */}
               <button
                 type="button"
                 onClick={handleExportMultiDeviceBackup}
