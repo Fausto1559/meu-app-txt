@@ -120,7 +120,7 @@ export const NewTransactionModal: React.FC<NewTransactionModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4">
       <div className="bg-[#111a2e] border border-[#243659] rounded-xl max-w-lg w-full p-6 space-y-5 shadow-2xl">
-        <div className="flex items-center justify-between border-b border-[#1e2d4a] pb-3">
+        <div className="sticky top-0 z-20 bg-[#111a2e] flex items-center justify-between border-b border-[#1e2d4a] pb-2">
           <div>
             <h3 className="text-lg font-bold text-white">Novo Lançamento Financeiro</h3>
             <p className="text-xs text-slate-400">
