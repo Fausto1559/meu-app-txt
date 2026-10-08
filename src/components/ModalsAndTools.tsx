@@ -339,11 +339,11 @@ export const CardMachinesModal: React.FC<CardMachinesModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4">
-      <div className="bg-[#111a2e] border border-[#243659] rounded-xl max-w-2xl w-full p-6 space-y-5 shadow-2xl">
-        <div className="flex items-center justify-between border-b border-[#1e2d4a] pb-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-3 sm:p-4">
+      <div className="bg-[#111a2e] border border-[#243659] rounded-xl max-w-4xl w-full max-h-[88vh] overflow-y-auto p-4 sm:p-5 space-y-4 shadow-2xl">
+        <div className="sticky top-0 z-10 bg-[#111a2e] flex items-center justify-between border-b border-[#1e2d4a] pb-3">
           <div>
-            <h3 className="text-lg font-bold text-white">
+            <h3 className="text-base sm:text-lg font-bold text-white">
               Gerenciar Maquininhas de Cartão Conectadas
             </h3>
             <p className="text-xs text-slate-400">
@@ -354,13 +354,14 @@ export const CardMachinesModal: React.FC<CardMachinesModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg cursor-pointer"
+            title="Fechar janela (X)"
+            className="p-1.5 text-slate-200 hover:text-white bg-[#162238] hover:bg-rose-500/30 border border-[#293d66] rounded-lg cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {machines.map((m) => (
             <div
               key={m.id}
