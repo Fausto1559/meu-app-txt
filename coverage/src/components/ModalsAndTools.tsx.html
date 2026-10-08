@@ -893,7 +893,8 @@
 <a name='L828'></a><a href='#L828'>828</a>
 <a name='L829'></a><a href='#L829'>829</a>
 <a name='L830'></a><a href='#L830'>830</a>
-<a name='L831'></a><a href='#L831'>831</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L831'></a><a href='#L831'>831</a>
+<a name='L832'></a><a href='#L832'>832</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -950,7 +951,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">94x</span>
-<span class="cline-any cline-yes">104x</span>
+<span class="cline-any cline-yes">110x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">94x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -969,7 +970,7 @@
 <span class="cline-any cline-yes">94x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">37x</span>
-<span class="cline-any cline-yes">94x</span>
+<span class="cline-any cline-yes">102x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">94x</span>
 <span class="cline-any cline-yes">94x</span>
@@ -1163,7 +1164,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">96x</span>
+<span class="cline-any cline-yes">144x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1257,7 +1258,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">42x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1407,7 +1409,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-yes">60x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1845,7 +1847,7 @@ export const NewTransactionModal: React.FC&lt;NewTransactionModalProps&gt; = ({
   return (
     &lt;div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4"&gt;
       &lt;div className="bg-[#111a2e] border border-[#243659] rounded-xl max-w-lg w-full p-6 space-y-5 shadow-2xl"&gt;
-        &lt;div className="flex items-center justify-between border-b border-[#1e2d4a] pb-3"&gt;
+        &lt;div className="sticky top-0 z-20 bg-[#111a2e] flex items-center justify-between border-b border-[#1e2d4a] pb-2"&gt;
           &lt;div&gt;
             &lt;h3 className="text-lg font-bold text-white"&gt;Novo Lançamento Financeiro&lt;/h3&gt;
             &lt;p className="text-xs text-slate-400"&gt;
@@ -2064,11 +2066,11 @@ export const CardMachinesModal: React.FC&lt;CardMachinesModalProps&gt; = ({
   if (!isOpen) return null;
 &nbsp;
   return (
-    &lt;div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4"&gt;
-      &lt;div className="bg-[#111a2e] border border-[#243659] rounded-xl max-w-2xl w-full p-6 space-y-5 shadow-2xl"&gt;
-        &lt;div className="flex items-center justify-between border-b border-[#1e2d4a] pb-3"&gt;
+    &lt;div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-3 sm:p-4"&gt;
+      &lt;div className="bg-[#111a2e] border border-[#243659] rounded-xl max-w-4xl w-full max-h-[88vh] overflow-y-auto p-4 sm:p-5 space-y-4 shadow-2xl"&gt;
+        &lt;div className="sticky top-0 z-10 bg-[#111a2e] flex items-center justify-between border-b border-[#1e2d4a] pb-3"&gt;
           &lt;div&gt;
-            &lt;h3 className="text-lg font-bold text-white"&gt;
+            &lt;h3 className="text-base sm:text-lg font-bold text-white"&gt;
               Gerenciar Maquininhas de Cartão Conectadas
             &lt;/h3&gt;
             &lt;p className="text-xs text-slate-400"&gt;
@@ -2079,13 +2081,14 @@ export const CardMachinesModal: React.FC&lt;CardMachinesModalProps&gt; = ({
           &lt;button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg cursor-pointer"
+            title="Fechar janela (X)"
+            className="p-1.5 text-slate-200 hover:text-white bg-[#162238] hover:bg-rose-500/30 border border-[#293d66] rounded-lg cursor-pointer shrink-0"
           &gt;
             &lt;X className="w-5 h-5" /&gt;
           &lt;/button&gt;
         &lt;/div&gt;
 &nbsp;
-        &lt;div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5"&gt;
+        &lt;div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"&gt;
           {machines.map((m) =&gt; (
             &lt;div
               key={m.id}
@@ -2560,7 +2563,7 @@ export const AccountantHubView: React.FC&lt;{
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-05T20:37:08.316Z
+                at 2026-10-08T14:37:52.634Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
