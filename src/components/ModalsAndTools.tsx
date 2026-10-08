@@ -707,12 +707,20 @@ export const AccountantHubView: React.FC<{
   const receber = computeFieldSummary(records, referenceDate, selectedPeriod, 'receber');
   const pagar = computeFieldSummary(records, referenceDate, selectedPeriod, 'pagar');
   const vendasMensal = computeFieldSummary(records, referenceDate, 'mensal', 'vendas');
-  const yearPrefix = referenceDate.slice(0, 4);
-  const faturamentoAnualMei = records.filter((r) => r.type === 'vendas' && r.date.startsWith(yearPrefix)).reduce((acc, r) => acc + r.grossAmount, 0);
+  const yearPrefix = (referenceDate || '').slice(0, 4);
+  const faturamentoAnualMei = (records || [])
+    .filter((r) => r.type === 'vendas' && (r.date || '').startsWith(yearPrefix))
+    .reduce((acc, r) => acc + (r.grossAmount || 0), 0);
   const tetoAnualMei = 81000;
   const tetoMensalMei = 6750;
   const pctTetoAnual = Math.min(100, (faturamentoAnualMei / tetoAnualMei) * 100);
   const pctTetoMensal = Math.min(100, (vendasMensal.totalGross / tetoMensalMei) * 100);
+  const tetoAnualMe = 360000;
+  const tetoAnualEpp = 4800000;
+  const pctTetoMe = Math.min(100, (faturamentoAnualMei / tetoAnualMe) * 100);
+  const pctTetoEpp = Math.min(100, (faturamentoAnualMei / tetoAnualEpp) * 100);
+  const faltaDesenquadrarMe = Math.max(0, tetoAnualMe - faturamentoAnualMei);
+  const faltaDesenquadrarEpp = Math.max(0, tetoAnualEpp - faturamentoAnualMei);
 
   return (
     <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-6 space-y-6">
@@ -782,7 +790,7 @@ export const AccountantHubView: React.FC<{
         </div>
       </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-[#0b1120] border border-amber-500/40 rounded-xl p-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
@@ -857,7 +865,8 @@ export const AccountantHubView: React.FC<{
           </div>
         </div>
       </div>
-<div className="flex flex-wrap items-center justify-between gap-3 bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-4">
+
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-4">
         <div className="text-xs text-slate-300">
           Arquivo contábil com <strong>{filtered.length} lançamentos</strong> classificados em
           Vendas, A Receber e A Pagar.
