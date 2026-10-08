@@ -782,30 +782,82 @@ export const AccountantHubView: React.FC<{
         </div>
       </div>
 
-      <div className="bg-[#0b1120] border border-amber-500/40 rounded-xl p-4 space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-amber-400 block">
-              🌡️ Termômetro de Limite Fiscal MEI ({yearPrefix}) · Teto Anual R$ 81.000,00
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="bg-[#0b1120] border border-amber-500/40 rounded-xl p-4 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-amber-400 block">
+                🌡️ 1. Termômetro Limite Fiscal MEI ({yearPrefix}) · Teto R$ 81.000,00
+              </span>
+              <p className="text-xs text-slate-400">
+                Alerta contra desenquadramento do MEI (média mensal: R$ 6.750,00/mês).
+              </p>
+            </div>
+            <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold font-mono-num">
+              {pctTetoAnual.toFixed(1)}% ({formatBRL(faturamentoAnualMei)} / R$ 81 mil)
             </span>
-            <p className="text-xs text-slate-400">
-              Monitoramento preventivo contra desenquadramento retroativo (referência mensal: R$ 6.750,00/mês).
-            </p>
           </div>
-          <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold font-mono-num">
-            {pctTetoAnual.toFixed(1)}% do Teto Anual ({formatBRL(faturamentoAnualMei)} / R$ 81.000,00)
-          </span>
+          <div className="w-full h-2.5 bg-[#162238] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-amber-400 rounded-full transition-all"
+              style={{ width: `${pctTetoAnual}%` }}
+            />
+          </div>
+          <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-300 font-mono-num">
+            <span>Mês Atual: {formatBRL(vendasMensal.totalGross)} ({pctTetoMensal.toFixed(1)}%)</span>
+            <strong className="text-amber-300">
+              Falta p/ Desenquadrar MEI: {formatBRL(Math.max(0, tetoAnualMei - faturamentoAnualMei))}
+            </strong>
+          </div>
         </div>
-        <div className="w-full h-2.5 bg-[#162238] rounded-full overflow-hidden">
-          <div className="h-full bg-amber-400 rounded-full transition-all" style={{ width: `${pctTetoAnual}%` }} />
-        </div>
-        <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-400 font-mono-num">
-          <span>Mês Atual: {formatBRL(vendasMensal.totalGross)} ({pctTetoMensal.toFixed(1)}% de R$ 6.750,00)</span>
-          <span>Margem Restante no Ano: {formatBRL(Math.max(0, tetoAnualMei - faturamentoAnualMei))}</span>
+
+        <div className="bg-[#0b1120] border border-sky-500/40 rounded-xl p-4 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-sky-400 block">
+                🌡️ 2. Termômetro Pequena e Média Empresa (ME R$ 360 mil · EPP/Média R$ 4,8 milhões)
+              </span>
+              <p className="text-xs text-slate-400">
+                Quanto falta para atingir o limite fiscal e ser desenquadrado (Simples Nacional).
+              </p>
+            </div>
+            <span className="px-2.5 py-1 rounded-full bg-sky-500/15 border border-sky-500/30 text-sky-300 text-xs font-bold font-mono-num">
+              ME: {pctTetoMe.toFixed(1)}% · EPP/Média: {pctTetoEpp.toFixed(2)}%
+            </span>
+          </div>
+          <div className="space-y-2">
+            <div>
+              <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-300 font-mono-num mb-1">
+                <span>Pequena Empresa (ME · Teto R$ 360.000,00)</span>
+                <strong className="text-sky-300">
+                  Falta p/ Desenquadrar ME: {formatBRL(faltaDesenquadrarMe)}
+                </strong>
+              </div>
+              <div className="w-full h-2 bg-[#162238] rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-sky-400 rounded-full transition-all"
+                  style={{ width: `${pctTetoMe}%` }}
+                />
+              </div>
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-300 font-mono-num mb-1">
+                <span>Média Empresa / EPP (Simples · Teto R$ 4.800.000,00)</span>
+                <strong className="text-emerald-300">
+                  Falta p/ Desenquadrar EPP/Média: {formatBRL(faltaDesenquadrarEpp)}
+                </strong>
+              </div>
+              <div className="w-full h-2 bg-[#162238] rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-emerald-400 rounded-full transition-all"
+                  style={{ width: `${pctTetoEpp}%` }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-4">
+<div className="flex flex-wrap items-center justify-between gap-3 bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-4">
         <div className="text-xs text-slate-300">
           Arquivo contábil com <strong>{filtered.length} lançamentos</strong> classificados em
           Vendas, A Receber e A Pagar.
