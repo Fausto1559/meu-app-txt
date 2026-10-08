@@ -452,25 +452,36 @@ export const FeeCalculatorView: React.FC<{ machines: CardMachine[] }> = ({ machi
   const [modality, setModality] = useState<'debito' | 'credito_vista' | 'credito_parcelado'>(
     'credito_vista'
   );
+  const [installments, setInstallments] = useState<number>(2);
   const [costAmount, setCostAmount] = useState('550');
 
   const val = parseFloat(saleAmount) || 0;
   const cost = parseFloat(costAmount) || 0;
   const machine = machines.find((m) => m.id === selectedMachineId)!;
 
+  const installmentExtraStep = 1.19;
+  const progressiveInstallmentRate = Number(
+    (machine.creditInstallmentRate + (installments - 2) * installmentExtraStep).toFixed(2)
+  );
+
   const rate =
     modality === 'debito'
       ? machine.debitRate
       : modality === 'credito_vista'
       ? machine.creditSightRate
-      : machine.creditInstallmentRate;
+      : progressiveInstallmentRate;
 
   const feeValue = (val * rate) / 100;
   const netValue = val - feeValue;
   const netProfit = netValue - cost;
   const marginPct = val > 0 ? (netProfit / val) * 100 : 0;
-  /* v8 ignore next */
   const reverseChargeToReceiveFull = rate < 100 ? val / (1 - rate / 100) : val;
+  const installmentCustomerValue =
+    modality === 'credito_parcelado' ? val / installments : val;
+  const installmentReverseValue =
+    modality === 'credito_parcelado'
+      ? reverseChargeToReceiveFull / installments
+      : reverseChargeToReceiveFull;
 
   return (
     <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-6 space-y-6">
@@ -480,7 +491,7 @@ export const FeeCalculatorView: React.FC<{ machines: CardMachine[] }> = ({ machi
           Calculadora de Taxas de Maquininha e Margem Líquida
         </h2>
         <p className="text-xs text-slate-400 mt-1">
-          Cada campo possui Microfone de voz e botão "X" para apagar o valor.
+          Cada campo possui Microfone de voz e botão "X" para apagar o valor. Simule Débito, Crédito 1x ou Parcelado de 2x a 12x.
         </p>
       </div>
 
@@ -529,7 +540,7 @@ export const FeeCalculatorView: React.FC<{ machines: CardMachine[] }> = ({ machi
                 { id: 'credito_vista', label: `Créd. 1x (${machine.creditSightRate}%)` },
                 {
                   id: 'credito_parcelado',
-                  label: `Parcelado (${machine.creditInstallmentRate}%)`,
+                  label: `Parcelado ${installments}x (${progressiveInstallmentRate}%)`,
                 },
               ].map((item) => (
                 <button
@@ -551,17 +562,69 @@ export const FeeCalculatorView: React.FC<{ machines: CardMachine[] }> = ({ machi
               ))}
             </div>
           </div>
+
+          <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-3.5 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-amber-400">
+                Parcelamento no Cartão (2x a 12x)
+              </label>
+              <span className="text-[11px] text-slate-400 font-mono-num">
+                {modality === 'credito_parcelado'
+                  ? `Selecionado: ${installments}x (${progressiveInstallmentRate}%)`
+                  : 'Clique em uma parcela para ativar'}
+              </span>
+            </div>
+            <div className="grid grid-cols-6 sm:grid-cols-11 gap-1.5">
+              {[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => {
+                const nRate = Number(
+                  (machine.creditInstallmentRate + (n - 2) * installmentExtraStep).toFixed(2)
+                );
+                const isSelected = modality === 'credito_parcelado' && installments === n;
+                return (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => {
+                      setModality('credito_parcelado');
+                      setInstallments(n);
+                    }}
+                    className={`py-1.5 px-1 rounded-lg text-center border transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-amber-500 text-slate-950 border-amber-300 font-bold shadow-sm'
+                        : 'bg-[#111a2e] text-slate-300 border-[#1e2d4a] hover:border-amber-500/50'
+                    }`}
+                  >
+                    <div className="text-xs leading-tight">{n}x</div>
+                    <div
+                      className={`text-[9px] font-mono-num leading-tight ${
+                        isSelected ? 'text-slate-900 font-semibold' : 'text-slate-400'
+                      }`}
+                    >
+                      {nRate}%
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-5 flex flex-col justify-between space-y-4 font-mono-num">
           <div className="space-y-3">
             <div className="flex justify-between text-xs">
-              <span className="text-slate-400 font-sans">Venda Bruta</span>
+              <span className="text-slate-400 font-sans">
+                Venda Bruta{' '}
+                {modality === 'credito_parcelado'
+                  ? `(${installments}x de ${formatBRL(installmentCustomerValue)})`
+                  : ''}
+              </span>
               <span className="text-white font-semibold">{formatBRL(val)}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-slate-400 font-sans">
-                Taxa {machine.brand} ({rate}%)
+                Taxa {machine.brand}{' '}
+                {modality === 'credito_parcelado' ? `Parcelado ${installments}x ` : ''}(
+                {rate}%)
               </span>
               <span className="text-rose-400 font-semibold">- {formatBRL(feeValue)}</span>
             </div>
@@ -598,13 +661,18 @@ export const FeeCalculatorView: React.FC<{ machines: CardMachine[] }> = ({ machi
 
           <div className="pt-3 border-t border-[#1e2d4a] bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 space-y-1 font-sans">
             <span className="text-[11px] font-bold uppercase tracking-wider text-amber-300 block">
-              💡 Precificador Anti-Prejuízo (Repassar Taxa ao Cliente)
+              {'\uD83D\uDCA1'} Precificador Anti-Prejuízo (Repassar Taxa ao Cliente)
             </span>
             <p className="text-xs text-slate-300">
               Para receber exatamente <strong className="text-white">{formatBRL(val)}</strong> limpos no seu caixa, cobre{' '}
               <strong className="text-emerald-300 font-mono-num text-sm">
                 {formatBRL(reverseChargeToReceiveFull)}
               </strong>{' '}
+              {modality === 'credito_parcelado' && (
+                <span className="text-amber-300 font-mono-num">
+                  ({installments}x de {formatBRL(installmentReverseValue)}){' '}
+                </span>
+              )}
               na maquininha {machine.brand}.
             </p>
           </div>
@@ -613,7 +681,6 @@ export const FeeCalculatorView: React.FC<{ machines: CardMachine[] }> = ({ machi
     </div>
   );
 };
-
 export const DailyClosingView: React.FC<{
   records: FinancialRecord[];
   referenceDate: string;
