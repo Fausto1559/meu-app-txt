@@ -36,7 +36,7 @@ export interface FinancialRecord {
 export interface CardMachine {
   id: string;
   name: string;
-  brand: 'Stone' | 'Ton' | 'PagBank' | 'Mercado Pago' | 'InfinitePay' | 'Rede' | 'Cielo';
+  brand: 'Stone' | 'Ton' | 'PagBank' | 'Mercado Pago' | 'InfinitePay' | 'Getnet' | 'SumUp' | 'Rede' | 'Cielo';
   debitRate: number;
   creditSightRate: number;
   creditInstallmentRate: number; // 2x-6x average

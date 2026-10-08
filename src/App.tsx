@@ -211,7 +211,7 @@ export default function App() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) { const existingIds = new Set(parsed.map((m: CardMachine) => m.id)); const missing = INITIAL_CARD_MACHINES.filter((m) => !existingIds.has(m.id)); return [...parsed, ...missing]; }
       } catch {
         // Blindado contra adulteracao de JSON no localStorage
       }
@@ -1394,7 +1394,7 @@ export default function App() {
               conciliação automática dos relatórios Diário, Semanal e Mensal.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-              {['Nubank PJ', 'Banco Inter Empresas', 'Itaú Empresas'].map(
+              {['Nubank PJ', 'Banco Inter Empresas', 'Itaú Empresas', 'Cora PJ', 'InfinitePay / PagBank', 'Banco do Brasil PJ', 'Bradesco Empresas', 'Santander Empresas', 'Caixa Econômica PJ'].map(
                 (bank) => (
                   <div
                     key={bank}
@@ -1471,6 +1471,14 @@ export default function App() {
               {/* v8 ignore start */}
               {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
                 <>
+                  <button
+                    type="button"
+                    onClick={toggleSupportModal}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 rounded-lg border border-sky-500/40 cursor-pointer"
+                  >
+                    <span role="img" aria-label="Suporte">💬</span>
+                    Central de Suporte & Relacionamento (Exclusivo Admin)
+                  </button>
                   <button
                     type="button"
                     onClick={toggleSupportModal}
