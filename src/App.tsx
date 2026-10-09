@@ -31,6 +31,7 @@ import {
   FieldVoiceAndClearBar,
   LiveVoiceCopilotWidget,
 } from './components/VoiceFieldControls';
+import { OrganicGrowthHubModal } from './components/OrganicGrowthHubModal';
 import { WebhookSaasPanel } from './components/WebhookSaasPanel';
 import {
   CardMachine,
@@ -93,6 +94,7 @@ export default function App() {
     localStorage.getItem('copiloto_financeiro_active_plan_v1')
   );
   const [isSupportModalOpen, setIsSupportModalOpen] = useState<boolean>(false);
+  const [isGrowthHubOpen, setIsGrowthHubOpen] = useState<boolean>(false);
   const [supportTopic, setSupportTopic] = useState<string>('Dúvida sobre Comando de Voz');
   const [supportUserMessage, setSupportUserMessage] = useState<string>('');
   const supportProtocol = 'CF-2026-' + (userEmail || 'CLI').slice(0, 3).toUpperCase();
@@ -790,7 +792,16 @@ export default function App() {
           <div className="text-slate-300 truncate">
             Logado como: <strong className="text-white">{userEmail}</strong>
           </div>
-          <a
+                      <button
+              type="button"
+              onClick={() => setIsGrowthHubOpen(true)}
+              className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5"
+              title="Abrir Landing Page e Kit de Divulgação Orgânica para Grupos Locais e Regionais"
+            >
+              <span role="img" aria-label="Foguete">{'\uD83D\uDE80'}</span>
+              <span>Vitrine &amp; Divulgar Grátis</span>
+            </button>
+            <a
             href="https://wa.me/?text=Ol%C3%A1!%20Conhe%C3%A7a%20o%20Copiloto%20Financeiro%20para%20controlar%20Vendas%2C%20Contas%20a%20Receber%2C%20Contas%20a%20Pagar%20e%20Taxas%20de%20Maquininha%20por%20voz%20(Relat%C3%B3rios%20Di%C3%A1rio%2C%20Semanal%20e%20Mensal).%20Acesse%20gr%C3%A1tis%3A%20https%3A%2F%2Fcopilotofinanc.app.br"
             target="_blank"
             rel="noopener noreferrer"
@@ -1727,8 +1738,12 @@ export default function App() {
           </div>
         )}
         {/* v8 ignore stop */}
+        <OrganicGrowthHubModal
+          isOpen={isGrowthHubOpen}
+          onClose={() => setIsGrowthHubOpen(false)}
+          onNavigateTab={(tab) => setActiveNav(tab)}
+        />
       </div>
     </div>
   );
 }
-
