@@ -29,12 +29,12 @@ interface OrganicGrowthHubModalProps {
 }
 
 const PROMO_VIDEO_SHARE_URL = 'https://copilotofinanc.app.br/?video=15s';
-const MAIN_FACEBOOK_CAPTION = `Para quem trabalha na correria e não tem tempo de mexer em planilha: criei o Copiloto Financeiro onde você aperta o microfone e fala "Vendi 350 reais no Pix" ou "Pagar fornecedor 200 reais" e ele já fecha o relatório Diário, Semanal e Mensal sozinho. Tem 30 dias grátis liberados: https://copilotofinanc.app.br`;
+const MAIN_FACEBOOK_CAPTION = `Para quem trabalha e não tem tempo de mexer em planilha: criei o Copiloto Financeiro onde você aperta o microfone e fala "Vendi 350 reais no Pix" ou "Pagar fornecedor 200 reais" e ele já fecha o relatório Diário, Semanal e Mensal sozinho. Tem 30 dias grátis liberados: https://copilotofinanc.app.br`;
 
 const ORGANIC_TEMPLATES = [
   {
     id: 'voz',
-    badge: '🔥 Isca #1 · Vídeo 15s + Legenda Principal (Correria sem Planilha)',
+    badge: '🔥 Isca #1 · Vídeo 15s + Legenda Principal (Sem Planilha)',
     title: 'Controle de Caixa por Comando de Voz (Sem Planilha) + Vídeo 15s',
     target: 'Feed/Reels do Facebook, Grupos Locais, Oficinas, Lojistas e Prestadores',
     text: MAIN_FACEBOOK_CAPTION,
@@ -130,7 +130,7 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
     if (t < 3) {
       ctx.fillStyle = '#f8fafc';
       ctx.font = 'extrabold 32px Inter, system-ui, sans-serif';
-      ctx.fillText('Trabalha na correria e não tem', 42, 115);
+      ctx.fillText('Para quem trabalha e não tem', 42, 115);
       ctx.fillStyle = '#fbbf24';
       ctx.fillText('tempo de mexer em planilha?', 42, 155);
 
