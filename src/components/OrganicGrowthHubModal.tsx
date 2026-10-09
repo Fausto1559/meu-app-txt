@@ -34,7 +34,7 @@ const MAIN_FACEBOOK_CAPTION = `Para quem trabalha na correria e não tem tempo d
 const ORGANIC_TEMPLATES = [
   {
     id: 'voz',
-    badge: '🔥 Vídeo 15s + Legenda Principal · Autônomos, Comércio e Correria',
+    badge: '🔥 Isca #1 · Vídeo 15s + Legenda Principal (Correria sem Planilha)',
     title: 'Controle de Caixa por Comando de Voz (Sem Planilha) + Vídeo 15s',
     target: 'Feed/Reels do Facebook, Grupos Locais, Oficinas, Lojistas e Prestadores',
     text: MAIN_FACEBOOK_CAPTION,
@@ -543,7 +543,8 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {ORGANIC_TEMPLATES.map((tpl) => {
               const message = customizeText(tpl.text);
-              const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+              const fullShareText = buildFacebookPayloadWithVideoLink(tpl.text);
+              const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(fullShareText)}`;
               const isCopied = copiedId === tpl.id;
 
               return (
@@ -561,8 +562,11 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
                     <p className="text-[11px] text-sky-300">
                       🎯 Onde postar: {tpl.target}
                     </p>
-                    <div className="p-2.5 rounded-lg bg-[#111a2e] border border-[#1e2d4a] text-xs text-slate-200 leading-relaxed">
-                      {message}
+                    <div className="p-2.5 rounded-lg bg-[#111a2e] border border-[#1e2d4a] text-xs text-slate-200 leading-relaxed space-y-1.5">
+                      <div>{message}</div>
+                      <div className="text-sky-400 font-semibold pt-1 border-t border-[#1e2d4a]/80">
+                        🎬 Assista ao Vídeo de 15s: {PROMO_VIDEO_SHARE_URL}
+                      </div>
                     </div>
                   </div>
 
@@ -578,15 +582,15 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
                     <button
                       type="button"
                       onClick={() => handleCopyText(tpl.id, tpl.text)}
-                      className="py-2 px-3 rounded-lg bg-[#162238] hover:bg-[#1f304d] border border-[#2a3f66] text-slate-200 font-semibold text-xs transition-colors cursor-pointer inline-flex items-center gap-1"
+                      className="py-2 px-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs transition-colors cursor-pointer inline-flex items-center gap-1"
                     >
                       {isCopied ? (
                         <>
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                          <span className="text-emerald-300">Copiado!</span>
+                          <CheckCircle2 className="w-3.5 h-3.5 text-slate-950" />
+                          <span>✅ Link + Legenda Copiados!</span>
                         </>
                       ) : (
-                        <span>📋 Copiar p/ Facebook</span>
+                        <span>📋 Copiar p/ Face (Link do Vídeo + Legenda)</span>
                       )}
                     </button>
                   </div>
