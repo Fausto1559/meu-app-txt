@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Calculator,
   CheckCircle2,
   Crown,
+  Download,
+  Play,
+  RotateCcw,
   Share2,
   ShieldCheck,
   Sparkles,
   TrendingUp,
+  Video,
 } from 'lucide-react';
 
 interface OrganicGrowthHubModalProps {
@@ -24,27 +28,30 @@ interface OrganicGrowthHubModalProps {
   ) => void;
 }
 
+const PROMO_VIDEO_SHARE_URL = 'https://copilotofinanc.app.br/?video=15s';
+const MAIN_FACEBOOK_CAPTION = `Para quem trabalha na correria e não tem tempo de mexer em planilha: criei o Copiloto Financeiro onde você aperta o microfone e fala "Vendi 350 reais no Pix" ou "Pagar fornecedor 200 reais" e ele já fecha o relatório Diário, Semanal e Mensal sozinho. Tem 30 dias grátis liberados: https://copilotofinanc.app.br`;
+
 const ORGANIC_TEMPLATES = [
   {
+    id: 'voz',
+    badge: '🔥 Vídeo 15s + Legenda Principal · Autônomos, Comércio e Correria',
+    title: 'Controle de Caixa por Comando de Voz (Sem Planilha) + Vídeo 15s',
+    target: 'Feed/Reels do Facebook, Grupos Locais, Oficinas, Lojistas e Prestadores',
+    text: MAIN_FACEBOOK_CAPTION,
+  },
+  {
     id: 'maquininha',
-    badge: 'Isca #1 · Comércio Local & Lojistas',
+    badge: 'Isca #2 · Comércio Local & Lojistas',
     title: 'Calculadora Anti-Prejuízo de Maquininha (2x a 12x)',
     target: 'Grupos de Comércio Local, Feira do Rolo, Lojistas e Prestadores da Região',
     text: `Pessoal que vende na maquininha (Stone, Ton, PagBank, Mercado Pago, Cielo, InfinitePay) aqui na região: liberei uma Calculadora Gratuita que mostra exatamente quanto cobrar do cliente no Débito, 1x ou Parcelado de 2x a 12x para não perder 1 centavo de lucro na taxa da maquininha! Dá até para falar o valor pelo microfone no celular. Testem grátis: https://copilotofinanc.app.br`,
   },
   {
     id: 'mei_pme',
-    badge: 'Isca #2 · MEI, Pequenas e Médias Empresas',
+    badge: 'Isca #3 · MEI, Pequenas e Médias Empresas',
     title: 'Termômetro de Limite Fiscal MEI (R$ 81 mil) e Simples (R$ 360 mil)',
     target: 'Grupos de Empreendedores, MEI, Associações Comerciais e Grupos Regionais',
     text: `Quem é MEI ou Pequena Empresa (Simples Nacional) aqui da região: coloquei no ar um Termômetro Fiscal gratuito que soma suas vendas e avisa quanto falta para atingir o limite de R$ 81 mil (MEI) ou R$ 360 mil (ME) antes de ser desenquadrado de surpresa. Abre direto no celular sem precisar baixar nada: https://copilotofinanc.app.br`,
-  },
-  {
-    id: 'voz',
-    badge: 'Isca #3 · Autônomos, Oficinas e Correria do Dia a Dia',
-    title: 'Controle de Caixa por Comando de Voz (Sem Planilha)',
-    target: 'Grupos de Prestadores de Serviço, Instaladores, Oficinas, Lanchonetes e Salões',
-    text: `Para quem trabalha na correria e não tem tempo de mexer em planilha: criei o Copiloto Financeiro onde você aperta o microfone e fala "Vendi 350 reais no Pix" ou "Pagar fornecedor 200 reais" e ele já fecha o relatório Diário, Semanal e Mensal sozinho. Tem 30 dias grátis liberados: https://copilotofinanc.app.br`,
   },
   {
     id: 'contadores',
@@ -62,6 +69,192 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
 }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [cityName, setCityName] = useState<string>('Valparaíso e Região');
+  const [videoTimeSec, setVideoTimeSec] = useState<number>(0);
+  const [isPlayingVideo, setIsPlayingVideo] = useState<boolean>(true);
+  const [isRecordingWebm, setIsRecordingWebm] = useState<boolean>(false);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen || !isPlayingVideo) return;
+    const startMs = performance.now() - videoTimeSec * 1000;
+    let rafId = 0;
+
+    const tick = (now: number) => {
+      const elapsedSec = ((now - startMs) / 1000) % 15;
+      setVideoTimeSec(elapsedSec);
+      rafId = requestAnimationFrame(tick);
+    };
+
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [isOpen, isPlayingVideo]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const w = canvas.width;
+    const h = canvas.height;
+    const t = videoTimeSec;
+
+    const grad = ctx.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, '#090f1d');
+    grad.addColorStop(0.5, '#111e38');
+    grad.addColorStop(1, '#08101f');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.16)';
+    ctx.strokeStyle = 'rgba(245, 158, 11, 0.45)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(36, 24, 340, 36, 18);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#fbbf24';
+    ctx.font = 'bold 15px Inter, system-ui, sans-serif';
+    ctx.fillText('🔥 COPILOTOFINANC.APP.BR · 15s DEMO', 54, 47);
+
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(36, h - 22, w - 72, 8);
+    ctx.fillStyle = '#10b981';
+    ctx.fillRect(36, h - 22, ((w - 72) * Math.min(t, 15)) / 15, 8);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = 'bold 14px monospace';
+    ctx.fillText(`${t.toFixed(1)}s / 15.0s`, w - 135, 47);
+
+    if (t < 3) {
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'extrabold 32px Inter, system-ui, sans-serif';
+      ctx.fillText('Trabalha na correria e não tem', 42, 115);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillText('tempo de mexer em planilha?', 42, 155);
+
+      ctx.fillStyle = '#1e293b';
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(42, 185, w - 84, 150, 18);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#34d399';
+      ctx.font = 'bold 22px Inter, system-ui, sans-serif';
+      ctx.fillText('🎙️ Aperte o Microfone e Fale:', 68, 230);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 26px Inter, system-ui, sans-serif';
+      ctx.fillText('"Vendi 350 reais no Pix"', 68, 272);
+
+      ctx.fillStyle = '#f87171';
+      ctx.font = 'bold 24px Inter, system-ui, sans-serif';
+      ctx.fillText('"Pagar fornecedor 200 reais"', 68, 310);
+    } else if (t < 6) {
+      ctx.fillStyle = '#34d399';
+      ctx.font = 'extrabold 30px Inter, system-ui, sans-serif';
+      ctx.fillText('Relatório Diário, Semanal e Mensal', 42, 110);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 22px Inter, system-ui, sans-serif';
+      ctx.fillText('O sistema calcula Vendas, A Receber e A Pagar sozinho:', 42, 145);
+
+      const cards = [
+        { label: 'VENDAS (PIX/CARTÃO)', val: '+ R$ 350,00', color: '#10b981' },
+        { label: 'CONTAS A PAGAR', val: '- R$ 200,00', color: '#f43f5e' },
+        { label: 'LUCRO LÍQUIDO NA HORA', val: '+ R$ 150,00', color: '#fbbf24' },
+      ];
+      cards.forEach((c, idx) => {
+        const x = 42 + idx * 245;
+        ctx.fillStyle = '#111a2e';
+        ctx.strokeStyle = c.color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(x, 175, 230, 155, 16);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = 'bold 13px Inter, system-ui, sans-serif';
+        ctx.fillText(c.label, x + 16, 220);
+
+        ctx.fillStyle = c.color;
+        ctx.font = 'extrabold 26px Inter, system-ui, sans-serif';
+        ctx.fillText(c.val, x + 16, 275);
+      });
+    } else if (t < 9) {
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'extrabold 30px Inter, system-ui, sans-serif';
+      ctx.fillText('Calculadora Anti-Prejuízo (2x a 12x)', 42, 110);
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = 'bold 20px Inter, system-ui, sans-serif';
+      ctx.fillText('Descubra quanto cobrar no Débito, 1x ou Parcelado 2x a 12x:', 42, 145);
+
+      ctx.fillStyle = '#111a2e';
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(42, 175, w - 84, 155, 16);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 22px Inter, system-ui, sans-serif';
+      ctx.fillText('💳 Venda de R$ 1.000 em 6x sem perder lucro:', 66, 220);
+      ctx.fillStyle = '#34d399';
+      ctx.font = 'extrabold 26px Inter, system-ui, sans-serif';
+      ctx.fillText('Cobre R$ 1.119,69 (6x de R$ 186,62) → Receba R$ 1.000 limpos!', 66, 268);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 16px Inter, system-ui, sans-serif';
+      ctx.fillText('Compatível com Ton, Stone, Mercado Pago, PagBank, Cielo e InfinitePay', 66, 308);
+    } else if (t < 12) {
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'extrabold 30px Inter, system-ui, sans-serif';
+      ctx.fillText('Termômetro Fiscal MEI, ME e EPP', 42, 110);
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = 'bold 20px Inter, system-ui, sans-serif';
+      ctx.fillText('Alerta antes de estourar o teto + Lote CSV p/ seu Contador:', 42, 145);
+
+      ctx.fillStyle = '#111a2e';
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(42, 175, w - 84, 155, 16);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 21px Inter, system-ui, sans-serif';
+      ctx.fillText('🛡️ Limite MEI: R$ 81.000/ano  |  Simples ME: R$ 360.000/ano', 66, 222);
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(66, 245, w - 132, 22);
+      ctx.fillStyle = '#10b981';
+      ctx.fillRect(66, 245, (w - 132) * 0.62, 22);
+      ctx.fillStyle = '#34d399';
+      ctx.font = 'bold 18px Inter, system-ui, sans-serif';
+      ctx.fillText('📊 Exportação Contábil em 1 Clique para o Escritório', 66, 305);
+    } else {
+      ctx.fillStyle = '#10b981';
+      ctx.font = 'extrabold 34px Inter, system-ui, sans-serif';
+      ctx.fillText('🎁 30 DIAS GRÁTIS LIBERADOS!', 42, 115);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 24px Inter, system-ui, sans-serif';
+      ctx.fillText('Sem planilha, direto no celular ou computador:', 42, 158);
+
+      ctx.fillStyle = '#10b981';
+      ctx.beginPath();
+      ctx.roundRect(42, 190, w - 84, 120, 20);
+      ctx.fill();
+
+      ctx.fillStyle = '#020617';
+      ctx.font = 'extrabold 34px Inter, system-ui, sans-serif';
+      ctx.fillText('👉 copilotofinanc.app.br', 145, 255);
+      ctx.font = 'bold 18px Inter, system-ui, sans-serif';
+      ctx.fillText('Acesse agora e fale pelo microfone em 3 segundos!', 155, 290);
+    }
+  }, [videoTimeSec]);
 
   if (!isOpen) return null;
 
@@ -72,13 +265,51 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
           .replace('aqui da região', `aqui de ${cityName.trim()}`)
       : raw;
 
+  const buildFacebookPayloadWithVideoLink = (rawText: string) => {
+    const base = customizeText(rawText);
+    return `${base}\n\n🎬 Assista ao Vídeo de 15s: ${PROMO_VIDEO_SHARE_URL}`;
+  };
+
   const handleCopyText = (id: string, text: string) => {
-    const finalMsg = customizeText(text);
+    const finalMsg = buildFacebookPayloadWithVideoLink(text);
     if (navigator.clipboard) {
       navigator.clipboard.writeText(finalMsg);
     }
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2500);
+  };
+
+  const handleDownloadVideo15s = () => {
+    const canvas = canvasRef.current;
+    if (!canvas || typeof MediaRecorder === 'undefined') return;
+    setIsRecordingWebm(true);
+    setVideoTimeSec(0);
+    setIsPlayingVideo(true);
+
+    const stream = canvas.captureStream(30);
+    const recorder = new MediaRecorder(stream, {
+      mimeType: MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+        ? 'video/webm;codecs=vp9'
+        : 'video/webm',
+    });
+    const chunks: BlobPart[] = [];
+    recorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) chunks.push(e.data);
+    };
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'copiloto-financeiro-15s.webm';
+      a.click();
+      URL.revokeObjectURL(url);
+      setIsRecordingWebm(false);
+    };
+    recorder.start();
+    setTimeout(() => {
+      if (recorder.state !== 'inactive') recorder.stop();
+    }, 15000);
   };
 
   return (
@@ -107,6 +338,97 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
           </button>
         </div>
 
+        {/* SECTION 0: 15-SECOND ANIMATED PROMO VIDEO + 1-CLICK COPY FOR FACEBOOK */}
+        <div className="bg-gradient-to-br from-[#0b1120] via-[#131f3a] to-[#0b1120] border-2 border-amber-500/40 rounded-2xl p-4 sm:p-5 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+                <Video className="w-3.5 h-3.5" />
+                Vídeo Animado Oficial de 15 Segundos · Pronto para Facebook, Reels e WhatsApp
+              </span>
+              <h3 className="text-sm sm:text-base font-extrabold text-white mt-1">
+                Principais Funcionalidades do copilotofinanc.app.br em 15s
+              </h3>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsPlayingVideo((prev) => !prev)}
+                className="px-3 py-1.5 rounded-lg bg-[#162238] hover:bg-[#1f304d] border border-[#2a3f66] text-slate-200 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+              >
+                <Play className="w-3.5 h-3.5 text-amber-400" />
+                <span>{isPlayingVideo ? 'Pausar' : 'Reproduzir'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setVideoTimeSec(0);
+                  setIsPlayingVideo(true);
+                }}
+                className="px-3 py-1.5 rounded-lg bg-[#162238] hover:bg-[#1f304d] border border-[#2a3f66] text-slate-200 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-sky-400" />
+                <span>Reiniciar 15s</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="rounded-xl overflow-hidden border border-[#1e2d4a] bg-[#070b14] shadow-inner">
+            <canvas
+              ref={canvasRef}
+              width={820}
+              height={370}
+              className="w-full h-auto block"
+            />
+          </div>
+
+          <div className="p-3 rounded-xl bg-[#0b1120] border border-[#1e2d4a] space-y-2">
+            <div className="text-[11px] font-bold text-amber-300 uppercase tracking-wide">
+              📋 Legenda + Link do Vídeo que serão copiados ao clicar em &ldquo;Copiar p/ Face&rdquo;:
+            </div>
+            <p className="text-xs text-slate-200 leading-relaxed select-all">
+              {MAIN_FACEBOOK_CAPTION}
+              <br />
+              <span className="text-sky-400 font-semibold">
+                🎬 Assista ao Vídeo de 15s: {PROMO_VIDEO_SHARE_URL}
+              </span>
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => handleCopyText('main_video_face', MAIN_FACEBOOK_CAPTION)}
+              className="flex-1 min-w-[220px] py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs sm:text-sm transition-colors cursor-pointer inline-flex items-center justify-center gap-2 shadow-lg"
+            >
+              {copiedId === 'main_video_face' ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-slate-950" />
+                  <span>✅ Link do Vídeo + Legenda Copiados p/ Facebook!</span>
+                </>
+              ) : (
+                <span>📋 Copiar p/ Face (Link do Vídeo + Legenda)</span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleDownloadVideo15s}
+              disabled={isRecordingWebm}
+              className="py-2.5 px-4 rounded-xl bg-[#162238] hover:bg-[#1f304d] border border-[#2a3f66] text-slate-200 font-bold text-xs transition-colors cursor-pointer inline-flex items-center gap-1.5 disabled:opacity-60"
+            >
+              <Download className="w-4 h-4 text-emerald-400" />
+              <span>
+                {isRecordingWebm
+                  ? 'Gravando 15s (aguarde)...'
+                  : '🎥 Baixar Arquivo de Vídeo (15s)'}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* SECTION 1: HIGH-CONVERSION LANDING PAGE SHOWCASE */}
         <div className="bg-gradient-to-br from-[#0b1120] via-[#101c35] to-[#0b1120] border border-[#1e2d4a] rounded-2xl p-4 sm:p-5 space-y-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div className="space-y-1">
@@ -192,6 +514,7 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
           </div>
         </div>
 
+        {/* SECTION 2: LOCAL & REGIONAL ORGANIC WHATSAPP / FACEBOOK SCRIPTS */}
         <div className="space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>

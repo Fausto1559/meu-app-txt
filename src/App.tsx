@@ -94,7 +94,7 @@ export default function App() {
     localStorage.getItem('copiloto_financeiro_active_plan_v1')
   );
   const [isSupportModalOpen, setIsSupportModalOpen] = useState<boolean>(false);
-  const [isGrowthHubOpen, setIsGrowthHubOpen] = useState<boolean>(false);
+  const [isGrowthHubOpen, setIsGrowthHubOpen] = useState<boolean>(() => typeof window !== 'undefined' && window.location.search.includes('video=15s'));
   const [supportTopic, setSupportTopic] = useState<string>('Dúvida sobre Comando de Voz');
   const [supportUserMessage, setSupportUserMessage] = useState<string>('');
   const supportProtocol = 'CF-2026-' + (userEmail || 'CLI').slice(0, 3).toUpperCase();
