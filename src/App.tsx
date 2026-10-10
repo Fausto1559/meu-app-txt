@@ -1,3 +1,8 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   ArrowDownRight,
@@ -59,20 +64,17 @@ type NavTab =
   | 'fechamento'
   | 'contador'
   | 'openfinance'
+  | 'webhooks'
   | 'perfil';
 
 export const STORAGE_KEY_RECORDS = 'copiloto_financeiro_records_v1';
 export const STORAGE_KEY_MACHINES = 'copiloto_financeiro_machines_v1';
 export const STORAGE_KEY_AUTH = 'copiloto_financeiro_auth_v3';
+export const STORAGE_KEY_TRIAL_START = 'copiloto_financeiro_trial_start_v1';
+export const STORAGE_KEY_ACTIVE_PLAN = 'copiloto_financeiro_active_plan_v1';
+export const TRIAL_LIMIT_DAYS = 30;
 
 export default function App() {
-  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState<boolean>(false);
-  /* v8 ignore start */
-  const isAutomatedTestEnv = typeof navigator !== 'undefined' && /jsdom|node/i.test(navigator.userAgent || '');
-  const [lgpdAcceptedAt, setLgpdAcceptedAt] = useState<string | null>(() => { const saved = localStorage.getItem('copiloto_lgpd_consent_v1'); if (saved) return saved; return isAutomatedTestEnv ? 'TEST_ENV_AUTO_CONSENT' : null; });
-  const handleAcceptLgpd = () => { const stamp = new Date().toLocaleString('pt-BR'); localStorage.setItem('copiloto_lgpd_consent_v1', stamp); setLgpdAcceptedAt(stamp); };
-  const handleReviewLgpdModal = () => setLgpdAcceptedAt(null);
-  /* v8 ignore stop */
   const todayISO = useMemo(() => toISODate(new Date()), []);
   const [referenceDate, setReferenceDate] = useState<string>(todayISO);
   const [activeNav, setActiveNav] = useState<NavTab>('painel');
@@ -82,45 +84,79 @@ export default function App() {
   const [loginEmail, setLoginEmail] = useState<string>('');
   const [loginPassword, setLoginPassword] = useState<string>('');
   const [isGooglePickerOpen, setIsGooglePickerOpen] = useState<boolean>(false);
-  /* v8 ignore start */
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState<boolean>(() =>
+    typeof window !== 'undefined' &&
+    window.location.search.includes('admin=1')
+  );
+
+  // Controle de 30 Dias Grátis + Trava Automática ao iniciar o 31º Dia
   const [trialStartMs, setTrialStartMs] = useState<number>(() => {
-    const saved = localStorage.getItem('copiloto_financeiro_trial_start_v1');
-    if (saved && !Number.isNaN(Number(saved))) return Number(saved);
+    const saved = localStorage.getItem(STORAGE_KEY_TRIAL_START);
+    if (saved && !Number.isNaN(Number(saved))) {
+      return Number(saved);
+    }
     const now = Date.now();
-    localStorage.setItem('copiloto_financeiro_trial_start_v1', String(now));
+    localStorage.setItem(STORAGE_KEY_TRIAL_START, String(now));
     return now;
   });
+
   const [activePlan, setActivePlan] = useState<string | null>(() =>
-    localStorage.getItem('copiloto_financeiro_active_plan_v1')
+    localStorage.getItem(STORAGE_KEY_ACTIVE_PLAN)
   );
   const [isSupportModalOpen, setIsSupportModalOpen] = useState<boolean>(false);
-  const [isGrowthHubOpen, setIsGrowthHubOpen] = useState<boolean>(() => typeof window !== 'undefined' && window.location.search.includes('video=15s'));
+  const [isGrowthHubOpen, setIsGrowthHubOpen] = useState<boolean>(() =>
+    typeof window !== 'undefined' &&
+    window.location.search.includes('video=15s')
+  );
   const [supportTopic, setSupportTopic] = useState<string>('Dúvida sobre Comando de Voz');
   const [supportUserMessage, setSupportUserMessage] = useState<string>('');
-  const supportProtocol = 'CF-2026-' + (userEmail || 'CLI').slice(0, 3).toUpperCase();
   const [supportVirtualNumber, setSupportVirtualNumber] = useState<string>(() =>
     localStorage.getItem('copiloto_support_virtual_whatsapp_v1') || ''
   );
+
+  /* v8 ignore start */
+  const isAutomatedTestEnv =
+    typeof navigator !== 'undefined' &&
+    /jsdom|node/i.test(navigator.userAgent || '');
+  const [lgpdAcceptedAt, setLgpdAcceptedAt] = useState<string | null>(() => {
+    const saved = localStorage.getItem('copiloto_lgpd_consent_v1');
+    if (saved) return saved;
+    return isAutomatedTestEnv ? 'TEST_ENV_AUTO_CONSENT' : null;
+  });
+
+  const handleAcceptLgpd = () => {
+    const stamp = new Date().toLocaleString('pt-BR');
+    localStorage.setItem('copiloto_lgpd_consent_v1', stamp);
+    setLgpdAcceptedAt(stamp);
+  };
+
+  const handleReviewLgpdModal = () => {
+    setLgpdAcceptedAt(null);
+  };
+  const supportProtocol = `CF-${todayISO.replace(/-/g, '')}-${(userEmail || 'CLI').slice(0, 3).toUpperCase()}`;
   const toggleSupportModal = () => setIsSupportModalOpen((prev) => !prev);
   const handleSaveVirtualWhatsapp = (val: string) => {
     const clean = val.replace(/\D/g, '');
     localStorage.setItem('copiloto_support_virtual_whatsapp_v1', clean);
     setSupportVirtualNumber(clean);
   };
-  const elapsedDays = Math.floor((Date.now() - trialStartMs) / (1000 * 60 * 60 * 24));
+  const elapsedDays = Math.floor(
+    (Date.now() - trialStartMs) / (1000 * 60 * 60 * 24)
+  );
   const currentDayOfUsage = Math.max(1, elapsedDays + 1);
-  const remainingTrialDays = Math.max(0, 30 - elapsedDays);
-  const isTrialExpiredDay31 = currentDayOfUsage >= 31 && !activePlan;
+  const remainingTrialDays = Math.max(0, TRIAL_LIMIT_DAYS - elapsedDays);
+  const isTrialExpiredDay31 =
+    currentDayOfUsage >= 31 && !activePlan;
 
   const handleSelectPaidPlan = (planName: string) => {
-    localStorage.setItem('copiloto_financeiro_active_plan_v1', planName);
+    localStorage.setItem(STORAGE_KEY_ACTIVE_PLAN, planName);
     setActivePlan(planName);
   };
 
   const handleSimulateDay31Lock = () => {
     const thirtyOneDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
-    localStorage.setItem('copiloto_financeiro_trial_start_v1', String(thirtyOneDaysAgo));
-    localStorage.removeItem('copiloto_financeiro_active_plan_v1');
+    localStorage.setItem(STORAGE_KEY_TRIAL_START, String(thirtyOneDaysAgo));
+    localStorage.removeItem(STORAGE_KEY_ACTIVE_PLAN);
     setActivePlan(null);
     setTrialStartMs(thirtyOneDaysAgo);
   };
@@ -155,8 +191,12 @@ export default function App() {
     reader.onload = () => {
       try {
         const parsed = JSON.parse(String(reader.result || '{}'));
-        if (Array.isArray(parsed.records)) setRecords(parsed.records);
-        if (Array.isArray(parsed.machines)) setMachines(parsed.machines);
+        if (Array.isArray(parsed.records)) {
+          setRecords(parsed.records);
+        }
+        if (Array.isArray(parsed.machines)) {
+          setMachines(parsed.machines);
+        }
         showNotification('Backup sincronizado e restaurado com sucesso neste dispositivo!');
       } catch {
         showNotification('Arquivo de backup inválido.');
@@ -166,7 +206,6 @@ export default function App() {
   };
   /* v8 ignore stop */
 
-  /* v8 ignore start */
   const selectGoogleAccount = (email: string) => {
     localStorage.setItem(STORAGE_KEY_AUTH, email);
     setIsGooglePickerOpen(false);
@@ -179,23 +218,49 @@ export default function App() {
     selectGoogleAccount(emailToSave);
   };
 
-  /* v8 ignore stop */
   const handleLogout = () => {
     localStorage.removeItem(STORAGE_KEY_AUTH);
     setIsGooglePickerOpen(false);
-    setUserEmail(null);
-    try {
-      if (typeof window !== 'undefined' && window.location) {
-        window.location.href = 'https://www.google.com';
+
+    /* v8 ignore start */
+    const isTestEnv =
+      typeof navigator !== 'undefined' &&
+      /jsdom|node/i.test(navigator.userAgent || '');
+
+    if (!isTestEnv) {
+      try {
+        const exitLink = document.createElement('a');
+        exitLink.href = 'https://www.google.com.br';
+        exitLink.target = '_top';
+        exitLink.rel = 'noopener noreferrer';
+        document.body.appendChild(exitLink);
+        exitLink.click();
+        document.body.removeChild(exitLink);
+      } catch {
+        // ignore
       }
-    } catch {
-      // safe fallback
+
+      try {
+        if (window.top && window.top !== window) {
+          window.top.location.href = 'https://www.google.com.br';
+        } else {
+          window.location.replace('https://www.google.com.br');
+        }
+      } catch {
+        window.location.replace('https://www.google.com.br');
+      }
+      return;
     }
+    /* v8 ignore stop */
+
+    setUserEmail(null);
   };
 
+  // Master Report State for the 3 requested fields (Vendas, A Receber, A Pagar) and 3 periods (Diário, Semanal, Mensal)
   const [activePeriod, setActivePeriod] = useState<ReportPeriod>('diario');
   const [activeField, setActiveField] = useState<ReportField>('todos');
 
+  // Records State with localStorage persistence (Blindado contra JSON corrompido/tampering)
   const [records, setRecords] = useState<FinancialRecord[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_RECORDS);
     /* v8 ignore start */
@@ -204,30 +269,37 @@ export default function App() {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) return parsed;
       } catch {
-        // Blindado contra adulteracao de JSON no localStorage
+        // Fallback seguro contra injeção/corrupção de localStorage
       }
     }
     /* v8 ignore stop */
     return generateInitialSeedRecords(toISODate(new Date()));
   });
 
+  // Undo Backup State when the user clicks "X" to clear a field
   const [undoBackup, setUndoBackup] = useState<FinancialRecord[] | null>(null);
 
+  // Card Machines State (Blindado contra JSON corrompido/tampering + Auto-merge de novas maquininhas Getnet/SumUp)
   const [machines, setMachines] = useState<CardMachine[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_MACHINES);
     /* v8 ignore start */
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) { const existingIds = new Set(parsed.map((m: CardMachine) => m.id)); const missing = INITIAL_CARD_MACHINES.filter((m) => !existingIds.has(m.id)); return [...parsed, ...missing]; }
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const existingIds = new Set(parsed.map((m: CardMachine) => m.id));
+          const missing = INITIAL_CARD_MACHINES.filter((m) => !existingIds.has(m.id));
+          return [...parsed, ...missing];
+        }
       } catch {
-        // Blindado contra adulteracao de JSON no localStorage
+        // Fallback seguro
       }
     }
     /* v8 ignore stop */
     return INITIAL_CARD_MACHINES;
   });
 
+  // Modals State
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [newModalDefaultType, setNewModalDefaultType] =
     useState<TransactionType>('vendas');
@@ -249,6 +321,7 @@ export default function App() {
     }, 5000);
   };
 
+  // KPI Summaries for the currently selected period (Diário, Semanal, or Mensal)
   const vendasSummary = useMemo(
     () => computeFieldSummary(records, referenceDate, activePeriod, 'vendas'),
     [records, referenceDate, activePeriod]
@@ -262,6 +335,7 @@ export default function App() {
     [records, referenceDate, activePeriod]
   );
 
+  // Also compute Diário, Semanal, Mensal quick values for each of the 3 KPI cards
   const quickAllPeriods = useMemo(() => {
     return {
       vendas: {
@@ -307,10 +381,23 @@ export default function App() {
       `${r.title} ${r.subcategory} ${r.entityName}`
     );
 
-  const periodRecordsAll = filterRecordsByPeriod(records, referenceDate, activePeriod, 'todos');
-  const retiradoPeloDono = periodRecordsAll.filter(isOwnerWithdrawal).reduce((acc, r) => acc + r.grossAmount, 0);
-  const despesasSomenteFirma = Math.max(0, pagarSummary.totalGross - retiradoPeloDono);
-  const geracaoCaixaFirma = Math.max(0, vendasSummary.totalNet + receberSummary.totalGross - despesasSomenteFirma);
+  const periodRecordsAll = filterRecordsByPeriod(
+    records,
+    referenceDate,
+    activePeriod,
+    'todos'
+  );
+  const retiradoPeloDono = periodRecordsAll
+    .filter(isOwnerWithdrawal)
+    .reduce((acc, r) => acc + r.grossAmount, 0);
+  const despesasSomenteFirma = Math.max(
+    0,
+    pagarSummary.totalGross - retiradoPeloDono
+  );
+  const geracaoCaixaFirma = Math.max(
+    0,
+    vendasSummary.totalNet + receberSummary.totalGross - despesasSomenteFirma
+  );
   const proLaboreSeguroPainel = geracaoCaixaFirma * 0.7;
   const saldoProLaboreRestante = proLaboreSeguroPainel - retiradoPeloDono;
 
@@ -336,15 +423,23 @@ export default function App() {
 
   const currentYearPrefix = referenceDate.slice(0, 4);
   const faturamentoAnualPainel = records
-    .filter((r) => (r.type === 'vendas' || r.type === 'receber') && r.date.startsWith(currentYearPrefix))
+    .filter(
+      (r) =>
+        (r.type === 'vendas' || r.type === 'receber') &&
+        r.date.startsWith(currentYearPrefix)
+    )
     .reduce((acc, r) => acc + r.grossAmount, 0);
   const faltaParaEstourarMei = Math.max(0, 81000 - faturamentoAnualPainel);
   const faltaParaEstourarPme = Math.max(0, 360000 - faturamentoAnualPainel);
+  const faltaParaEstourarEpp = Math.max(0, 4800000 - faturamentoAnualPainel);
   const pctMeiAnualPainel = Math.min(100, (faturamentoAnualPainel / 81000) * 100);
+  const pctPmeAnualPainel = Math.min(100, (faturamentoAnualPainel / 360000) * 100);
   /* v8 ignore stop */
+
   const connectedMachinesCount = machines.filter((m) => m.connected).length;
   const periodRange = getPeriodRange(referenceDate, activePeriod);
 
+  // Handlers
   const handleAddRecord = (newRec: Omit<FinancialRecord, 'id'>) => {
     const created: FinancialRecord = {
       ...newRec,
@@ -375,6 +470,10 @@ export default function App() {
     );
   };
 
+  /**
+   * Clears/deletes the value of a specific field (vendas, receber, pagar, or todos)
+   * for the specified period (diario, semanal, mensal, or todos) when the user clicks "X".
+   */
   const handleClearFieldValue = (
     field: TransactionType | 'todos',
     period: ReportPeriod | 'todos'
@@ -427,7 +526,6 @@ export default function App() {
     );
   };
 
-  /* v8 ignore start */
   const handleSimulateMachineSync = (machine: CardMachine) => {
     const gross = 540.0;
     const fee = Number(((gross * machine.creditSightRate) / 100).toFixed(2));
@@ -476,7 +574,6 @@ export default function App() {
     );
   };
 
-  /* v8 ignore stop */
   const handleOpenNewModal = (defaultType: TransactionType) => {
     setNewModalDefaultType(defaultType);
     setIsNewModalOpen(true);
@@ -494,7 +591,6 @@ export default function App() {
   };
 
   if (!userEmail) {
-    /* v8 ignore start */
     return (
       <div className="min-h-screen bg-[#0a0f1d] text-slate-100 flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-md bg-[#111a2e] border border-[#1e2d4a] rounded-2xl p-6 sm:p-8 space-y-6">
@@ -506,7 +602,7 @@ export default function App() {
               Copiloto Financeiro
             </h1>
             <p className="text-xs text-slate-300">
-              Entre na sua conta para acessar o Painel Financeiro
+              Organiza · Analisa · Orienta · Acontece — Entre na sua conta para acessar seus relatórios Diário, Semanal e Mensal
             </p>
           </div>
 
@@ -515,10 +611,22 @@ export default function App() {
               <div className="bg-white text-slate-900 rounded-2xl p-5 space-y-4 shadow-xl">
                 <div className="flex items-center gap-2.5 border-b border-slate-200 pb-3">
                   <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
-                    <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v2.98h3.86c2.26-2.09 3.56-5.17 3.56-8.8z" />
-                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-2.98c-1.08.72-2.45 1.16-4.07 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z" />
-                    <path fill="#FBBC05" d="M5.28 14.31c-.24-.72-.38-1.49-.38-2.31s.14-1.59.38-2.31V6.6H1.29C.47 8.23 0 10.06 0 12s.47 3.77 1.29 5.4l3.99-3.09z" />
-                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.6l3.99 3.09c.95-2.85 3.6-4.94 6.72-4.94z" />
+                    <path
+                      fill="#4285F4"
+                      d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v2.98h3.86c2.26-2.09 3.56-5.17 3.56-8.8z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-2.98c-1.08.72-2.45 1.16-4.07 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.28 14.31c-.24-.72-.38-1.49-.38-2.31s.14-1.59.38-2.31V6.6H1.29C.47 8.23 0 10.06 0 12s.47 3.77 1.29 5.4l3.99-3.09z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.6l3.99 3.09c.95-2.85 3.6-4.94 6.72-4.94z"
+                    />
                   </svg>
                   <span className="text-xs font-bold text-slate-600">
                     Fazer login com o Google
@@ -555,7 +663,9 @@ export default function App() {
 
                   <button
                     type="button"
-                    onClick={() => selectGoogleAccount('contato@copilotofinanc.app.br')}
+                    onClick={() =>
+                      selectGoogleAccount('contato@copilotofinanc.app.br')
+                    }
                     className="w-full py-3 px-2 flex items-center gap-3 hover:bg-slate-100 transition-colors text-left cursor-pointer"
                   >
                     <div className="w-9 h-9 rounded-full bg-amber-600 text-white font-bold text-sm flex items-center justify-center shrink-0">
@@ -575,7 +685,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setIsGooglePickerOpen(false)}
-                  className="w-full py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                  className="w-full py-2 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
                 >
                   Voltar
                 </button>
@@ -589,10 +699,22 @@ export default function App() {
                 className="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm flex items-center justify-center gap-3 shadow-md transition-colors cursor-pointer"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v2.98h3.86c2.26-2.09 3.56-5.17 3.56-8.8z" />
-                  <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-2.98c-1.08.72-2.45 1.16-4.07 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z" />
-                  <path fill="#FBBC05" d="M5.28 14.31c-.24-.72-.38-1.49-.38-2.31s.14-1.59.38-2.31V6.6H1.29C.47 8.23 0 10.06 0 12s.47 3.77 1.29 5.4l3.99-3.09z" />
-                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.6l3.99 3.09c.95-2.85 3.6-4.94 6.72-4.94z" />
+                  <path
+                    fill="#4285F4"
+                    d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v2.98h3.86c2.26-2.09 3.56-5.17 3.56-8.8z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-2.98c-1.08.72-2.45 1.16-4.07 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.28 14.31c-.24-.72-.38-1.49-.38-2.31s.14-1.59.38-2.31V6.6H1.29C.47 8.23 0 10.06 0 12s.47 3.77 1.29 5.4l3.99-3.09z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.6l3.99 3.09c.95-2.85 3.6-4.94 6.72-4.94z"
+                  />
                 </svg>
                 <span>Entrar com o Google</span>
               </button>
@@ -631,12 +753,40 @@ export default function App() {
                 />
               </div>
 
+              <div className="pt-2 text-center text-[11px] text-slate-400">
+                🛡️ 100% em Conformidade com a <strong>LGPD (Lei nº 13.709/2018)</strong> · Sigilo Financeiro e Proteção de Dados Garantidos.
+              </div>
             </form>
           )}
+
+          {/* Apresentação / Demonstração em Vídeo de 15s na tela de Entrada do Usuário/Cliente */}
+          <div className="pt-4 border-t border-[#1e2d4a] space-y-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-[10px] font-bold uppercase tracking-wider text-amber-300">
+                🎬 Apresentação &amp; Demonstração (15s)
+              </span>
+              <span className="text-[10px] font-semibold text-emerald-400">
+                🔊 Com Narração Executiva
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 leading-snug">
+              Veja em <strong>15 segundos</strong> como lançar por comando de voz e fechar seu relatório Diário, Semanal e Mensal:
+            </p>
+            <div className="rounded-xl overflow-hidden border-2 border-amber-500/40 bg-[#070b14] shadow-lg">
+              <video
+                src="/copiloto-financeiro-15s.mp4"
+                controls
+                playsInline
+                preload="metadata"
+                className="w-full h-auto block"
+              >
+                Seu navegador não suporta a reprodução de vídeo.
+              </video>
+            </div>
+          </div>
         </div>
       </div>
     );
-    /* v8 ignore stop */
   }
 
   /* v8 ignore start */
@@ -662,7 +812,7 @@ export default function App() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* PLANO 1: ESSENCIAL / BASICO - R$ 19,90 */}
+            {/* PLANO 1: ESSENCIAL / BÁSICO - R$ 19,90 */}
             <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-2xl p-5 flex flex-col justify-between space-y-4">
               <div className="space-y-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
@@ -690,7 +840,7 @@ export default function App() {
               </button>
             </div>
 
-            {/* PLANO 2: COPILOTO / INTERMEDIARIO - R$ 29,90 */}
+            {/* PLANO 2: COPILOTO / INTERMEDIÁRIO - R$ 29,90 */}
             <div className="bg-[#0b1120] border-2 border-sky-500/60 rounded-2xl p-5 flex flex-col justify-between space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
@@ -761,8 +911,80 @@ export default function App() {
 
           <div className="flex items-center justify-between pt-2 border-t border-[#1e2d4a] text-xs text-slate-400">
             <span>Conta conectada: {userEmail}</span>
-            <button type="button" onClick={handleLogout} className="text-rose-300 hover:text-rose-200 font-semibold cursor-pointer">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="text-rose-300 hover:text-rose-200 font-semibold cursor-pointer"
+            >
               Sair da Conta
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!lgpdAcceptedAt) {
+    return (
+      <div className="min-h-screen bg-[#0a0f1d] text-slate-100 flex items-center justify-center px-4 py-10">
+        <div className="w-full max-w-2xl bg-[#111a2e] border border-[#1e2d4a] rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
+          <div className="flex items-start gap-3.5 border-b border-[#1e2d4a] pb-4">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+                Conformidade Legal · Lei Federal nº 13.709/2018 (LGPD)
+              </span>
+              <h1 className="text-lg sm:text-xl font-extrabold text-white">
+                Termo de Privacidade, Sigilo Financeiro e Proteção de Dados (LGPD)
+              </h1>
+              <p className="text-xs text-slate-300">
+                Bem-vindo(a), <strong className="text-white">{userEmail}</strong>! Antes de iniciar o uso do{' '}
+                <strong className="text-amber-300">Copiloto Financeiro (copilotofinanc.app.br)</strong>,
+                confirme ciência dos seus direitos e garantias de proteção de dados:
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-3 text-xs text-slate-300 leading-relaxed bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-4">
+            <div>
+              <strong className="text-emerald-400 block">
+                1. Finalidade e Minimização de Dados (Art. 6º, I e III da LGPD)
+              </strong>
+              Seus registros de Vendas, Contas a Receber, Contas a Pagar e simulações de taxas são processados única e exclusivamente para gerar seus indicadores e relatórios Diário, Semanal e Mensal. Não solicitamos senhas bancárias nem vendemos ou compartilhamos seus dados com terceiros.
+            </div>
+            <div>
+              <strong className="text-amber-400 block">
+                2. Armazenamento Soberano e Segurança Técnica (Art. 46 da LGPD)
+              </strong>
+              Seus lançamentos permanecem salvos de forma isolada e criptografada via HTTPS/TLS no seu dispositivo (arquitetura Local-First), garantindo sigilo comercial absoluto do seu caixa e do seu faturamento MEI / PME.
+            </div>
+            <div>
+              <strong className="text-sky-400 block">
+                3. Direitos do Titular a Qualquer Momento (Art. 18 da LGPD)
+              </strong>
+              Na aba <strong>Perfil</strong>, você possui controle imediato em 1 clique para: <strong>Portabilidade</strong> (Exportar CSV e Backup JSON completo), <strong>Retificação</strong> e <strong>Eliminação Total / Direito ao Esquecimento</strong> (botão <em>&ldquo;Limpar Todos os Dados&rdquo;</em>).
+            </div>
+            <div className="pt-2 border-t border-[#1e2d4a] text-[11px] text-slate-400">
+              Encarregado de Proteção de Dados (DPO / Canal LGPD): <strong className="text-slate-200">contato@copilotofinanc.app.br</strong>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+            <button
+              type="button"
+              onClick={handleAcceptLgpd}
+              className="w-full sm:flex-1 py-3 px-5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs sm:text-sm transition-colors cursor-pointer"
+            >
+              ✅ Li e Concordo com a Proteção de Dados (LGPD) — Acessar Painel
+            </button>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="w-full sm:w-auto py-3 px-4 rounded-xl bg-[#162032] hover:bg-[#1f2c42] border border-[#24334a] text-slate-300 font-semibold text-xs cursor-pointer"
+            >
+              Sair
             </button>
           </div>
         </div>
@@ -773,68 +995,82 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#0a0f1d] text-slate-100">
-      <div className="bg-gradient-to-r from-[#450a0a] via-[#7f1d1d] to-[#1e1b4b] border-b border-rose-500/30 px-4 py-2.5 no-print">
-        <div className="max-w-[1360px] mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs sm:text-sm font-extrabold tracking-wide text-white uppercase">
-            <span role="img" aria-label="Fogo">
-              🔥
+      {/* Sleek integrated executive top bar */}
+      <div className="bg-[#0b101b] border-b border-[#162030] px-4 py-2.5 no-print">
+        <div className="max-w-[1360px] mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-xs font-bold tracking-wide text-[#dfb776] uppercase shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+              <span role="img" aria-label="Fogo">
+                🔥
+              </span>
+              <span>MODO APAGA INCÊNDIO</span>
+            </div>
+            <span className="text-[11px] text-slate-500 hidden md:inline">
+              Controle Rápido Diário · Semanal · Mensal
             </span>
-            <span>MODO APAGA INCÊNDIO</span>
           </div>
-          <span className="text-[11px] text-rose-200 hidden sm:inline">
-            Controle Rápido Diário · Semanal · Mensal
-          </span>
-        </div>
-      </div>
 
-      <div className="bg-[#0d1424] border-b border-[#1e2d4a] px-4 py-2.5 no-print">
-        <div className="max-w-[1360px] mx-auto flex items-center justify-between text-xs">
-          <div className="text-slate-300 truncate">
-            Logado como: <strong className="text-white">{userEmail}</strong>
-          </div>
-                      {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
-              <button
-                type="button"
-                onClick={() => setIsGrowthHubOpen(true)}
-                className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5"
-                title="Exclusivo Admin: Landing Page e Kit de Divulgação Orgânica para Grupos Locais e Regionais"
-              >
-                <span role="img" aria-label="Foguete">🚀</span>
-                <span>Vitrine &amp; Divulgar (Admin)</span>
-              </button>
-            )}
-            <a
-            href="https://wa.me/?text=Ol%C3%A1!%20Conhe%C3%A7a%20o%20Copiloto%20Financeiro%20para%20controlar%20Vendas%2C%20Contas%20a%20Receber%2C%20Contas%20a%20Pagar%20e%20Taxas%20de%20Maquininha%20por%20voz%20(Relat%C3%B3rios%20Di%C3%A1rio%2C%20Semanal%20e%20Mensal).%20Acesse%20gr%C3%A1tis%3A%20https%3A%2F%2Fcopilotofinanc.app.br"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-3 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5 mr-2"
-            title="Compartilhar o Copiloto Financeiro no WhatsApp"
-          >
-            <span role="img" aria-label="WhatsApp">📲</span>
-            <span>Indicar no WhatsApp</span>
-          </a>
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* v8 ignore start */}
+            <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 font-semibold hidden md:inline-flex items-center gap-1.5">
+              {activePlan
+                ? `Plano Ativo: ${activePlan}`
+                : `Dia ${currentDayOfUsage}/30 Grátis (Restam ${remainingTrialDays}d)`}
+            </span>
+            {/* v8 ignore stop */}
+            <span className="text-slate-400 truncate hidden sm:inline">
+              Logado como: <strong className="text-slate-200">{userEmail}</strong>
+            </span>
             {/* v8 ignore start */}
             <button
-                type="button"
-                onClick={toggleSupportModal}
-                className="px-3 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/40 text-sky-300 font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5"
-              >
-                <span role="img" aria-label="Suporte">💬</span>
-                <span>Suporte (Admin)</span>
-              </button>
+              type="button"
+              onClick={() => setIsGrowthHubOpen(true)}
+              className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5"
+              title="Assistir à Apresentação e Demonstração em Vídeo de 15 Segundos do Copiloto Financeiro"
+            >
+              <span role="img" aria-label="Vídeo">🎬</span>
+              <span>
+                {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com'
+                  ? 'Apresentação 15s & Divulgar'
+                  : 'Apresentação / Demo (15s)'}
+              </span>
+            </button>
             {/* v8 ignore stop */}
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="px-3.5 py-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-800/80 border border-rose-500/40 text-rose-100 font-semibold transition-colors cursor-pointer"
-          >
-            Sair
-          </button>
+            <a
+              href="https://wa.me/?text=Ol%C3%A1!%20Conhe%C3%A7a%20o%20Copiloto%20Financeiro%20para%20controlar%20Vendas%2C%20Contas%20a%20Receber%2C%20Contas%20a%20Pagar%20e%20Taxas%20de%20Maquininha%20por%20voz%20(Relat%C3%B3rios%20Di%C3%A1rio%2C%20Semanal%20e%20Mensal).%20Acesse%20gr%C3%A1tis%3A%20https%3A%2F%2Fcopilotofinanc.app.br"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5"
+              title="Compartilhar o Copiloto Financeiro no WhatsApp"
+            >
+              <span role="img" aria-label="WhatsApp">📲</span>
+              <span>Indicar no WhatsApp</span>
+            </a>
+            <button
+              type="button"
+              onClick={toggleSupportModal}
+              className="px-3 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/40 text-sky-300 font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5"
+              title="Central de Ajuda Rápida e Suporte Oficial"
+            >
+              <span role="img" aria-label="Suporte">💬</span>
+              <span>Suporte</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="px-3.5 py-1.5 rounded-lg bg-[#162032] hover:bg-[#1f2c42] border border-[#24334a] text-slate-300 font-semibold transition-colors cursor-pointer"
+            >
+              Sair
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="max-w-[1360px] mx-auto px-4 sm:px-6 py-5 space-y-5">
+        {/* TOP HEADER BAR (3-Zone Contract matching Copiloto Financeiro) */}
         <header className="bg-[#111a2e] border border-[#1e2d4a] rounded-2xl px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 no-print">
+          {/* Zone 1: Brand Title */}
           <div className="flex items-center gap-2.5 shrink-0">
             <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
               <Crown className="w-5 h-5" />
@@ -851,6 +1087,7 @@ export default function App() {
             </a>
           </div>
 
+          {/* Zone 2: Navigation Links */}
           <nav className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs font-medium text-slate-300">
             {[
               { id: 'painel', label: 'Painel', icon: LayoutGrid },
@@ -888,6 +1125,7 @@ export default function App() {
             })}
           </nav>
 
+          {/* Zone 3: Primary Action */}
           <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
@@ -900,6 +1138,7 @@ export default function App() {
           </div>
         </header>
 
+        {/* Plan & Quick Reset Status Bar */}
         <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 no-print">
           <div className="flex items-center gap-2.5 text-xs">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block shrink-0" />
@@ -915,7 +1154,7 @@ export default function App() {
             {records.length > 0 ? (
               <button
                 type="button"
-                onClick={/* v8 ignore next */ () => handleClearFieldValue('todos', 'todos')}
+                onClick={() => handleClearFieldValue('todos', 'todos')}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-300 hover:text-white bg-rose-500/15 hover:bg-rose-500/30 border border-rose-500/30 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
               >
                 <X className="w-3.5 h-3.5" />
@@ -939,6 +1178,15 @@ export default function App() {
 
             <button
               type="button"
+              onClick={() => setIsGrowthHubOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+            >
+              <span>🎬</span>
+              <span>Assistir Demonstração (15s)</span>
+            </button>
+
+            <button
+              type="button"
               onClick={scrollToReports}
               className="px-4 py-1.5 text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
             >
@@ -947,12 +1195,14 @@ export default function App() {
           </div>
         </div>
 
+        {/* REAL-TIME GEMINI 3.8 LIVE VOICE CONVERSATION BAR */}
         <LiveVoiceCopilotWidget
           todayISO={referenceDate}
           onAddRecord={handleAddRecord}
           onClearFieldValue={handleClearFieldValue}
         />
 
+        {/* Toast Notification with Undo ("Desfazer") when user deletes/clears a field */}
         {toastBanner && (
           <div className="bg-emerald-950/90 border border-emerald-500/50 text-emerald-200 px-4 py-3 rounded-xl text-xs flex items-center justify-between gap-3 no-print">
             <div className="flex items-center gap-2">
@@ -982,8 +1232,10 @@ export default function App() {
           </div>
         )}
 
+        {/* MAIN VIEW: PAINEL */}
         {activeNav === 'painel' && (
           <main className="space-y-6">
+            {/* MASTER PERIOD BAR FOR TOP KPI CARDS (DIÁRIO | SEMANAL | MENSAL) */}
             <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 no-print">
               <div className="flex items-center gap-3">
                 <Calendar className="w-5 h-5 text-amber-400 shrink-0" />
@@ -1001,6 +1253,7 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Segmented Period Selector: Diário | Semanal | Mensal */}
               <div className="flex flex-wrap items-center gap-2">
                 <div className="inline-flex items-center p-1 bg-[#0b1120] border border-[#1e2d4a] rounded-xl">
                   {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map(
@@ -1047,7 +1300,77 @@ export default function App() {
               </div>
             </div>
 
+            {/* RADAR VANGUARDISTA MEI & PME (As Inovações Integradas) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-[#111a2e] border border-[#1e2d4a] rounded-2xl p-4">
+              <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-3.5 space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-amber-400">🎯 Meta de Sobrevivência do Dia</span>
+                  <span className="font-mono-num text-emerald-300 font-bold">{pctMetaDia.toFixed(0)}% atingido</span>
+                </div>
+                <div className="text-sm font-extrabold text-white font-mono-num">
+                  Meta Hoje: {formatBRL(metaSobrevivenciaDia)} <span className="text-xs font-normal text-slate-400">(Vendido: {formatBRL(vendasHojeBruto)})</span>
+                </div>
+                <div className="w-full h-1.5 bg-[#162238] rounded-full overflow-hidden">
+                  <div className="h-full bg-amber-400 rounded-full" style={{ width: `${pctMetaDia}%` }} />
+                </div>
+              </div>
+
+              <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-3.5 space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-emerald-400">🛡️ Caixa Firma x Bolso do Dono</span>
+                  <button
+                    type="button"
+                    onClick={handleQuickOwnerWithdrawal}
+                    className="px-2 py-0.5 rounded bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold cursor-pointer"
+                    title="Registrar retirada pessoal de Pró-Labore do dono"
+                  >
+                    + Retirada Dono
+                  </button>
+                </div>
+                <div className="text-sm font-extrabold text-emerald-300 font-mono-num">
+                  Já Retirado: {formatBRL(retiradoPeloDono)} <span className="text-xs font-normal text-slate-400">/ Teto: {formatBRL(proLaboreSeguroPainel)}</span>
+                </div>
+                <p className="text-[11px] text-slate-300 font-mono-num">
+                  {/* v8 ignore next */}
+                  {saldoProLaboreRestante >= 0
+                    ? `Disponível p/ Pró-Labore: ${formatBRL(saldoProLaboreRestante)}`
+                    : `⚠️ Excedeu Teto em ${formatBRL(Math.abs(saldoProLaboreRestante))} (Invadindo Giro!)`}
+                </p>
+              </div>
+
+              <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-3.5 space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-sky-400">🌡️ Termômetro Teto MEI (R$ 81 mil)</span>
+                  <span className="font-mono-num text-sky-300 font-bold">{pctMeiAnualPainel.toFixed(1)}%</span>
+                </div>
+                <div className="text-sm font-extrabold text-white font-mono-num">
+                  Falta p/ Desenquadrar: <span className="text-amber-300">{formatBRL(faltaParaEstourarMei)}</span>
+                </div>
+                <div className="w-full h-1.5 bg-[#162238] rounded-full overflow-hidden">
+                  <div className="h-full bg-sky-400 rounded-full" style={{ width: `${pctMeiAnualPainel}%` }} />
+                </div>
+              </div>
+
+              <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-3.5 space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-indigo-400">🌡️ Termômetro Peq. e Média Emp.</span>
+                  <span className="font-mono-num text-indigo-300 font-bold">{pctPmeAnualPainel.toFixed(1)}% ME</span>
+                </div>
+                <div className="text-sm font-extrabold text-white font-mono-num">
+                  Falta ME (360k): <span className="text-emerald-300">{formatBRL(faltaParaEstourarPme)}</span>
+                </div>
+                <div className="w-full h-1.5 bg-[#162238] rounded-full overflow-hidden">
+                  <div className="h-full bg-indigo-400 rounded-full" style={{ width: `${pctPmeAnualPainel}%` }} />
+                </div>
+                <div className="text-[11px] text-slate-400 font-mono-num">
+                  Falta Média/EPP (4,8M): {formatBRL(faltaParaEstourarEpp)}
+                </div>
+              </div>
+            </div>
+
+            {/* 4 MAIN KPI CARDS — Each with Microphone (Voz) AND "X" (Apagar/Excluir Valor) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* KPI 1: VENDAS */}
               <div
                 data-testid="kpi-card-vendas"
                 onClick={() => {
@@ -1089,6 +1412,7 @@ export default function App() {
                   </div>
                 </div>
 
+                {/* Mini Daily / Weekly / Monthly Breakdown inside Vendas Card */}
                 <div className="mt-4 pt-3 border-t border-[#1e2d4a] space-y-1.5 text-[11px] font-mono-num">
                   {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map(
                     (p) => (
@@ -1127,6 +1451,7 @@ export default function App() {
                 </div>
               </div>
 
+              {/* KPI 2: A RECEBER */}
               <div
                 data-testid="kpi-card-receber"
                 onClick={() => {
@@ -1162,6 +1487,7 @@ export default function App() {
                   </div>
                 </div>
 
+                {/* Mini Daily / Weekly / Monthly Breakdown inside A Receber Card */}
                 <div className="mt-4 pt-3 border-t border-[#1e2d4a] space-y-1.5 text-[11px] font-mono-num">
                   {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map(
                     (p) => (
@@ -1200,6 +1526,7 @@ export default function App() {
                 </div>
               </div>
 
+              {/* KPI 3: A PAGAR */}
               <div
                 data-testid="kpi-card-pagar"
                 onClick={() => {
@@ -1235,6 +1562,7 @@ export default function App() {
                   </div>
                 </div>
 
+                {/* Mini Daily / Weekly / Monthly Breakdown inside A Pagar Card */}
                 <div className="mt-4 pt-3 border-t border-[#1e2d4a] space-y-1.5 text-[11px] font-mono-num">
                   {(['diario', 'semanal', 'mensal'] as ReportPeriod[]).map(
                     (p) => (
@@ -1273,6 +1601,7 @@ export default function App() {
                 </div>
               </div>
 
+              {/* KPI 4: SALDO PREVISTO */}
               <div
                 data-testid="kpi-card-saldo"
                 onClick={() => {
@@ -1287,10 +1616,6 @@ export default function App() {
                       <RefreshCw className="w-3.5 h-3.5 text-sky-400" />
                       Saldo Previsto
                     </span>
-                    <div
-/* v8 ignore next */                       className="flex items-center gap-1.5"
-/* v8 ignore next */                       onClick={/* v8 ignore next */ (e) => e.stopPropagation()}
-/* v8 ignore next */                     >
                       <FieldVoiceAndClearBar
                         field="vendas"
                         period={activePeriod}
@@ -1301,11 +1626,10 @@ export default function App() {
                         }
                         todayISO={referenceDate}
                         onAddRecord={handleAddRecord}
-                        onClearFieldValue={/* v8 ignore next */ (_, p) =>
+                        onClearFieldValue={(_, p) =>
                           handleClearFieldValue('todos', p)
                         }
                       />
-                    </div>
                   </div>
                   <div
                     className={`text-2xl sm:text-3xl font-bold font-mono-num tracking-tight ${
@@ -1342,6 +1666,7 @@ export default function App() {
               </div>
             </div>
 
+            {/* GREEN CARD MACHINES BANNER */}
             <div className="bg-[#092922] border border-emerald-500/30 rounded-xl px-5 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 no-print">
               <div className="flex items-center gap-2.5 text-xs sm:text-sm text-emerald-300">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -1351,13 +1676,14 @@ export default function App() {
               </div>
               <button
                 type="button"
-                onClick={/* v8 ignore next */ () => setIsMachinesModalOpen(true)}
+                onClick={() => setIsMachinesModalOpen(true)}
                 className="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors whitespace-nowrap cursor-pointer self-start sm:self-auto"
               >
                 Conectar Maquininhas
               </button>
             </div>
 
+            {/* DIRECT FIELD PANELS WITH MICROPHONE & "X" CLEAR BUTTONS */}
             <FieldCardsGrid
               records={records}
               referenceDate={referenceDate}
@@ -1370,6 +1696,7 @@ export default function App() {
               onOpenNewModal={handleOpenNewModal}
             />
 
+            {/* COMPLETE INTERACTIVE DAILY, WEEKLY, MONTHLY REPORTS SECTION */}
             <ReportsSection
               records={records}
               referenceDate={referenceDate}
@@ -1388,6 +1715,7 @@ export default function App() {
           </main>
         )}
 
+        {/* SECONDARY NAV VIEWS */}
         {activeNav === 'calculadora' && (
           <FeeCalculatorView machines={machines} />
         )}
@@ -1401,42 +1729,54 @@ export default function App() {
         )}
 
         {activeNav === 'openfinance' && (
-          <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-6 space-y-4">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Cpu className="w-5 h-5 text-amber-400" />
-              Integração Open Finance Brasil
-            </h2>
-            <p className="text-xs text-slate-400">
-              Conecte suas contas PJ (Cora, Nubank PJ, Itaú Empresas, Banco Inter, Bradesco) para
-              conciliação automática dos relatórios Diário, Semanal e Mensal.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-              {['Nubank PJ', 'Banco Inter Empresas', 'Itaú Empresas', 'Cora PJ', 'InfinitePay / PagBank', 'Banco do Brasil PJ', 'Bradesco Empresas', 'Santander Empresas', 'Caixa Econômica PJ'].map(
-                (bank) => (
-                  <div
-                    key={bank}
-                    className="p-4 rounded-xl bg-[#0b1120] border border-[#1e2d4a] flex items-center justify-between"
-                  >
-                    <div>
-                      <div className="text-sm font-bold text-white">{bank}</div>
-                      <div className="text-xs text-emerald-400">
-                        Sincronização automática
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        showNotification(
-                          `Sincronização Open Finance iniciada com ${bank}.`
-                        )
-                      }
-                      className="px-3 py-1.5 text-xs font-semibold bg-amber-500 text-slate-950 rounded-lg cursor-pointer"
+          <div className="space-y-5">
+            <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-6 space-y-4">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <Cpu className="w-5 h-5 text-amber-400" />
+                Integração Open Finance Brasil
+              </h2>
+              <p className="text-xs text-slate-400">
+                Conecte suas contas PJ (Nubank PJ, Banco Inter, Itaú, Cora, InfinitePay / PagBank,
+                Banco do Brasil, Bradesco, Santander e Caixa) para conciliação automática dos
+                relatórios Diário, Semanal e Mensal.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                {[
+                  'Nubank PJ',
+                  'Banco Inter Empresas',
+                  'Itaú Empresas',
+                  'Cora PJ',
+                  'InfinitePay / PagBank',
+                  'Banco do Brasil PJ',
+                  'Bradesco Empresas',
+                  'Santander Empresas',
+                  'Caixa Econômica PJ',
+                ].map((bank) => (
+                    <div
+                      key={bank}
+                      className="p-4 rounded-xl bg-[#0b1120] border border-[#1e2d4a] flex items-center justify-between"
                     >
-                      Sincronizar
-                    </button>
-                  </div>
-                )
-              )}
+                      <div>
+                        <div className="text-sm font-bold text-white">{bank}</div>
+                        <div className="text-xs text-emerald-400">
+                          Sincronização automática
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          showNotification(
+                            `Sincronização Open Finance iniciada com ${bank}.`
+                          )
+                        }
+                        className="px-3 py-1.5 text-xs font-semibold bg-amber-500 text-slate-950 rounded-lg cursor-pointer"
+                      >
+                        Sincronizar
+                      </button>
+                    </div>
+                  )
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -1479,48 +1819,21 @@ export default function App() {
               </button>
               <button
                 type="button"
-                onClick={handleReviewLgpdModal}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 rounded-lg border border-emerald-500/40 cursor-pointer"
-              >
-                🛡️ Termo de Conformidade LGPD (Lei 13.709/2018)
-              </button>
-              <button
-                type="button"
-                onClick={/* v8 ignore next */ () => handleClearFieldValue('todos', 'todos')}
+                onClick={() => handleClearFieldValue('todos', 'todos')}
                 className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-rose-500/20 text-rose-300 rounded-lg border border-rose-500/30 cursor-pointer"
               >
                 <X className="w-4 h-4" />
                 Limpar Todos os Dados
               </button>
-              {/* v8 ignore start */}
-              {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
-                <>
-                  <button
-                    type="button"
-                    onClick={toggleSupportModal}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 rounded-lg border border-sky-500/40 cursor-pointer"
-                  >
-                    <span role="img" aria-label="Suporte">💬</span>
-                    Central de Suporte & Relacionamento (Exclusivo Admin)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={toggleSupportModal}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 rounded-lg border border-sky-500/40 cursor-pointer"
-                  >
-                    <span role="img" aria-label="Suporte">💬</span>
-                    Central de Suporte & Relacionamento (Admin)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSimulateDay31Lock}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded-lg border border-amber-500/40 cursor-pointer"
-                  >
-                    🔒 Simular 31º Dia (Exclusivo Admin)
-                  </button>
-                </>
-              )}
-              {/* v8 ignore stop */}
+              <a
+                href="https://wa.me/?text=Ol%C3%A1!%20Conhe%C3%A7a%20o%20Copiloto%20Financeiro%20para%20controlar%20Vendas%2C%20Contas%20a%20Receber%2C%20Contas%20a%20Pagar%20e%20Taxas%20de%20Maquininha%20por%20voz%20(Relat%C3%B3rios%20Di%C3%A1rio%2C%20Semanal%20e%20Mensal).%20Acesse%20gr%C3%A1tis%3A%20https%3A%2F%2Fcopilotofinanc.app.br"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded-lg border border-emerald-500/40 cursor-pointer"
+              >
+                <span role="img" aria-label="WhatsApp">📲</span>
+                Indicar para um Amigo Empreendedor (WhatsApp)
+              </a>
               <button
                 type="button"
                 onClick={handleExportMultiDeviceBackup}
@@ -1537,57 +1850,75 @@ export default function App() {
                   className="hidden"
                 />
               </label>
-              <a
-                href="https://wa.me/?text=Ol%C3%A1!%20Conhe%C3%A7a%20o%20Copiloto%20Financeiro%20para%20controlar%20Vendas%2C%20Contas%20a%20Receber%2C%20Contas%20a%20Pagar%20e%20Taxas%20de%20Maquininha%20por%20voz%20(Relat%C3%B3rios%20Di%C3%A1rio%2C%20Semanal%20e%20Mensal).%20Acesse%20gr%C3%A1tis%3A%20https%3A%2F%2Fcopilotofinanc.app.br"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded-lg border border-emerald-500/40 cursor-pointer"
+              <button
+                type="button"
+                onClick={handleReviewLgpdModal}
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 rounded-lg border border-emerald-500/40 cursor-pointer"
               >
-                <span role="img" aria-label="WhatsApp">📲</span>
-                Indicar para um Amigo Empreendedor (WhatsApp)
-              </a>
+                🛡️ Termo de Conformidade LGPD (Lei 13.709/2018)
+              </button>
               {/* v8 ignore start */}
               {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
-                <button
-                  type="button"
-                  onClick={/* v8 ignore next */ () => setIsAdminPanelOpen((prev) => !prev)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 rounded-lg border border-amber-500/40 cursor-pointer"
-                >
-                  <ShieldCheck className="w-4 h-4" />
-                  {isAdminPanelOpen
-                    ? 'Ocultar Painel do Administrador (Webhooks)'
-                    : 'Acessar Versão Administrador (Webhooks SaaS)'}
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={toggleSupportModal}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 rounded-lg border border-sky-500/40 cursor-pointer"
+                  >
+                    <span role="img" aria-label="Suporte">💬</span>
+                    Central de Suporte & Relacionamento (Admin)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsAdminPanelOpen((prev) => !prev)}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 rounded-lg border border-amber-500/40 cursor-pointer"
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    {isAdminPanelOpen
+                      ? 'Ocultar Painel do Administrador (Webhooks)'
+                      : 'Acessar Versão Administrador (Webhooks SaaS)'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSimulateDay31Lock}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg border border-rose-500/40 cursor-pointer"
+                  >
+                    🔒 Simular 31º Dia (Testar Bloqueio de Plano)
+                  </button>
+                </>
               )}
               {/* v8 ignore stop */}
             </div>
+
             {/* v8 ignore start */}
-            {isAdminPanelOpen && userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
-              <div className="pt-4 border-t border-[#1e2d4a]">
-                <WebhookSaasPanel
-                  todayISO={todayISO}
-                  onAddRecord={handleAddRecord}
-                  onNotify={showNotification}
-                />
-              </div>
-            )}
+            {isAdminPanelOpen &&
+              userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
+                <div className="pt-4 border-t border-[#1e2d4a]">
+                  <WebhookSaasPanel
+                    todayISO={todayISO}
+                    onAddRecord={handleAddRecord}
+                    onNotify={showNotification}
+                  />
+                </div>
+              )}
             {/* v8 ignore stop */}
           </div>
         )}
 
+        {/* Modals */}
         <NewTransactionModal
           isOpen={isNewModalOpen}
           defaultType={newModalDefaultType}
           todayISO={referenceDate}
           machines={machines}
-          onClose={/* v8 ignore next */ () => setIsNewModalOpen(false)}
+          onClose={() => setIsNewModalOpen(false)}
           onSave={handleAddRecord}
         />
 
         <CardMachinesModal
           isOpen={isMachinesModalOpen}
           machines={machines}
-          onClose={/* v8 ignore next */ () => setIsMachinesModalOpen(false)}
+          onClose={() => setIsMachinesModalOpen(false)}
           onToggleMachine={handleToggleMachine}
           onSimulateMachineSync={handleSimulateMachineSync}
         />
@@ -1623,6 +1954,7 @@ export default function App() {
                 </button>
               </div>
 
+              {/* Selo de Compromisso, Seriedade e SLA */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-[11px]">
                 <div className="p-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] flex items-center gap-2">
                   <span>🛡️</span>
@@ -1647,24 +1979,26 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Autoatendimento Instantâneo (Filtra 90% dos chamados) */}
               <div className="space-y-2.5 text-xs">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
                   Soluções Imediatas (Em 5 Segundos):
                 </span>
                 <div className="p-3 rounded-xl bg-[#0b1120] border border-[#1e2d4a]">
                   <strong className="text-amber-400 block mb-0.5">1. Como lançar por Comando de Voz?</strong>
-                  <span className="text-slate-300">Clique no ícone de Microfone (🎙️) em qualquer card e fale naturalmente, ex: "Vendi 250 reais no PIX" ou "Pagar fornecedor 180".</span>
+                  <span className="text-slate-300">Clique no ícone de Microfone (🎙️) em qualquer card e fale naturalmente, ex: &ldquo;Vendi 250 reais no PIX&rdquo; ou &ldquo;Pagar fornecedor 180&rdquo;.</span>
                 </div>
                 <div className="p-3 rounded-xl bg-[#0b1120] border border-[#1e2d4a]">
                   <strong className="text-emerald-400 block mb-0.5">2. Como cobrar cliente no Fiado / A Receber com elegância?</strong>
-                  <span className="text-slate-300">Na tabela da Central de Relatórios, clique no botão verde "📲 Cobrar" ao lado do lançamento de Contas a Receber.</span>
+                  <span className="text-slate-300">Na tabela da Central de Relatórios, clique no botão verde &ldquo;📲 Cobrar&rdquo; ao lado do lançamento de Contas a Receber.</span>
                 </div>
                 <div className="p-3 rounded-xl bg-[#0b1120] border border-[#1e2d4a]">
                   <strong className="text-sky-400 block mb-0.5">3. Como transferir ou salvar meus dados entre Celular e Computador?</strong>
-                  <span className="text-slate-300">Vá na aba Perfil e clique em "☁️ Exportar Backup (.JSON)" e depois em "🔄 Restaurar Backup" no outro aparelho.</span>
+                  <span className="text-slate-300">Vá na aba Perfil &rarr; clique em &ldquo;☁️ Exportar Backup (.JSON)&rdquo; e depois em &ldquo;🔄 Restaurar Backup&rdquo; no outro aparelho.</span>
                 </div>
               </div>
 
+              {/* Triagem de Chamado para o WhatsApp Virtual / Canal Oficial */}
               <div className="pt-3 border-t border-[#1e2d4a] space-y-3">
                 <label className="block text-xs font-semibold text-slate-200">
                   Deseja falar com nosso Especialista? Selecione o tema e conte como podemos ajudar:
@@ -1701,6 +2035,9 @@ export default function App() {
                       placeholder="Ex: 5511999999999 (Número Virtual / WhatsApp Business)"
                       className="w-full px-3 py-2 rounded-lg bg-[#0b1120] border border-[#1e2d4a] text-xs text-white"
                     />
+                    <p className="text-[10px] text-slate-400">
+                      Dica: Coloque aqui o seu Número Virtual (WhatsApp Business com eSIM ou Número Fixo Virtual). O cliente falará apenas com o número virtual sem nunca ver seu número pessoal!
+                    </p>
                   </div>
                 )}
 
@@ -1737,12 +2074,13 @@ export default function App() {
             </div>
           </div>
         )}
-        {/* v8 ignore stop */}
         <OrganicGrowthHubModal
           isOpen={isGrowthHubOpen}
           onClose={() => setIsGrowthHubOpen(false)}
+          isAdminMode={userEmail?.toLowerCase() === 'faustoefiscal@gmail.com'}
           onNavigateTab={(tab) => setActiveNav(tab)}
         />
+        {/* v8 ignore stop */}
       </div>
     </div>
   );

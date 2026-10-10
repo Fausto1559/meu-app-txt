@@ -22,6 +22,7 @@ import {
 interface OrganicGrowthHubModalProps {
   isOpen: boolean;
   onClose: () => void;
+  isAdminMode?: boolean;
   onNavigateTab: (
     tab:
       | 'painel'
@@ -71,6 +72,7 @@ const ORGANIC_TEMPLATES = [
 export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
   isOpen,
   onClose,
+  isAdminMode = false,
   onNavigateTab,
 }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -521,19 +523,21 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
           <div>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-[10px] font-bold uppercase tracking-wider text-amber-300">
               <Sparkles className="w-3 h-3" />
-              Landing Page & Máquina de Divulgação Orgânica (Custo R$ 0,00)
+              {isAdminMode
+                ? 'Vitrine do Cliente + Máquina de Divulgação Orgânica (Admin)'
+                : 'Apresentação Oficial & Demonstração em 15 Segundos'}
             </span>
             <h2 className="text-lg sm:text-2xl font-extrabold text-white mt-1">
-              Copiloto Financeiro · Tudo para MEI, Pequenas e Médias Empresas
+              Copiloto Financeiro · SUPER PRÁTICO, RÁPIDO e INTELIGENTE!
             </h2>
             <p className="text-xs text-slate-300 mt-0.5">
-              Apresente os benefícios do <strong>copilotofinanc.app.br</strong> ou dispare nos grupos locais e regionais do WhatsApp e Facebook em 1 clique.
+              Assista à demonstração de 15 segundos com narração ou clique nas ferramentas abaixo para testar no seu negócio agora mesmo.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Fechar Vitrine e Divulgação"
+            aria-label="Fechar Apresentação e Demonstração"
             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-200 text-xs font-bold cursor-pointer shrink-0"
           >
             <span>✕ Fechar</span>
@@ -546,10 +550,10 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
             <div>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
                 <Video className="w-3.5 h-3.5" />
-                Vídeo Oficial 15s + Locução Vanguarda Executiva · Pronto p/ Facebook, Reels e WhatsApp
+                Vídeo de Apresentação e Demonstração (15s com Locução Executiva)
               </span>
               <h3 className="text-sm sm:text-base font-extrabold text-white mt-1">
-                Principais Funcionalidades do copilotofinanc.app.br em 15s (Com Narração de Ponta)
+                Veja como o Copiloto Financeiro funciona na prática em 15 segundos
               </h3>
             </div>
 
