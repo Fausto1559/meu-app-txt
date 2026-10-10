@@ -91,7 +91,9 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
       audioEl.currentTime = 0;
       audioEl.muted = !enableAudio;
       if (enableAudio) {
-        audioEl.play().catch(() => {});
+        audioEl.play().catch(() => {
+          // Browser autoplay policy fallback until user clicks
+        });
       } else {
         audioEl.pause();
       }
@@ -108,7 +110,9 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
     }
     audioEl.muted = !isAudioEnabled;
     if (isPlayingVideo && isAudioEnabled && !isRecordingWebm) {
-      audioEl.play().catch(() => {});
+      audioEl.play().catch(() => {
+        // Ignored if blocked before interaction
+      });
     } else {
       audioEl.pause();
     }
@@ -188,7 +192,7 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
 
     // 5 Dynamic Scenes synchronized with the exact narration timestamps
     if (t < 2.6) {
-      // SCENE 1 (0s - 2.6s)
+      // SCENE 1 (0s - 2.6s): "Para quem trabalha MUITO e não tem TEMPO de mexer em planilha:"
       ctx.fillStyle = '#38bdf8';
       ctx.font = 'bold 14px Inter, system-ui, sans-serif';
       ctx.fillText('CENA 1/5 · ROTINA INTENSA E SEM PLANILHA', 42, 84);
@@ -219,7 +223,7 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
       ctx.font = 'bold 18px Inter, system-ui, sans-serif';
       ctx.fillText('Gestão Financeira Executiva Instantânea para o seu Negócio', 66, 308);
     } else if (t < 5.5) {
-      // SCENE 2 (2.6s - 5.5s)
+      // SCENE 2 (2.6s - 5.5s): "criei o “COPILOTO FINANCEIRO”, SUPER PRÁTICO, RÁPIDO e INTELIGENTE!"
       ctx.fillStyle = '#38bdf8';
       ctx.font = 'bold 14px Inter, system-ui, sans-serif';
       ctx.fillText('CENA 2/5 · TECNOLOGIA DE PONTA INÉDITA', 42, 84);
@@ -256,7 +260,7 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
         ctx.fillText(p.desc.slice(24), x + 16, 288);
       });
     } else if (t < 10.6) {
-      // SCENE 3 (5.5s - 10.6s)
+      // SCENE 3 (5.5s - 10.6s): "Você aperta o microfone e fala 'Vendi 350 reais no Pix' ou 'Pagar fornecedor 200 reais'!"
       ctx.fillStyle = '#38bdf8';
       ctx.font = 'bold 14px Inter, system-ui, sans-serif';
       ctx.fillText('CENA 3/5 · COMANDO DE VOZ PELO MICROFONE', 42, 84);
@@ -288,7 +292,7 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
       ctx.font = 'extrabold 25px Inter, system-ui, sans-serif';
       ctx.fillText('📤 "Pagar fornecedor 200 reais"  (- R$ 200,00)', 66, 308);
     } else if (t < 13.0) {
-      // SCENE 4 (10.6s - 13.0s)
+      // SCENE 4 (10.6s - 13.0s): "Fecha Relatório Diário, Semanal e Mensal sozinho."
       ctx.fillStyle = '#38bdf8';
       ctx.font = 'bold 14px Inter, system-ui, sans-serif';
       ctx.fillText('CENA 4/5 · FECHAMENTO AUTOMÁTICO SOZINHO', 42, 84);
@@ -328,7 +332,7 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
         ctx.fillText(c.sub, x + 16, 302);
       });
     } else {
-      // SCENE 5 (13.0s - 15.0s)
+      // SCENE 5 (13.0s - 15.0s): "Tem 30 DIAS GRÁTIS LIBERADOS!!"
       ctx.fillStyle = '#38bdf8';
       ctx.font = 'bold 14px Inter, system-ui, sans-serif';
       ctx.fillText('CENA 5/5 · ACESSO IMEDIATO LIBERADO', 42, 84);
@@ -337,8 +341,8 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
       ctx.font = 'extrabold 34px Inter, system-ui, sans-serif';
       ctx.fillText('🎁 Tem 30 DIAS GRÁTIS LIBERADOS!!', 42, 124);
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 22px Inter, system-ui, sans-serif';
-      ctx.fillText('Super Prático, Rápido e Inteligente no celular ou PC:', 42, 160);
+      ctx.font = 'bold 21px Inter, system-ui, sans-serif';
+      ctx.fillText('SUPER PRÁTICO, RÁPIDO e INTELIGENTE no celular ou PC:', 42, 160);
 
       ctx.fillStyle = '#10b981';
       ctx.beginPath();
@@ -347,9 +351,9 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
 
       ctx.fillStyle = '#020617';
       ctx.font = 'extrabold 34px Inter, system-ui, sans-serif';
-      ctx.fillText('👉 copilotofinanc.app.br', 145, 250);
+      ctx.fillText('👉 copilotofinanc.app.br', 145, 246);
       ctx.font = 'bold 19px Inter, system-ui, sans-serif';
-      ctx.fillText('Acesse agora e fale pelo microfone em 3 segundos!', 140, 292);
+      ctx.fillText('Sem cartão de crédito · Comece em 1 clique!', 160, 290);
     }
   }, [videoTimeSec]);
 
@@ -392,6 +396,7 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
   };
 
   const handleDownloadVideo15s = async () => {
+    // First try instant download of the pre-rendered HD .mp4 with studio narration
     try {
       const mp4Res = await fetch('/copiloto-financeiro-15s.mp4');
       if (
@@ -409,7 +414,9 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
           return;
         }
       }
-    } catch {}
+    } catch {
+      // Fallback to live canvas + AudioContext recording below
+    }
 
     const canvas = canvasRef.current;
     if (!canvas || typeof MediaRecorder === 'undefined') return;
@@ -476,6 +483,7 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
         if (recorder.state !== 'inactive') recorder.stop();
       }, 15000);
     } catch {
+      // Fallback if AudioContext fails
       const stream = canvas.captureStream(30);
       const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
       const chunks: BlobPart[] = [];
@@ -508,6 +516,7 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
           preload="auto"
           loop
         />
+        {/* TOP HEADER WITH VISIBLE X BUTTON */}
         <div className="flex items-start justify-between gap-3 border-b border-[#1e2d4a] pb-4 sticky top-0 bg-[#111a2e] z-10">
           <div>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-[10px] font-bold uppercase tracking-wider text-amber-300">
@@ -531,6 +540,7 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
           </button>
         </div>
 
+        {/* SECTION 0: 15-SECOND ANIMATED PROMO VIDEO + 1-CLICK COPY FOR FACEBOOK */}
         <div className="bg-gradient-to-br from-[#0b1120] via-[#131f3a] to-[#0b1120] border-2 border-amber-500/40 rounded-2xl p-4 sm:p-5 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
@@ -656,6 +666,7 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
           </div>
         </div>
 
+        {/* SECTION 1: HIGH-CONVERSION LANDING PAGE SHOWCASE */}
         <div className="bg-gradient-to-br from-[#0b1120] via-[#101c35] to-[#0b1120] border border-[#1e2d4a] rounded-2xl p-4 sm:p-5 space-y-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div className="space-y-1">
@@ -741,6 +752,7 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
           </div>
         </div>
 
+        {/* SECTION 2: LOCAL & REGIONAL ORGANIC WHATSAPP / FACEBOOK SCRIPTS */}
         <div className="space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
