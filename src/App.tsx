@@ -104,10 +104,11 @@ export default function App() {
     localStorage.getItem(STORAGE_KEY_ACTIVE_PLAN)
   );
   const [isSupportModalOpen, setIsSupportModalOpen] = useState<boolean>(false);
-  const [isGrowthHubOpen, setIsGrowthHubOpen] = useState<boolean>(() =>
+  const [isDemoVideoModalOpen, setIsDemoVideoModalOpen] = useState<boolean>(() =>
     typeof window !== 'undefined' &&
     window.location.search.includes('video=15s')
   );
+  const [isGrowthHubOpen, setIsGrowthHubOpen] = useState<boolean>(false);
   const [supportTopic, setSupportTopic] = useState<string>('Dúvida sobre Comando de Voz');
   const [supportUserMessage, setSupportUserMessage] = useState<string>('');
   const [supportVirtualNumber, setSupportVirtualNumber] = useState<string>(() =>
@@ -1025,17 +1026,24 @@ export default function App() {
             {/* v8 ignore start */}
             <button
               type="button"
-              onClick={() => setIsGrowthHubOpen(true)}
+              onClick={() => setIsDemoVideoModalOpen(true)}
               className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5"
-              title="Assistir à Apresentação e Demonstração em Vídeo de 15 Segundos do Copiloto Financeiro"
+              title="Assistir ao Vídeo de Apresentação e Demonstração (15s)"
             >
               <span role="img" aria-label="Vídeo">🎬</span>
-              <span>
-                {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com'
-                  ? 'Apresentação 15s & Divulgar'
-                  : 'Apresentação / Demo (15s)'}
-              </span>
+              <span>Apresentação / Demo (15s)</span>
             </button>
+            {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
+              <button
+                type="button"
+                onClick={() => setIsGrowthHubOpen(true)}
+                className="px-3 py-1.5 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-200 font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                title="Kit de Divulgação Orgânica (Exclusivo Admin)"
+              >
+                <span role="img" aria-label="Divulgar">🚀</span>
+                <span>Divulgar (Admin)</span>
+              </button>
+            )}
             {/* v8 ignore stop */}
             <a
               href="https://wa.me/?text=Ol%C3%A1!%20Conhe%C3%A7a%20o%20Copiloto%20Financeiro%20para%20controlar%20Vendas%2C%20Contas%20a%20Receber%2C%20Contas%20a%20Pagar%20e%20Taxas%20de%20Maquininha%20por%20voz%20(Relat%C3%B3rios%20Di%C3%A1rio%2C%20Semanal%20e%20Mensal).%20Acesse%20gr%C3%A1tis%3A%20https%3A%2F%2Fcopilotofinanc.app.br"
@@ -1178,7 +1186,7 @@ export default function App() {
 
             <button
               type="button"
-              onClick={() => setIsGrowthHubOpen(true)}
+              onClick={() => setIsDemoVideoModalOpen(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
             >
               <span>🎬</span>
@@ -2074,6 +2082,12 @@ export default function App() {
             </div>
           </div>
         )}
+        <OrganicGrowthHubModal
+          isOpen={isDemoVideoModalOpen}
+          onClose={() => setIsDemoVideoModalOpen(false)}
+          videoOnlyMode={true}
+          onNavigateTab={(tab) => setActiveNav(tab)}
+        />
         <OrganicGrowthHubModal
           isOpen={isGrowthHubOpen}
           onClose={() => setIsGrowthHubOpen(false)}
