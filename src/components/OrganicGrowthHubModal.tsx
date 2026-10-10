@@ -35,7 +35,7 @@ interface OrganicGrowthHubModalProps {
 }
 
 const PROMO_VIDEO_SHARE_URL = 'https://copilotofinanc.app.br/?video=15s';
-const MAIN_FACEBOOK_CAPTION = `Para quem trabalha e não tem tempo de mexer em planilha: criei o Copiloto Financeiro onde você aperta o microfone e fala "Vendi 350 reais no Pix" ou "Pagar fornecedor 200 reais" e ele já fecha o relatório Diário, Semanal e Mensal sozinho. Tem 30 dias grátis liberados: https://copilotofinanc.app.br`;
+const MAIN_FACEBOOK_CAPTION = `Para quem trabalha MUITO e não tem TEMPO de mexer em planilha: criei o “COPILOTO FINANCEIRO”, SUPER PRÁTICO, RÁPIDO e INTELIGENTE! Você aperta o microfone e fala "Vendi 350 reais no Pix" ou "Pagar fornecedor 200 reais"! Fecha Relatório Diário, Semanal e Mensal sozinho. Tem 30 DIAS GRÁTIS LIBERADOS!! https://copilotofinanc.app.br`;
 
 const ORGANIC_TEMPLATES = [
   {
@@ -154,6 +154,7 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
     const h = canvas.height;
     const t = videoTimeSec;
 
+    // Background Gradient
     const grad = ctx.createLinearGradient(0, 0, w, h);
     grad.addColorStop(0, '#090f1d');
     grad.addColorStop(0.5, '#111e38');
@@ -161,153 +162,194 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
 
+    // Top bar badge
     ctx.fillStyle = 'rgba(245, 158, 11, 0.16)';
     ctx.strokeStyle = 'rgba(245, 158, 11, 0.45)';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.roundRect(36, 24, 450, 36, 18);
+    ctx.roundRect(36, 24, 520, 36, 18);
     ctx.fill();
     ctx.stroke();
 
     ctx.fillStyle = '#fbbf24';
     ctx.font = 'bold 14px Inter, system-ui, sans-serif';
-    ctx.fillText('🔥 COPILOTOFINANC.APP.BR · TECNOLOGIA DE PONTA POR VOZ', 52, 47);
+    ctx.fillText('🔥 COPILOTOFINANC.APP.BR · SUPER PRÁTICO, RÁPIDO E INTELIGENTE', 52, 47);
 
+    // Progress bar (0 to 15s)
     ctx.fillStyle = '#1e293b';
     ctx.fillRect(36, h - 22, w - 72, 8);
     ctx.fillStyle = '#10b981';
     ctx.fillRect(36, h - 22, ((w - 72) * Math.min(t, 15)) / 15, 8);
 
+    // Timer indicator
     ctx.fillStyle = '#94a3b8';
     ctx.font = 'bold 14px monospace';
     ctx.fillText(`🎙️ ${t.toFixed(1)}s / 15.0s`, w - 155, 47);
 
-    if (t < 3) {
+    // 5 Dynamic Scenes synchronized with the exact narration timestamps
+    if (t < 2.6) {
+      // SCENE 1 (0s - 2.6s)
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 14px Inter, system-ui, sans-serif';
+      ctx.fillText('CENA 1/5 · ROTINA INTENSA E SEM PLANILHA', 42, 84);
+
       ctx.fillStyle = '#f8fafc';
       ctx.font = 'extrabold 32px Inter, system-ui, sans-serif';
-      ctx.fillText('Para quem trabalha e não tem', 42, 115);
+      ctx.fillText('Para quem trabalha MUITO e', 42, 120);
       ctx.fillStyle = '#fbbf24';
-      ctx.fillText('tempo de mexer em planilha?', 42, 155);
-
-      ctx.fillStyle = '#1e293b';
-      ctx.strokeStyle = '#10b981';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.roundRect(42, 185, w - 84, 150, 18);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = '#34d399';
-      ctx.font = 'bold 22px Inter, system-ui, sans-serif';
-      ctx.fillText('🎙️ Tecnologia Inédita por Comando de Voz:', 68, 230);
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 26px Inter, system-ui, sans-serif';
-      ctx.fillText('"Vendi 350 reais no Pix"', 68, 272);
-
-      ctx.fillStyle = '#f87171';
-      ctx.font = 'bold 24px Inter, system-ui, sans-serif';
-      ctx.fillText('"Pagar fornecedor 200 reais"', 68, 310);
-    } else if (t < 6) {
-      ctx.fillStyle = '#34d399';
-      ctx.font = 'extrabold 30px Inter, system-ui, sans-serif';
-      ctx.fillText('Relatório Diário, Semanal e Mensal', 42, 110);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 22px Inter, system-ui, sans-serif';
-      ctx.fillText('O sistema calcula Vendas, A Receber e A Pagar sozinho:', 42, 145);
-
-      const cards = [
-        { label: 'VENDAS (PIX/CARTÃO)', val: '+ R$ 350,00', color: '#10b981' },
-        { label: 'CONTAS A PAGAR', val: '- R$ 200,00', color: '#f43f5e' },
-        { label: 'LUCRO LÍQUIDO NA HORA', val: '+ R$ 150,00', color: '#fbbf24' },
-      ];
-      cards.forEach((c, idx) => {
-        const x = 42 + idx * 245;
-        ctx.fillStyle = '#111a2e';
-        ctx.strokeStyle = c.color;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.roundRect(x, 175, 230, 155, 16);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = 'bold 13px Inter, system-ui, sans-serif';
-        ctx.fillText(c.label, x + 16, 220);
-
-        ctx.fillStyle = c.color;
-        ctx.font = 'extrabold 26px Inter, system-ui, sans-serif';
-        ctx.fillText(c.val, x + 16, 275);
-      });
-    } else if (t < 9) {
-      ctx.fillStyle = '#fbbf24';
-      ctx.font = 'extrabold 30px Inter, system-ui, sans-serif';
-      ctx.fillText('Calculadora Anti-Prejuízo (2x a 12x)', 42, 110);
-      ctx.fillStyle = '#e2e8f0';
-      ctx.font = 'bold 20px Inter, system-ui, sans-serif';
-      ctx.fillText('Descubra quanto cobrar no Débito, 1x ou Parcelado 2x a 12x:', 42, 145);
+      ctx.fillText('não tem TEMPO de mexer em planilha:', 42, 158);
 
       ctx.fillStyle = '#111a2e';
       ctx.strokeStyle = '#f59e0b';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.roundRect(42, 175, w - 84, 155, 16);
+      ctx.roundRect(42, 182, w - 84, 152, 18);
       ctx.fill();
       ctx.stroke();
 
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 22px Inter, system-ui, sans-serif';
-      ctx.fillText('💳 Venda de R$ 1.000 em 6x sem perder lucro:', 66, 220);
       ctx.fillStyle = '#34d399';
-      ctx.font = 'extrabold 26px Inter, system-ui, sans-serif';
-      ctx.fillText('Cobre R$ 1.119,69 (6x de R$ 186,62) → Receba R$ 1.000 limpos!', 66, 268);
+      ctx.font = 'bold 21px Inter, system-ui, sans-serif';
+      ctx.fillText('⚡ Chega de perder horas digitando no Excel!', 66, 224);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'extrabold 25px Inter, system-ui, sans-serif';
+      ctx.fillText('❌ Planilha Manual Travada  →  ✅ 0s no Celular', 66, 268);
+
       ctx.fillStyle = '#94a3b8';
-      ctx.font = 'bold 16px Inter, system-ui, sans-serif';
-      ctx.fillText('Compatível com Ton, Stone, Mercado Pago, PagBank, Cielo e InfinitePay', 66, 308);
-    } else if (t < 12) {
+      ctx.font = 'bold 18px Inter, system-ui, sans-serif';
+      ctx.fillText('Gestão Financeira Executiva Instantânea para o seu Negócio', 66, 308);
+    } else if (t < 5.5) {
+      // SCENE 2 (2.6s - 5.5s)
       ctx.fillStyle = '#38bdf8';
-      ctx.font = 'extrabold 30px Inter, system-ui, sans-serif';
-      ctx.fillText('Termômetro Fiscal MEI, ME e EPP', 42, 110);
-      ctx.fillStyle = '#e2e8f0';
-      ctx.font = 'bold 20px Inter, system-ui, sans-serif';
-      ctx.fillText('Alerta antes de estourar o teto + Lote CSV p/ seu Contador:', 42, 145);
+      ctx.font = 'bold 14px Inter, system-ui, sans-serif';
+      ctx.fillText('CENA 2/5 · TECNOLOGIA DE PONTA INÉDITA', 42, 84);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'extrabold 31px Inter, system-ui, sans-serif';
+      ctx.fillText('Criei o “COPILOTO FINANCEIRO”:', 42, 120);
+      ctx.fillStyle = '#34d399';
+      ctx.font = 'extrabold 29px Inter, system-ui, sans-serif';
+      ctx.fillText('SUPER PRÁTICO, RÁPIDO e INTELIGENTE!', 42, 158);
+
+      const pillars = [
+        { title: '⚡ SUPER PRÁTICO', desc: 'Abre direto no celular ou PC sem instalar nada', color: '#fbbf24' },
+        { title: '🚀 ULTRA RÁPIDO', desc: 'Lança qualquer venda ou conta em 3 segundos', color: '#10b981' },
+        { title: '🧠 INTELIGENTE', desc: 'Separa Vendas, A Receber e A Pagar sozinho', color: '#38bdf8' },
+      ];
+      pillars.forEach((p, idx) => {
+        const x = 42 + idx * 248;
+        ctx.fillStyle = '#111a2e';
+        ctx.strokeStyle = p.color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(x, 182, 236, 152, 16);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = p.color;
+        ctx.font = 'extrabold 19px Inter, system-ui, sans-serif';
+        ctx.fillText(p.title, x + 16, 225);
+
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = 'bold 14px Inter, system-ui, sans-serif';
+        ctx.fillText(p.desc.slice(0, 24), x + 16, 265);
+        ctx.fillText(p.desc.slice(24), x + 16, 288);
+      });
+    } else if (t < 10.6) {
+      // SCENE 3 (5.5s - 10.6s)
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 14px Inter, system-ui, sans-serif';
+      ctx.fillText('CENA 3/5 · COMANDO DE VOZ PELO MICROFONE', 42, 84);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'extrabold 31px Inter, system-ui, sans-serif';
+      ctx.fillText('Você aperta o microfone e fala:', 42, 120);
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 22px Inter, system-ui, sans-serif';
+      ctx.fillText('🎙️ Reconhecimento de Voz Financeiro Instantâneo:', 42, 155);
 
       ctx.fillStyle = '#111a2e';
       ctx.strokeStyle = '#38bdf8';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.roundRect(42, 175, w - 84, 155, 16);
+      ctx.roundRect(42, 178, w - 84, 156, 16);
       ctx.fill();
       ctx.stroke();
 
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 21px Inter, system-ui, sans-serif';
-      ctx.fillText('🛡️ Limite MEI: R$ 81.000/ano  |  Simples ME: R$ 360.000/ano', 66, 222);
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(66, 245, w - 132, 22);
-      ctx.fillStyle = '#10b981';
-      ctx.fillRect(66, 245, (w - 132) * 0.62, 22);
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 19px Inter, system-ui, sans-serif';
+      ctx.fillText('🔴 Microfone Ativo · Ouvindo sua voz na hora:', 66, 216);
+
       ctx.fillStyle = '#34d399';
-      ctx.font = 'bold 18px Inter, system-ui, sans-serif';
-      ctx.fillText('📊 Exportação Contábil em 1 Clique para o Escritório', 66, 305);
+      ctx.font = 'extrabold 26px Inter, system-ui, sans-serif';
+      ctx.fillText('✅ "Vendi 350 reais no Pix"  (+ R$ 350,00)', 66, 262);
+
+      ctx.fillStyle = '#f87171';
+      ctx.font = 'extrabold 25px Inter, system-ui, sans-serif';
+      ctx.fillText('📤 "Pagar fornecedor 200 reais"  (- R$ 200,00)', 66, 308);
+    } else if (t < 13.0) {
+      // SCENE 4 (10.6s - 13.0s)
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 14px Inter, system-ui, sans-serif';
+      ctx.fillText('CENA 4/5 · FECHAMENTO AUTOMÁTICO SOZINHO', 42, 84);
+
+      ctx.fillStyle = '#34d399';
+      ctx.font = 'extrabold 31px Inter, system-ui, sans-serif';
+      ctx.fillText('Fecha Relatório Diário, Semanal', 42, 120);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'extrabold 28px Inter, system-ui, sans-serif';
+      ctx.fillText('e Mensal SOZINHO na hora!', 42, 156);
+
+      const cards = [
+        { label: 'RELATÓRIO DIÁRIO', val: '+ R$ 350 Pix', sub: '- R$ 200 Fornec.', color: '#38bdf8' },
+        { label: 'RELATÓRIO SEMANAL', val: '100% Fechado', sub: 'Sem digitar nada', color: '#fbbf24' },
+        { label: 'RELATÓRIO MENSAL', val: '+ R$ 150 Lucro', sub: 'DRE + Contador', color: '#10b981' },
+      ];
+      cards.forEach((c, idx) => {
+        const x = 42 + idx * 248;
+        ctx.fillStyle = '#111a2e';
+        ctx.strokeStyle = c.color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(x, 180, 236, 154, 16);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = 'bold 14px Inter, system-ui, sans-serif';
+        ctx.fillText(c.label, x + 16, 218);
+
+        ctx.fillStyle = c.color;
+        ctx.font = 'extrabold 25px Inter, system-ui, sans-serif';
+        ctx.fillText(c.val, x + 16, 262);
+
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = 'bold 15px Inter, system-ui, sans-serif';
+        ctx.fillText(c.sub, x + 16, 302);
+      });
     } else {
+      // SCENE 5 (13.0s - 15.0s)
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 14px Inter, system-ui, sans-serif';
+      ctx.fillText('CENA 5/5 · ACESSO IMEDIATO LIBERADO', 42, 84);
+
       ctx.fillStyle = '#10b981';
       ctx.font = 'extrabold 34px Inter, system-ui, sans-serif';
-      ctx.fillText('🎁 30 DIAS GRÁTIS LIBERADOS!', 42, 115);
+      ctx.fillText('🎁 Tem 30 DIAS GRÁTIS LIBERADOS!!', 42, 124);
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 24px Inter, system-ui, sans-serif';
-      ctx.fillText('Sem planilha, direto no celular ou computador:', 42, 158);
+      ctx.font = 'bold 22px Inter, system-ui, sans-serif';
+      ctx.fillText('Super Prático, Rápido e Inteligente no celular ou PC:', 42, 160);
 
       ctx.fillStyle = '#10b981';
       ctx.beginPath();
-      ctx.roundRect(42, 190, w - 84, 120, 20);
+      ctx.roundRect(42, 186, w - 84, 134, 20);
       ctx.fill();
 
       ctx.fillStyle = '#020617';
       ctx.font = 'extrabold 34px Inter, system-ui, sans-serif';
-      ctx.fillText('👉 copilotofinanc.app.br', 145, 255);
-      ctx.font = 'bold 18px Inter, system-ui, sans-serif';
-      ctx.fillText('Acesse agora e fale pelo microfone em 3 segundos!', 155, 290);
+      ctx.fillText('👉 copilotofinanc.app.br', 145, 250);
+      ctx.font = 'bold 19px Inter, system-ui, sans-serif';
+      ctx.fillText('Acesse agora e fale pelo microfone em 3 segundos!', 140, 292);
     }
   }, [videoTimeSec]);
 
@@ -352,7 +394,10 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
   const handleDownloadVideo15s = async () => {
     try {
       const mp4Res = await fetch('/copiloto-financeiro-15s.mp4');
-      if (mp4Res.ok && (mp4Res.headers.get('content-type') || '').includes('video')) {
+      if (
+        mp4Res.ok &&
+        (mp4Res.headers.get('content-type') || '').includes('video')
+      ) {
         const mp4Blob = await mp4Res.blob();
         if (mp4Blob.size > 50000) {
           const url = URL.createObjectURL(mp4Blob);
@@ -368,29 +413,49 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
 
     const canvas = canvasRef.current;
     if (!canvas || typeof MediaRecorder === 'undefined') return;
-    if (audioRef.current) audioRef.current.pause();
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
     setIsRecordingWebm(true);
     setVideoTimeSec(0);
     setIsPlayingVideo(true);
 
     try {
       const canvasStream = canvas.captureStream(30);
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext;
       const audioCtx = new AudioCtx();
       const binary = atob(PROMO_NARRATION_MP3_BASE64);
       const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
       const decodedBuffer = await audioCtx.decodeAudioData(bytes.buffer.slice(0));
       const sourceNode = audioCtx.createBufferSource();
       sourceNode.buffer = decodedBuffer;
+
       const streamDest = audioCtx.createMediaStreamDestination();
       sourceNode.connect(streamDest);
       sourceNode.connect(audioCtx.destination);
-      const combinedStream = new MediaStream([...canvasStream.getVideoTracks(), ...streamDest.stream.getAudioTracks()]);
-      const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus') ? 'video/webm;codecs=vp9,opus' : 'video/webm';
+
+      const combinedStream = new MediaStream([
+        ...canvasStream.getVideoTracks(),
+        ...streamDest.stream.getAudioTracks(),
+      ]);
+
+      const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')
+        ? 'video/webm;codecs=vp9,opus'
+        : MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')
+          ? 'video/webm;codecs=vp8,opus'
+          : 'video/webm';
+
       const recorder = new MediaRecorder(combinedStream, { mimeType });
       const chunks: BlobPart[] = [];
-      recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
       recorder.onstop = () => {
         const blob = new Blob(chunks, { type: 'video/webm' });
         const url = URL.createObjectURL(blob);
@@ -402,18 +467,47 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
         audioCtx.close().catch(() => {});
         setIsRecordingWebm(false);
       };
+
+      setVideoTimeSec(0);
       sourceNode.start(0);
       recorder.start();
-      setTimeout(() => { if (recorder.state !== 'inactive') recorder.stop(); }, 15000);
+
+      setTimeout(() => {
+        if (recorder.state !== 'inactive') recorder.stop();
+      }, 15000);
     } catch {
-      setIsRecordingWebm(false);
+      const stream = canvas.captureStream(30);
+      const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+      const chunks: BlobPart[] = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'copiloto-financeiro-15s-narrado.webm';
+        a.click();
+        URL.revokeObjectURL(url);
+        setIsRecordingWebm(false);
+      };
+      recorder.start();
+      setTimeout(() => {
+        if (recorder.state !== 'inactive') recorder.stop();
+      }, 15000);
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
       <div className="bg-[#111a2e] border border-amber-500/40 rounded-2xl max-w-4xl w-full p-4 sm:p-6 space-y-5 shadow-2xl my-auto max-h-[92vh] overflow-y-auto">
-        <audio ref={audioRef} src={`data:audio/mp3;base64,${PROMO_NARRATION_MP3_BASE64}`} preload="auto" loop />
+        <audio
+          ref={audioRef}
+          src={`data:audio/mp3;base64,${PROMO_NARRATION_MP3_BASE64}`}
+          preload="auto"
+          loop
+        />
         <div className="flex items-start justify-between gap-3 border-b border-[#1e2d4a] pb-4 sticky top-0 bg-[#111a2e] z-10">
           <div>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-[10px] font-bold uppercase tracking-wider text-amber-300">
@@ -427,7 +521,12 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
               Apresente os benefícios do <strong>copilotofinanc.app.br</strong> ou dispare nos grupos locais e regionais do WhatsApp e Facebook em 1 clique.
             </p>
           </div>
-          <button type="button" onClick={onClose} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-200 text-xs font-bold cursor-pointer shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fechar Vitrine e Divulgação"
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-200 text-xs font-bold cursor-pointer shrink-0"
+          >
             <span>✕ Fechar</span>
           </button>
         </div>
@@ -443,19 +542,46 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
                 Principais Funcionalidades do copilotofinanc.app.br em 15s (Com Narração de Ponta)
               </h3>
             </div>
+
             <div className="flex flex-wrap items-center gap-2">
-              <button type="button" onClick={() => startOrRestartWithNarration(true)} className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold inline-flex items-center gap-1.5 cursor-pointer shadow">
+              <button
+                type="button"
+                onClick={() => startOrRestartWithNarration(true)}
+                className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold inline-flex items-center gap-1.5 cursor-pointer shadow"
+              >
                 <Volume2 className="w-3.5 h-3.5" />
                 <span>🔊 Ouvir do Início c/ Narração</span>
               </button>
-              <button type="button" onClick={() => setIsAudioEnabled((prev) => !prev)} className="px-3 py-1.5 rounded-lg bg-[#162238] hover:bg-[#1f304d] border border-[#2a3f66] text-slate-200 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer">
-                {isAudioEnabled ? (<><Volume2 className="w-3.5 h-3.5 text-emerald-400" /><span>Som: Ligado</span></>) : (<><VolumeX className="w-3.5 h-3.5 text-rose-400" /><span>Som: Mudo</span></>)}
+              <button
+                type="button"
+                onClick={() => setIsAudioEnabled((prev) => !prev)}
+                className="px-3 py-1.5 rounded-lg bg-[#162238] hover:bg-[#1f304d] border border-[#2a3f66] text-slate-200 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+              >
+                {isAudioEnabled ? (
+                  <>
+                    <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Som: Ligado</span>
+                  </>
+                ) : (
+                  <>
+                    <VolumeX className="w-3.5 h-3.5 text-rose-400" />
+                    <span>Som: Mudo</span>
+                  </>
+                )}
               </button>
-              <button type="button" onClick={() => setIsPlayingVideo((prev) => !prev)} className="px-3 py-1.5 rounded-lg bg-[#162238] hover:bg-[#1f304d] border border-[#2a3f66] text-slate-200 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer">
+              <button
+                type="button"
+                onClick={() => setIsPlayingVideo((prev) => !prev)}
+                className="px-3 py-1.5 rounded-lg bg-[#162238] hover:bg-[#1f304d] border border-[#2a3f66] text-slate-200 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+              >
                 <Play className="w-3.5 h-3.5 text-amber-400" />
                 <span>{isPlayingVideo ? 'Pausar' : 'Reproduzir'}</span>
               </button>
-              <button type="button" onClick={() => startOrRestartWithNarration(isAudioEnabled)} className="px-3 py-1.5 rounded-lg bg-[#162238] hover:bg-[#1f304d] border border-[#2a3f66] text-slate-200 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer">
+              <button
+                type="button"
+                onClick={() => startOrRestartWithNarration(isAudioEnabled)}
+                className="px-3 py-1.5 rounded-lg bg-[#162238] hover:bg-[#1f304d] border border-[#2a3f66] text-slate-200 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+              >
                 <RotateCcw className="w-3.5 h-3.5 text-sky-400" />
                 <span>Reiniciar 15s</span>
               </button>
@@ -463,14 +589,24 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
           </div>
 
           <div className="rounded-xl overflow-hidden border border-[#1e2d4a] bg-[#070b14] shadow-inner">
-            <canvas ref={canvasRef} width={820} height={370} className="w-full h-auto block" />
+            <canvas
+              ref={canvasRef}
+              width={820}
+              height={370}
+              className="w-full h-auto block"
+            />
           </div>
 
           <div className="p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="text-[11px] text-emerald-200 leading-snug">
-              <strong className="text-emerald-400">🎙️ Locução Vanguarda Executiva (15s):</strong> {PROMO_NARRATION_SCRIPT}
+              <strong className="text-emerald-400">🎙️ Locução Vanguarda Executiva (15s):</strong>{' '}
+              {PROMO_NARRATION_SCRIPT}
             </div>
-            <button type="button" onClick={handleDownloadAudioMp3} className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-200 text-[11px] font-bold shrink-0 cursor-pointer">
+            <button
+              type="button"
+              onClick={handleDownloadAudioMp3}
+              className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-200 text-[11px] font-bold shrink-0 cursor-pointer"
+            >
               🎵 Baixar Narração (.mp3)
             </button>
           </div>
@@ -489,57 +625,200 @@ export const OrganicGrowthHubModal: React.FC<OrganicGrowthHubModalProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            <button type="button" onClick={() => handleCopyText('main_video_face', MAIN_FACEBOOK_CAPTION)} className="flex-1 min-w-[220px] py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs sm:text-sm transition-colors cursor-pointer inline-flex items-center justify-center gap-2 shadow-lg">
-              {copiedId === 'main_video_face' ? (<><CheckCircle2 className="w-4 h-4 text-slate-950" /><span>✅ Link do Vídeo + Legenda Copiados p/ Facebook!</span></>) : (<span>📋 Copiar p/ Face (Link do Vídeo + Legenda)</span>)}
+            <button
+              type="button"
+              onClick={() => handleCopyText('main_video_face', MAIN_FACEBOOK_CAPTION)}
+              className="flex-1 min-w-[220px] py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs sm:text-sm transition-colors cursor-pointer inline-flex items-center justify-center gap-2 shadow-lg"
+            >
+              {copiedId === 'main_video_face' ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-slate-950" />
+                  <span>✅ Link do Vídeo + Legenda Copiados p/ Facebook!</span>
+                </>
+              ) : (
+                <span>📋 Copiar p/ Face (Link do Vídeo + Legenda)</span>
+              )}
             </button>
-            <button type="button" onClick={handleDownloadVideo15s} disabled={isRecordingWebm} className="py-2.5 px-4 rounded-xl bg-[#162238] hover:bg-[#1f304d] border border-[#2a3f66] text-slate-200 font-bold text-xs transition-colors cursor-pointer inline-flex items-center gap-1.5 disabled:opacity-60">
+
+            <button
+              type="button"
+              onClick={handleDownloadVideo15s}
+              disabled={isRecordingWebm}
+              className="py-2.5 px-4 rounded-xl bg-[#162238] hover:bg-[#1f304d] border border-[#2a3f66] text-slate-200 font-bold text-xs transition-colors cursor-pointer inline-flex items-center gap-1.5 disabled:opacity-60"
+            >
               <Download className="w-4 h-4 text-emerald-400" />
-              <span>{isRecordingWebm ? 'Gravando 15s c/ Narração...' : '🎥 Baixar Vídeo 15s c/ Narração (.mp4)'}</span>
+              <span>
+                {isRecordingWebm
+                  ? 'Gravando 15s c/ Narração...'
+                  : '🎥 Baixar Vídeo 15s c/ Narração (.mp4)'}
+              </span>
             </button>
           </div>
         </div>
 
         <div className="bg-gradient-to-br from-[#0b1120] via-[#101c35] to-[#0b1120] border border-[#1e2d4a] rounded-2xl p-4 sm:p-5 space-y-4">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-            <div>
-              <h3 className="text-sm sm:text-base font-extrabold text-white flex items-center gap-2">
-                <Share2 className="w-4 h-4 text-emerald-400" />
-                Kit de Divulgação Orgânica · Grupos Locais e Regionais (WhatsApp & Facebook)
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div className="space-y-1">
+              <h3 className="text-base sm:text-lg font-extrabold text-amber-400 flex items-center gap-2">
+                <Crown className="w-5 h-5" />
+                Por que todo Comerciante, MEI e PME precisa do Copiloto Financeiro?
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Todos os cards abaixo já incluem o link direto do Vídeo de 15s + a legenda pronta.
+              <p className="text-xs text-slate-300">
+                Clique em qualquer ferramenta abaixo para demonstrar ao vivo para um cliente ou parceiro:
+              </p>
+            </div>
+            <span className="px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold self-start md:self-auto">
+              ✅ 30 Dias Grátis · Sem Cartão
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="p-3.5 rounded-xl bg-[#111a2e] border border-amber-500/30 flex flex-col justify-between space-y-3">
+              <div>
+                <div className="flex items-center justify-between text-xs font-bold text-amber-300 mb-1">
+                  <span>1. Calculadora 2x a 12x</span>
+                  <Calculator className="w-4 h-4" />
+                </div>
+                <p className="text-xs text-slate-300">
+                  Mostra a taxa exata da maquininha (Débito, 1x e 2x a 12x) e quanto cobrar para não perder lucro.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onNavigateTab('calculadora');
+                  onClose();
+                }}
+                className="w-full py-2 px-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs cursor-pointer"
+              >
+                Abrir Calculadora 2x-12x
+              </button>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#111a2e] border border-sky-500/30 flex flex-col justify-between space-y-3">
+              <div>
+                <div className="flex items-center justify-between text-xs font-bold text-sky-300 mb-1">
+                  <span>2. Termômetro MEI & PME</span>
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <p className="text-xs text-slate-300">
+                  Alerta quanto falta para desenquadrar no MEI (R$ 81 mil), Pequena Empresa (R$ 360 mil) e Média/EPP (R$ 4,8 mi).
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onNavigateTab('contador');
+                  onClose();
+                }}
+                className="w-full py-2 px-3 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs cursor-pointer"
+              >
+                Abrir Termômetro Fiscal
+              </button>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-[#111a2e] border border-emerald-500/30 flex flex-col justify-between space-y-3">
+              <div>
+                <div className="flex items-center justify-between text-xs font-bold text-emerald-300 mb-1">
+                  <span>3. Caixa por Voz + DRE</span>
+                  <TrendingUp className="w-4 h-4" />
+                </div>
+                <p className="text-xs text-slate-300">
+                  Lance Vendas, A Receber e A Pagar falando no microfone e feche o caixa Diário, Semanal e Mensal na hora.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onNavigateTab('painel');
+                  onClose();
+                }}
+                className="w-full py-2 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs cursor-pointer"
+              >
+                Testar Lançamento por Voz
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                <Share2 className="w-4 h-4 text-emerald-400" />
+                Kit de Divulgação Orgânica para Grupos da Cidade e Região
+              </h3>
+              <p className="text-xs text-slate-400">
+                Personalize o nome da sua cidade/região e envie nos grupos de WhatsApp ou copie para o Facebook/Instagram:
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-[11px] font-semibold text-slate-300 shrink-0">Sua Cidade/Região:</label>
-              <input type="text" value={cityName} onChange={(e) => setCityName(e.target.value)} className="px-3 py-1.5 rounded-lg bg-[#162238] border border-[#2a3f66] text-xs text-white font-semibold focus:outline-none focus:border-amber-400 w-44" />
+              <label className="text-xs text-slate-300 whitespace-nowrap">
+                Cidade / Região:
+              </label>
+              <input
+                type="text"
+                value={cityName}
+                onChange={(e) => setCityName(e.target.value)}
+                placeholder="Ex: Valparaíso, Araçatuba, Dracena..."
+                className="bg-[#0b1120] border border-[#1e2d4a] rounded-lg px-3 py-1.5 text-xs text-white w-48"
+              />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {ORGANIC_TEMPLATES.map((tpl) => {
               const message = customizeText(tpl.text);
               const fullShareText = buildFacebookPayloadWithVideoLink(tpl.text);
               const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(fullShareText)}`;
               const isCopied = copiedId === tpl.id;
+
               return (
-                <div key={tpl.id} className="p-4 rounded-xl bg-[#0b1120] border border-[#1e2d4a] flex flex-col justify-between space-y-3">
+                <div
+                  key={tpl.id}
+                  className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-4 flex flex-col justify-between space-y-3"
+                >
                   <div className="space-y-1.5">
-                    <span className="inline-block px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-[10px] font-bold text-amber-300">{tpl.badge}</span>
-                    <h4 className="text-xs sm:text-sm font-bold text-white">{tpl.title}</h4>
-                    <p className="text-[11px] text-slate-400"><strong>Onde postar:</strong> {tpl.target}</p>
+                    <span className="inline-block px-2 py-0.5 rounded bg-amber-500/15 border border-amber-500/30 text-[10px] font-bold text-amber-300">
+                      {tpl.badge}
+                    </span>
+                    <h4 className="text-xs sm:text-sm font-bold text-white">
+                      {tpl.title}
+                    </h4>
+                    <p className="text-[11px] text-sky-300">
+                      🎯 Onde postar: {tpl.target}
+                    </p>
                     <div className="p-2.5 rounded-lg bg-[#111a2e] border border-[#1e2d4a] text-xs text-slate-200 leading-relaxed space-y-1.5">
                       <div>{message}</div>
-                      <div className="text-sky-400 font-semibold">🎬 Assista ao Vídeo de 15s: {PROMO_VIDEO_SHARE_URL}</div>
+                      <div className="text-sky-400 font-semibold pt-1 border-t border-[#1e2d4a]/80">
+                        🎬 Assista ao Vídeo de 15s: {PROMO_VIDEO_SHARE_URL}
+                      </div>
                     </div>
                   </div>
+
                   <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <button type="button" onClick={() => handleCopyText(tpl.id, tpl.text)} className="flex-1 py-2 px-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5">
-                      {isCopied ? (<><CheckCircle2 className="w-3.5 h-3.5 text-slate-950" /><span>✅ Copiado (Link + Legenda)!</span></>) : (<span>📋 Copiar p/ Face (Link do Vídeo + Legenda)</span>)}
-                    </button>
-                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex-1 py-2 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs text-center transition-colors">
-                      📲 Enviar no WhatsApp
+                    <a
+                      href={whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs text-center transition-colors cursor-pointer"
+                    >
+                      📲 Enviar em Grupo de WhatsApp
                     </a>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyText(tpl.id, tpl.text)}
+                      className="py-2 px-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs transition-colors cursor-pointer inline-flex items-center gap-1"
+                    >
+                      {isCopied ? (
+                        <>
+                          <CheckCircle2 className="w-3.5 h-3.5 text-slate-950" />
+                          <span>✅ Link + Legenda Copiados!</span>
+                        </>
+                      ) : (
+                        <span>📋 Copiar p/ Face (Link do Vídeo + Legenda)</span>
+                      )}
+                    </button>
                   </div>
                 </div>
               );
