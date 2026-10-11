@@ -616,8 +616,8 @@ export default function App() {
               <a href="#video-apresentacao" className="hover:text-amber-400 transition-colors">
                 Vídeo (15s)
               </a>
-              <a href="#recursos-copiloto" className="hover:text-amber-400 transition-colors">
-                Recursos
+              <a href="#botoes-e-modulos" className="hover:text-amber-400 transition-colors">
+                Botões &amp; Funções
               </a>
               <a href="#planos-copiloto" className="hover:text-amber-400 transition-colors">
                 Planos (R$ 19,90 · R$ 29,90 · R$ 39,90)
@@ -886,6 +886,143 @@ export default function App() {
               </div>
             </div>
           </div>
+
+          {/* Seção Completa: Descrição de Cada Botão e Módulo do Copiloto Financeiro */}
+          <section
+            id="botoes-e-modulos"
+            className="bg-[#111a2e] border border-[#1e2d4a] rounded-2xl p-6 sm:p-8 space-y-6"
+          >
+            <div className="text-center space-y-2 max-w-3xl mx-auto">
+              <div className="text-xs font-bold uppercase tracking-widest text-amber-400">
+                Conheça Cada Botão por Dentro do App · Prático e Rápido
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+                O Que Cada Botão do Copiloto Financeiro Faz pelo Seu Caixa
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-300">
+                Tudo desenhado para você não perder dinheiro em taxas, não misturar contas pessoais com a empresa e fechar seu caixa em segundos:
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* 1. Painel Principal + Termômetro de Caixa */}
+              <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-5 space-y-2">
+                <div className="text-xs font-extrabold text-amber-400 uppercase tracking-wider">
+                  📊 Botão: Painel (Diário · Semanal · Mensal)
+                </div>
+                <div className="text-sm font-bold text-white">
+                  Visão 360° + Termômetro de Caixa &amp; Saldo Líquido
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Mostra instantaneamente suas <strong>Vendas</strong>, <strong>Contas a Receber</strong>, <strong>Contas a Pagar</strong> e o <strong>Saldo Líquido Real</strong> nos períodos Diário, Semanal e Mensal, com Termômetro de Saúde Financeira e orientações práticas.
+                </p>
+              </div>
+
+              {/* 2. Calculadora */}
+              <div className="bg-[#0b1120] border border-amber-500/40 rounded-xl p-5 space-y-2">
+                <div className="text-xs font-extrabold text-amber-400 uppercase tracking-wider">
+                  🧮 Botão: Calculadora
+                </div>
+                <div className="text-sm font-bold text-white">
+                  Margem Líquida Real &amp; Precificador Contra Prejuízo
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Calcula o preço ideal de venda descontando custo do produto, impostos, taxas de maquininha (débito, crédito à vista e parcelado de 2x a 12x) e comissão, blindando sua <strong>Margem Líquida</strong> contra prejuízo.
+                </p>
+              </div>
+
+              {/* 3. Fechamento Diário */}
+              <div className="bg-[#0b1120] border border-emerald-500/40 rounded-xl p-5 space-y-2">
+                <div className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider">
+                  🛡️ Botão: Fechamento Diário
+                </div>
+                <div className="text-sm font-bold text-white">
+                  Separador Caixa da Empresa x Bolso do Dono (Pró-Labore Seguro Hoje)
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Calcula automaticamente a <strong>Reserva Obrigatória da Empresa</strong> (reposição de estoque + contas a pagar) e mostra exatamente quanto você pode retirar hoje como <strong>Pró-Labore Seguro</strong> sem quebrar o capital de giro.
+                </p>
+              </div>
+
+              {/* 4. Central Contador */}
+              <div className="bg-[#0b1120] border border-sky-500/40 rounded-xl p-5 space-y-2">
+                <div className="text-xs font-extrabold text-sky-400 uppercase tracking-wider">
+                  📑 Botão: Central Contador
+                </div>
+                <div className="text-sm font-bold text-white">
+                  DRE Gerencial, Alerta de Limite MEI/Simples &amp; Exportação Fiscal
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Gera o resumo contábil pronto (Receita Bruta, Despesas Dedutíveis, Resultado Líquido e Termômetro de Faturamento Anual MEI/Simples) para enviar ao seu contador em <strong>1 clique via CSV/Excel ou WhatsApp</strong>.
+                </p>
+              </div>
+
+              {/* 5. Open Finance */}
+              <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-5 space-y-2">
+                <div className="text-xs font-extrabold text-indigo-400 uppercase tracking-wider">
+                  🏦 Botão: Open Finance
+                </div>
+                <div className="text-sm font-bold text-white">
+                  Sincronização Bancária &amp; PIX Automático
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Conecta e concilia movimentações dos principais bancos (Itaú, Bradesco, Nubank, Banco do Brasil, Santander, Caixa e Cora) para bater cada PIX e transferência com o seu caixa real.
+                </p>
+              </div>
+
+              {/* 6. Conectar Maquininhas */}
+              <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-5 space-y-2">
+                <div className="text-xs font-extrabold text-purple-400 uppercase tracking-wider">
+                  💳 Botão: Conectar Maquininhas
+                </div>
+                <div className="text-sm font-bold text-white">
+                  Auditoria de Taxas (Stone, Rede, Cielo, PagBank, Mercado Pago, SumUp)
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Importa lotes de vendas das maquininhas, desconta automaticamente a taxa MDR de cada operadora e mostra o <strong>Valor Bruto vs. Valor Líquido Real</strong> que cai na conta.
+                </p>
+              </div>
+
+              {/* 7. Novo Lançamento + Comando de Voz */}
+              <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-5 space-y-2">
+                <div className="text-xs font-extrabold text-amber-400 uppercase tracking-wider">
+                  🎙️ Botão: Novo Lançamento &amp; Microfone de Voz
+                </div>
+                <div className="text-sm font-bold text-white">
+                  Lançamento Instantâneo por Voz em Vendas, A Receber e A Pagar
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Basta tocar no microfone de qualquer card e falar: <em>&ldquo;Venda de R$ 250 no PIX&rdquo;</em> ou <em>&ldquo;Pagar fornecedor R$ 400&rdquo;</em>. O Copiloto preenche descrição, categoria e valor na hora.
+                </p>
+              </div>
+
+              {/* 8. Cobrança Elegante via WhatsApp + Controle de Fiado */}
+              <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-5 space-y-2">
+                <div className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider">
+                  💬 Botão: Cobrança Cortês no WhatsApp (Contas a Receber)
+                </div>
+                <div className="text-sm font-bold text-white">
+                  Recuperação de Fiado, Promissória e Parcelados sem Constrangimento
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Envie lembretes elegantes e educados de vencimento com 1 clique direto no WhatsApp do cliente, reduzindo a inadimplência e mantendo a amizade e o respeito comercial.
+                </p>
+              </div>
+
+              {/* 9. Perfil + Backup & Segurança LGPD */}
+              <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-xl p-5 space-y-2">
+                <div className="text-xs font-extrabold text-slate-300 uppercase tracking-wider">
+                  🔒 Botão: Perfil, Exportação CSV &amp; Blindagem LGPD
+                </div>
+                <div className="text-sm font-bold text-white">
+                  Controle de Assinatura, Planilhas Excel e Sigilo Total
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Exporte seus relatórios Diário, Semanal ou Mensal em planilhas compatíveis com Excel, gerencie seus dados com proteção 100% em conformidade com a <strong>LGPD (Lei nº 13.709/2018)</strong>.
+                </p>
+              </div>
+            </div>
+          </section>
 
           {/* Seção Oficial de Planos na Landing Page: R$ 19,90 · R$ 29,90 · R$ 39,90 */}
           <section
