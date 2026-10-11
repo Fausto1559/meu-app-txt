@@ -37,6 +37,7 @@ import {
   LiveVoiceCopilotWidget,
 } from './components/VoiceFieldControls';
 import { OrganicGrowthHubModal } from './components/OrganicGrowthHubModal';
+import { ScaleAnalyticsCommandCenter } from './components/ScaleAnalyticsCommandCenter';
 import { WebhookSaasPanel } from './components/WebhookSaasPanel';
 import {
   CardMachine,
@@ -64,6 +65,7 @@ type NavTab =
   | 'fechamento'
   | 'contador'
   | 'openfinance'
+  | 'escala'
   | 'webhooks'
   | 'perfil';
 
@@ -1092,6 +1094,9 @@ export default function App() {
               { id: 'fechamento', label: 'Fechamento Diário', icon: FileText },
               { id: 'contador', label: 'Central Contador', icon: ShieldCheck },
               { id: 'openfinance', label: 'Open Finance', icon: Cpu },
+              ...(userEmail?.toLowerCase() === 'faustoefiscal@gmail.com'
+                ? [{ id: 'escala', label: '📊 Escala & Uso (Admin)', icon: Crown }]
+                : []),
               { id: 'perfil', label: 'Perfil', icon: User },
             ].map((item) => {
               const Icon = item.icon;
@@ -1725,6 +1730,19 @@ export default function App() {
           <AccountantHubView records={records} referenceDate={referenceDate} />
         )}
 
+        {/* v8 ignore start */}
+        {activeNav === 'escala' && (
+          <ScaleAnalyticsCommandCenter
+            todayISO={todayISO}
+            currentUserEmail={userEmail}
+            currentActivePlan={activePlan}
+            currentDayOfUsage={currentDayOfUsage}
+            currentRecordsCount={records.length}
+            onNotify={showNotification}
+          />
+        )}
+        {/* v8 ignore stop */}
+
         {activeNav === 'openfinance' && (
           <div className="space-y-5">
             <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-6 space-y-4">
@@ -1857,6 +1875,14 @@ export default function App() {
               {/* v8 ignore start */}
               {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
                 <>
+                  <button
+                    type="button"
+                    onClick={() => setActiveNav('escala')}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-extrabold bg-amber-500 text-slate-950 rounded-lg shadow-md hover:bg-amber-400 cursor-pointer"
+                  >
+                    <Crown className="w-4 h-4" />
+                    📊 Relatórios Diário, Semanal e Mensal de Quem Usa o App (Escala)
+                  </button>
                   <button
                     type="button"
                     onClick={toggleSupportModal}
