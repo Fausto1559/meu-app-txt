@@ -595,199 +595,402 @@ export default function App() {
 
   if (!userEmail) {
     return (
-      <div className="min-h-screen bg-[#0a0f1d] text-slate-100 flex items-center justify-center px-4 py-10">
-        <div className="w-full max-w-md bg-[#111a2e] border border-[#1e2d4a] rounded-2xl p-6 sm:p-8 space-y-6">
-          <div className="flex flex-col items-center text-center space-y-2">
-            <div className="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400">
-              <Crown className="w-7 h-7" />
+      <div className="min-h-screen bg-[#0a0f1d] text-slate-100">
+        {/* Top Bar da Landing Page copilotofinanc.app.br */}
+        <header className="sticky top-0 z-30 bg-[#0a0f1d]/90 backdrop-blur-md border-b border-[#1e2d4a]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                <Crown className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-base sm:text-lg font-extrabold text-white tracking-tight">
+                  Copiloto Financeiro
+                </div>
+                <div className="text-[11px] text-amber-400 font-semibold">
+                  copilotofinanc.app.br · Organiza · Analisa · Orienta · Acontece
+                </div>
+              </div>
             </div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-              Copiloto Financeiro
-            </h1>
-            <p className="text-xs text-slate-300">
-              Organiza · Analisa · Orienta · Acontece — Entre na sua conta para acessar seus relatórios Diário, Semanal e Mensal
-            </p>
+            <div className="flex items-center gap-4 text-xs font-semibold text-slate-300">
+              <a href="#video-apresentacao" className="hover:text-amber-400 transition-colors">
+                Vídeo (15s)
+              </a>
+              <a href="#recursos-copiloto" className="hover:text-amber-400 transition-colors">
+                Recursos
+              </a>
+              <a href="#planos-copiloto" className="hover:text-amber-400 transition-colors">
+                Planos (R$ 19,90 · R$ 29,90 · R$ 39,90)
+              </a>
+            </div>
           </div>
+        </header>
 
-          {isGooglePickerOpen ? (
-            <div className="space-y-4">
-              <div className="bg-white text-slate-900 rounded-2xl p-5 space-y-4 shadow-xl">
-                <div className="flex items-center gap-2.5 border-b border-slate-200 pb-3">
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      fill="#4285F4"
-                      d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v2.98h3.86c2.26-2.09 3.56-5.17 3.56-8.8z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-2.98c-1.08.72-2.45 1.16-4.07 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M5.28 14.31c-.24-.72-.38-1.49-.38-2.31s.14-1.59.38-2.31V6.6H1.29C.47 8.23 0 10.06 0 12s.47 3.77 1.29 5.4l3.99-3.09z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.6l3.99 3.09c.95-2.85 3.6-4.94 6.72-4.94z"
-                    />
-                  </svg>
-                  <span className="text-xs font-bold text-slate-600">
-                    Fazer login com o Google
+        {/* Hero Section: Proposta de Valor + Vídeo de 15s + Card de Acesso / Login */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-14">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Coluna Esquerda: Headline + Vídeo Oficial de 15s + Benefícios */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="space-y-3">
+                <div className="text-xs font-bold uppercase tracking-widest text-amber-400">
+                  Gestão Financeira Instantânea por Comando de Voz · 30 Dias Grátis
+                </div>
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                  Copiloto Financeiro:{' '}
+                  <span className="text-amber-400">Prático e Rápido</span> para o seu Caixa Diário, Semanal e Mensal
+                </h1>
+                <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
+                  Você fala ou digita suas <strong className="text-white">Vendas</strong>,{' '}
+                  <strong className="text-white">Contas a Receber</strong> e{' '}
+                  <strong className="text-white">Contas a Pagar</strong>, e o{' '}
+                  <strong className="text-amber-400">copilotofinanc.app.br</strong> entrega na hora seu{' '}
+                  <strong className="text-emerald-400">Saldo Líquido Real</strong>, conciliação de maquininhas de cartão e relatórios prontos para o seu contador.
+                </p>
+              </div>
+
+              {/* Vídeo de Apresentação / Demonstração de 15s em Destaque na Landing Page */}
+              <div
+                id="video-apresentacao"
+                className="bg-[#111a2e] border-2 border-amber-500/40 rounded-2xl p-4 sm:p-5 space-y-3 shadow-2xl"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-amber-300">
+                    🎬 Apresentação &amp; Demonstração Oficial (15 Segundos)
+                  </span>
+                  <span className="text-xs font-semibold text-emerald-400">
+                    🔊 Com Narração Executiva em Português
                   </span>
                 </div>
+                <div className="rounded-xl overflow-hidden border border-[#1e2d4a] bg-[#070b14]">
+                  <video
+                    src="/copiloto-financeiro-15s.mp4"
+                    controls
+                    playsInline
+                    preload="metadata"
+                    className="w-full h-auto block"
+                  >
+                    Seu navegador não suporta a reprodução de vídeo.
+                  </video>
+                </div>
+              </div>
 
-                <div>
-                  <h2 className="text-lg font-extrabold text-slate-900">
-                    Escolha uma conta
+              {/* Destaques Rápidos */}
+              <div
+                id="recursos-copiloto"
+                className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1"
+              >
+                <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-4 space-y-1">
+                  <div className="text-xs font-extrabold text-amber-400 uppercase">
+                    🎙️ Comando de Voz
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Lance vendas, entradas e saídas falando naturalmente pelo celular ou computador em segundos.
+                  </p>
+                </div>
+                <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-4 space-y-1">
+                  <div className="text-xs font-extrabold text-emerald-400 uppercase">
+                    📊 Diário · Semanal · Mensal
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Relatórios instantâneos de Vendas, A Receber, A Pagar e Saldo Líquido com exportação em 1 clique.
+                  </p>
+                </div>
+                <div className="bg-[#111a2e] border border-[#1e2d4a] rounded-xl p-4 space-y-1">
+                  <div className="text-xs font-extrabold text-sky-400 uppercase">
+                    💳 Cartão de Crédito &amp; PIX
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Simulador de taxas de maquininhas, controle de fiado, cobrança cortês no WhatsApp e Central do Contador.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Coluna Direita: Card de Acesso / Login Imediato (30 Dias Grátis) */}
+            <div className="lg:col-span-5">
+              <div className="bg-[#111a2e] border-2 border-amber-500/40 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
+                <div className="flex flex-col items-center text-center space-y-2">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                    <Crown className="w-6 h-6" />
+                  </div>
+                  <div className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400">
+                    🎁 Teste Grátis por 30 Dias · Sem Fidelidade
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                    Entrar no Copiloto Financeiro
                   </h2>
-                  <p className="text-xs text-slate-600">
-                    para prosseguir para <strong>Copiloto Financeiro</strong>
+                  <p className="text-xs text-slate-300">
+                    Organiza · Analisa · Orienta · Acontece — Entre na sua conta para acessar seus relatórios Diário, Semanal e Mensal
                   </p>
                 </div>
 
-                <div className="divide-y divide-slate-200 border-t border-b border-slate-200">
-                  <button
-                    type="button"
-                    onClick={() => selectGoogleAccount('faustoefiscal@gmail.com')}
-                    className="w-full py-3 px-2 flex items-center gap-3 hover:bg-slate-100 transition-colors text-left cursor-pointer"
-                  >
-                    <div className="w-9 h-9 rounded-full bg-sky-600 text-white font-bold text-sm flex items-center justify-center shrink-0">
-                      F
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-bold text-slate-900 truncate">
-                        Fausto Fiscal
+                {isGooglePickerOpen ? (
+                  <div className="space-y-4">
+                    <div className="bg-white text-slate-900 rounded-2xl p-5 space-y-4 shadow-xl">
+                      <div className="flex items-center gap-2.5 border-b border-slate-200 pb-3">
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+                          <path
+                            fill="#4285F4"
+                            d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v2.98h3.86c2.26-2.09 3.56-5.17 3.56-8.8z"
+                          />
+                          <path
+                            fill="#34A853"
+                            d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-2.98c-1.08.72-2.45 1.16-4.07 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"
+                          />
+                          <path
+                            fill="#FBBC05"
+                            d="M5.28 14.31c-.24-.72-.38-1.49-.38-2.31s.14-1.59.38-2.31V6.6H1.29C.47 8.23 0 10.06 0 12s.47 3.77 1.29 5.4l3.99-3.09z"
+                          />
+                          <path
+                            fill="#EA4335"
+                            d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.6l3.99 3.09c.95-2.85 3.6-4.94 6.72-4.94z"
+                          />
+                        </svg>
+                        <span className="text-xs font-bold text-slate-600">
+                          Fazer login com o Google
+                        </span>
                       </div>
-                      <div className="text-xs text-slate-600 truncate">
-                        faustoefiscal@gmail.com
-                      </div>
-                    </div>
-                  </button>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      selectGoogleAccount('contato@copilotofinanc.app.br')
-                    }
-                    className="w-full py-3 px-2 flex items-center gap-3 hover:bg-slate-100 transition-colors text-left cursor-pointer"
-                  >
-                    <div className="w-9 h-9 rounded-full bg-amber-600 text-white font-bold text-sm flex items-center justify-center shrink-0">
-                      C
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-bold text-slate-900 truncate">
-                        Copiloto Financeiro
+                      <div>
+                        <h3 className="text-lg font-extrabold text-slate-900">
+                          Escolha uma conta
+                        </h3>
+                        <p className="text-xs text-slate-600">
+                          para prosseguir para <strong>Copiloto Financeiro</strong>
+                        </p>
                       </div>
-                      <div className="text-xs text-slate-600 truncate">
-                        contato@copilotofinanc.app.br
+
+                      <div className="divide-y divide-slate-200 border-t border-b border-slate-200">
+                        <button
+                          type="button"
+                          onClick={() => selectGoogleAccount('faustoefiscal@gmail.com')}
+                          className="w-full py-3 px-2 flex items-center gap-3 hover:bg-slate-100 transition-colors text-left cursor-pointer"
+                        >
+                          <div className="w-9 h-9 rounded-full bg-sky-600 text-white font-bold text-sm flex items-center justify-center shrink-0">
+                            F
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-sm font-bold text-slate-900 truncate">
+                              Fausto Fiscal
+                            </div>
+                            <div className="text-xs text-slate-600 truncate">
+                              faustoefiscal@gmail.com
+                            </div>
+                          </div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            selectGoogleAccount('contato@copilotofinanc.app.br')
+                          }
+                          className="w-full py-3 px-2 flex items-center gap-3 hover:bg-slate-100 transition-colors text-left cursor-pointer"
+                        >
+                          <div className="w-9 h-9 rounded-full bg-amber-600 text-white font-bold text-sm flex items-center justify-center shrink-0">
+                            C
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-sm font-bold text-slate-900 truncate">
+                              Copiloto Financeiro
+                            </div>
+                            <div className="text-xs text-slate-600 truncate">
+                              contato@copilotofinanc.app.br
+                            </div>
+                          </div>
+                        </button>
                       </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setIsGooglePickerOpen(false)}
+                        className="w-full py-2 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                      >
+                        Voltar
+                      </button>
                     </div>
-                  </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <button
+                      type="button"
+                      onClick={() => setIsGooglePickerOpen(true)}
+                      className="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm flex items-center justify-center gap-3 shadow-md transition-colors cursor-pointer"
+                    >
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+                        <path
+                          fill="#4285F4"
+                          d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v2.98h3.86c2.26-2.09 3.56-5.17 3.56-8.8z"
+                        />
+                        <path
+                          fill="#34A853"
+                          d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-2.98c-1.08.72-2.45 1.16-4.07 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"
+                        />
+                        <path
+                          fill="#FBBC05"
+                          d="M5.28 14.31c-.24-.72-.38-1.49-.38-2.31s.14-1.59.38-2.31V6.6H1.29C.47 8.23 0 10.06 0 12s.47 3.77 1.29 5.4l3.99-3.09z"
+                        />
+                        <path
+                          fill="#EA4335"
+                          d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.6l3.99 3.09c.95-2.85 3.6-4.94 6.72-4.94z"
+                        />
+                      </svg>
+                      <span>Entrar com o Google</span>
+                    </button>
+
+                    <div className="flex items-center gap-3 py-1">
+                      <div className="h-px flex-1 bg-[#1e2d4a]" />
+                      <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
+                        ou acesse com e-mail
+                      </span>
+                      <div className="h-px flex-1 bg-[#1e2d4a]" />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                        Seu E-mail de Acesso
+                      </label>
+                      <input
+                        type="email"
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
+                        placeholder="Ex: faustoefiscal@gmail.com"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                        Sua Senha
+                      </label>
+                      <input
+                        type="password"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        placeholder="Digite sua senha"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm transition-colors shadow-lg cursor-pointer"
+                    >
+                      Acessar Meu Painel · 30 Dias Grátis
+                    </button>
+
+                    <div className="pt-1 text-center text-[11px] text-slate-400">
+                      🛡️ 100% em Conformidade com a <strong>LGPD (Lei nº 13.709/2018)</strong> · Sigilo Financeiro e Proteção de Dados Garantidos.
+                    </div>
+                  </form>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Seção Oficial de Planos na Landing Page: R$ 19,90 · R$ 29,90 · R$ 39,90 */}
+          <section
+            id="planos-copiloto"
+            className="bg-[#111a2e] border border-[#1e2d4a] rounded-2xl p-6 sm:p-8 space-y-6"
+          >
+            <div className="text-center space-y-2 max-w-2xl mx-auto">
+              <div className="text-xs font-bold uppercase tracking-widest text-amber-400">
+                Planos Transparentes · 30 Dias Grátis para Testar Tudo
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+                Escolha o Plano Ideal para o Seu Negócio
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-300">
+                Comece grátis hoje mesmo. Você só escolhe seu plano após experimentar o Copiloto Financeiro por 30 dias.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {/* Plano 1: R$ 19,90 */}
+              <div className="bg-[#0b1120] border border-[#1e2d4a] rounded-2xl p-6 flex flex-col justify-between space-y-5">
+                <div className="space-y-2.5">
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    1. Plano Essencial / Básico
+                  </div>
+                  <div className="text-3xl font-extrabold text-white">
+                    R$ 19,90<span className="text-xs font-normal text-slate-400">/mês</span>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Ideal para MEI, autônomos e controle rápido do caixa diário.
+                  </p>
+                  <ul className="text-xs text-slate-300 space-y-2 pt-2">
+                    <li>✓ Lançamentos manuais ilimitados</li>
+                    <li>✓ Relatório Diário, Semanal e Mensal</li>
+                    <li>✓ Controle de Vendas, A Receber e A Pagar</li>
+                    <li>✓ Exportação em CSV / Excel</li>
+                  </ul>
                 </div>
-
                 <button
                   type="button"
-                  onClick={() => setIsGooglePickerOpen(false)}
-                  className="w-full py-2 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-colors cursor-pointer"
                 >
-                  Voltar
+                  Começar 30 Dias Grátis (R$ 19,90/mês)
+                </button>
+              </div>
+
+              {/* Plano 2: R$ 29,90 */}
+              <div className="bg-[#0b1120] border-2 border-amber-500 rounded-2xl p-6 flex flex-col justify-between space-y-5 relative shadow-xl">
+                <div className="space-y-2.5">
+                  <div className="text-xs font-extrabold uppercase tracking-wider text-amber-400">
+                    ★ Mais Escolhido · 2. Plano Profissional (Voz + IA)
+                  </div>
+                  <div className="text-3xl font-extrabold text-amber-400">
+                    R$ 29,90<span className="text-xs font-normal text-slate-400">/mês</span>
+                  </div>
+                  <p className="text-xs text-slate-300">
+                    Para lojistas e comércios que querem lançar tudo por voz em segundos.
+                  </p>
+                  <ul className="text-xs text-slate-200 space-y-2 pt-2">
+                    <li>✓ <strong>Tudo do Essencial + Comando de Voz</strong></li>
+                    <li>✓ Conciliação de Maquininhas de Cartão</li>
+                    <li>✓ Termômetro de Caixa &amp; Saldo Líquido Real</li>
+                    <li>✓ Cobrança Elegante via WhatsApp</li>
+                  </ul>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold transition-colors cursor-pointer"
+                >
+                  Começar 30 Dias Grátis (R$ 29,90/mês)
+                </button>
+              </div>
+
+              {/* Plano 3: R$ 39,90 */}
+              <div className="bg-[#0b1120] border border-emerald-500/40 rounded-2xl p-6 flex flex-col justify-between space-y-5">
+                <div className="space-y-2.5">
+                  <div className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                    3. Plano Empresarial VIP
+                  </div>
+                  <div className="text-3xl font-extrabold text-white">
+                    R$ 39,90<span className="text-xs font-normal text-slate-400">/mês</span>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Gestão completa com Open Finance, DRE e Central do Contador.
+                  </p>
+                  <ul className="text-xs text-slate-300 space-y-2 pt-2">
+                    <li>✓ <strong>Tudo do Profissional + Open Finance</strong></li>
+                    <li>✓ Fechamento Diário de Caixa e DRE Mensal</li>
+                    <li>✓ Central do Contador (Exportação Fiscal)</li>
+                    <li>✓ Suporte Prioritário WhatsApp VIP</li>
+                  </ul>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="w-full py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold transition-colors cursor-pointer"
+                >
+                  Começar 30 Dias Grátis (R$ 39,90/mês)
                 </button>
               </div>
             </div>
-          ) : (
-            <form onSubmit={handleLogin} className="space-y-4">
-              <button
-                type="button"
-                onClick={() => setIsGooglePickerOpen(true)}
-                className="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm flex items-center justify-center gap-3 shadow-md transition-colors cursor-pointer"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    fill="#4285F4"
-                    d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v2.98h3.86c2.26-2.09 3.56-5.17 3.56-8.8z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-2.98c-1.08.72-2.45 1.16-4.07 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.28 14.31c-.24-.72-.38-1.49-.38-2.31s.14-1.59.38-2.31V6.6H1.29C.47 8.23 0 10.06 0 12s.47 3.77 1.29 5.4l3.99-3.09z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.6l3.99 3.09c.95-2.85 3.6-4.94 6.72-4.94z"
-                  />
-                </svg>
-                <span>Entrar com o Google</span>
-              </button>
-
-              <div className="flex items-center gap-3 py-1">
-                <div className="h-px flex-1 bg-[#1e2d4a]" />
-                <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
-                  ou acesse com e-mail
-                </span>
-                <div className="h-px flex-1 bg-[#1e2d4a]" />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  Seu E-mail de Acesso
-                </label>
-                <input
-                  type="email"
-                  value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
-                  placeholder="Ex: faustoefiscal@gmail.com"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  Sua Senha
-                </label>
-                <input
-                  type="password"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  placeholder="Digite sua senha"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
-                />
-              </div>
-
-              <div className="pt-2 text-center text-[11px] text-slate-400">
-                🛡️ 100% em Conformidade com a <strong>LGPD (Lei nº 13.709/2018)</strong> · Sigilo Financeiro e Proteção de Dados Garantidos.
-              </div>
-            </form>
-          )}
-
-          {/* Apresentação / Demonstração em Vídeo de 15s na tela de Entrada do Usuário/Cliente */}
-          <div className="pt-4 border-t border-[#1e2d4a] space-y-2.5">
-            <div className="flex items-center justify-between gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-[10px] font-bold uppercase tracking-wider text-amber-300">
-                🎬 Apresentação &amp; Demonstração (15s)
-              </span>
-              <span className="text-[10px] font-semibold text-emerald-400">
-                🔊 Com Narração Executiva
-              </span>
-            </div>
-            <p className="text-xs text-slate-300 leading-snug">
-              Veja em <strong>15 segundos</strong> como lançar por comando de voz e fechar seu relatório Diário, Semanal e Mensal:
-            </p>
-            <div className="rounded-xl overflow-hidden border-2 border-amber-500/40 bg-[#070b14] shadow-lg">
-              <video
-                src="/copiloto-financeiro-15s.mp4"
-                controls
-                playsInline
-                preload="metadata"
-                className="w-full h-auto block"
-              >
-                Seu navegador não suporta a reprodução de vídeo.
-              </video>
-            </div>
-          </div>
-        </div>
+          </section>
+        </main>
       </div>
     );
   }
