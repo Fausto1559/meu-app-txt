@@ -217,7 +217,14 @@ export default function App() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    const emailToSave = loginEmail.trim() || 'faustoefiscal@gmail.com';
+    const emailToSave = loginEmail.trim();
+    const passwordToCheck = loginPassword.trim();
+
+    if (!emailToSave || !passwordToCheck) {
+      window.alert('Informe seu e-mail e sua senha para continuar.');
+      return;
+    }
+
     selectGoogleAccount(emailToSave);
   };
 
@@ -851,6 +858,7 @@ export default function App() {
                       </label>
                       <input
                         type="email"
+                        required
                         value={loginEmail}
                         onChange={(e) => setLoginEmail(e.target.value)}
                         placeholder="Ex: faustoefiscal@gmail.com"
@@ -864,6 +872,7 @@ export default function App() {
                       </label>
                       <input
                         type="password"
+                        required
                         value={loginPassword}
                         onChange={(e) => setLoginPassword(e.target.value)}
                         placeholder="Digite sua senha"
