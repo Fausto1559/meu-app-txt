@@ -871,12 +871,6 @@ export default function App() {
                       />
                     </div>
 
-                    <button
-                      type="submit"
-                      className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm transition-colors shadow-lg cursor-pointer"
-                    >
-                      Acessar Meu Painel · 30 Dias Grátis
-                    </button>
 
                     <div className="pt-1 text-center text-[11px] text-slate-400">
                       🛡️ 100% em Conformidade com a <strong>LGPD (Lei nº 13.709/2018)</strong> · Sigilo Financeiro e Proteção de Dados Garantidos.
