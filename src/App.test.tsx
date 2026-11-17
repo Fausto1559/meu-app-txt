@@ -1,6 +1,35 @@
 import React from 'react';
 import { render, screen, fireEvent, within, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+const { mockSupabaseAuth } = vi.hoisted(() => {
+  const session = { user: { email: 'faustoefiscal@gmail.com' } };
+  let authListener: ((event: string, session: typeof session | null) => void) | null = null;
+  const auth = {
+    onAuthStateChange: vi.fn((callback: (event: string, session: typeof session | null) => void) => {
+      authListener = callback;
+      callback('INITIAL_SESSION', session);
+      return { data: { subscription: { unsubscribe: vi.fn() } } };
+    }),
+    getSession: vi.fn(async () => ({ data: { session }, error: null })),
+    signInWithPassword: vi.fn(async () => {
+      authListener?.('SIGNED_IN', session);
+      return { data: { session }, error: null };
+    }),
+    signInWithOAuth: vi.fn(async () => ({ data: {}, error: null })),
+    signUp: vi.fn(async () => ({ data: { session }, error: null })),
+    resetPasswordForEmail: vi.fn(async () => ({ data: {}, error: null })),
+    updateUser: vi.fn(async () => ({ data: { user: session.user }, error: null })),
+    signOut: vi.fn(async () => {
+      authListener?.('SIGNED_OUT', null);
+      return { error: null };
+    }),
+  };
+  return { mockSupabaseAuth: auth };
+});
+
+vi.mock('./supabaseClient', () => ({ supabase: { auth: mockSupabaseAuth } }));
+
 import App, { STORAGE_KEY_RECORDS, STORAGE_KEY_MACHINES, STORAGE_KEY_AUTH } from './App';
 
 describe('App.tsx - 100% Cobertura Total', () => {
