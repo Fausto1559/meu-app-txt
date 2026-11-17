@@ -710,7 +710,7 @@ export default function App() {
     );
   }
 
-  if (isRecoveryMode && !userEmail) {
+  if (isRecoveryMode) {
     return (
       <div className="min-h-screen bg-[#0a0f1d] text-slate-100 flex items-center justify-center p-4">
         <form onSubmit={handleUpdatePassword} className="w-full max-w-md bg-[#111a2e] border border-[#1e2d4a] rounded-2xl p-6 space-y-4">
