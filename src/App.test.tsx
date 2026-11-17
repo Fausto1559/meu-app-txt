@@ -4,9 +4,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const { mockSupabaseAuth } = vi.hoisted(() => {
   const session = { user: { email: 'faustoefiscal@gmail.com' } };
-  let authListener: ((event: string, session: typeof session | null) => void) | null = null;
+  let authListener: ((event: string, session: { user: { email: string } } | null) => void) | null = null;
   const auth = {
-    onAuthStateChange: vi.fn((callback: (event: string, session: typeof session | null) => void) => {
+    onAuthStateChange: vi.fn((callback: (event: string, session: { user: { email: string } } | null) => void) => {
       authListener = callback;
       callback('INITIAL_SESSION', session);
       return { data: { subscription: { unsubscribe: vi.fn() } } };
