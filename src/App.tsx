@@ -354,15 +354,19 @@ export default function App() {
 
   const handleLogout = async () => {
     setAuthError(null);
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      setAuthError('Não foi possível encerrar a sessão. Tente novamente.');
-      return;
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        setAuthError('Não foi possível encerrar a sessão. Tente novamente.');
+        return;
+      }
+      setUserEmail(null);
+      setLoginPassword('');
+      setIsSignUpMode(false);
+      setIsRecoveryMode(false);
+    } catch {
+      setAuthError('Não foi possível conectar para encerrar a sessão. Tente novamente.');
     }
-    setUserEmail(null);
-    setLoginPassword('');
-    setIsSignUpMode(false);
-    setIsRecoveryMode(false);
   };
 
   // Master Report State for the 3 requested fields (Vendas, A Receber, A Pagar) and 3 periods (Diário, Semanal, Mensal)
