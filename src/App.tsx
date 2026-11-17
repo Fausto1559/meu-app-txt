@@ -15,6 +15,8 @@ import {
   DollarSign,
   FileSpreadsheet,
   FileText,
+  Eye,
+  EyeOff,
   LayoutGrid,
   Plus,
   RefreshCw,
@@ -88,6 +90,7 @@ export default function App() {
   const [authNotice, setAuthNotice] = useState<string | null>(null);
   const [loginEmail, setLoginEmail] = useState<string>('');
   const [loginPassword, setLoginPassword] = useState<string>('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const [isSignUpMode, setIsSignUpMode] = useState<boolean>(false);
   const [isRecoveryMode, setIsRecoveryMode] = useState<boolean>(false);
   const [recoveryPassword, setRecoveryPassword] = useState<string>('');
@@ -887,7 +890,12 @@ export default function App() {
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-slate-300 mb-1.5">Sua Senha</label>
-                      <input type="password" required minLength={isSignUpMode ? 8 : undefined} autoComplete={isSignUpMode ? 'new-password' : 'current-password'} value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder={isSignUpMode ? 'Crie uma senha (mínimo 8 caracteres)' : 'Digite sua senha'} className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500" />
+                      <div className="relative">
+                        <input type={isPasswordVisible ? 'text' : 'password'} required minLength={isSignUpMode ? 8 : undefined} autoComplete={isSignUpMode ? 'new-password' : 'current-password'} value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder={isSignUpMode ? 'Crie uma senha (mínimo 8 caracteres)' : 'Digite sua senha'} className="w-full px-3.5 py-2.5 pr-12 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500" />
+                        <button type="button" onClick={() => setIsPasswordVisible((visible) => !visible)} aria-label={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'} aria-pressed={isPasswordVisible} className="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-white" tabIndex={0}>
+                          {isPasswordVisible ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                      </div>
                     </div>
                     {authError && <p role="alert" className="text-xs text-red-300">{authError}</p>}
                     {authNotice && <p role="status" className="text-xs text-emerald-300">{authNotice}</p>}
@@ -898,8 +906,9 @@ export default function App() {
                       <button type="button" onClick={() => { setIsSignUpMode((value) => !value); setAuthError(null); setAuthNotice(null); }} className="text-amber-300 hover:text-amber-200 underline">
                         {isSignUpMode ? 'Já tenho conta — entrar' : 'Criar uma conta'}
                       </button>
-                      {!isSignUpMode && <button type="button" onClick={handlePasswordReset} disabled={isAuthBusy} className="text-slate-300 hover:text-white underline disabled:opacity-50">Esqueci minha senha</button>}
+                      {!isSignUpMode && <button type="button" onClick={handlePasswordReset} disabled={isAuthBusy} className="text-slate-300 hover:text-white underline disabled:opacity-50">Esqueci minha senha / Definir senha</button>}
                     </div>
+                    {!isSignUpMode && <p className="text-[11px] text-slate-400 text-center">Já acessou com Google e quer entrar também com e-mail e senha? Informe seu e-mail e use “Esqueci minha senha / Definir senha” para receber um link seguro. Não crie outra conta.</p>}
                     <div className="pt-1 text-center text-[11px] text-slate-400">
                       🛡️ Proteção de acesso por autenticação segura.
                     </div>
