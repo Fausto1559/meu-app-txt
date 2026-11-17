@@ -39,6 +39,7 @@ import {
 import { OrganicGrowthHubModal } from './components/OrganicGrowthHubModal';
 import { ScaleAnalyticsCommandCenter } from './components/ScaleAnalyticsCommandCenter';
 import { WebhookSaasPanel } from './components/WebhookSaasPanel';
+import { supabase } from './supabaseClient';
 import {
   CardMachine,
   FinancialRecord,
@@ -80,16 +81,49 @@ export default function App() {
   const todayISO = useMemo(() => toISODate(new Date()), []);
   const [referenceDate, setReferenceDate] = useState<string>(todayISO);
   const [activeNav, setActiveNav] = useState<NavTab>('painel');
-  const [userEmail, setUserEmail] = useState<string | null>(() =>
-    localStorage.getItem(STORAGE_KEY_AUTH)
-  );
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
+  const [isAuthBusy, setIsAuthBusy] = useState<boolean>(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authNotice, setAuthNotice] = useState<string | null>(null);
   const [loginEmail, setLoginEmail] = useState<string>('');
   const [loginPassword, setLoginPassword] = useState<string>('');
-  const [isGooglePickerOpen, setIsGooglePickerOpen] = useState<boolean>(false);
+  const [isSignUpMode, setIsSignUpMode] = useState<boolean>(false);
+  const [isRecoveryMode, setIsRecoveryMode] = useState<boolean>(false);
+  const [recoveryPassword, setRecoveryPassword] = useState<string>('');
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState<boolean>(() =>
     typeof window !== 'undefined' &&
     window.location.search.includes('admin=1')
   );
+
+  useEffect(() => {
+    let mounted = true;
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return;
+      setUserEmail(session?.user?.email ?? null);
+      setIsAuthLoading(false);
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsRecoveryMode(true);
+        setAuthNotice('Defina sua nova senha para concluir a recuperação.');
+      }
+    });
+
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (!mounted) return;
+      if (error) setAuthError('Não foi possível validar sua sessão. Tente novamente.');
+      setUserEmail(data.session?.user?.email ?? null);
+      setIsAuthLoading(false);
+    }).catch(() => {
+      if (!mounted) return;
+      setAuthError('Não foi possível conectar ao serviço de autenticação.');
+      setIsAuthLoading(false);
+    });
+
+    return () => {
+      mounted = false;
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   // Controle de 30 Dias Grátis + Trava Automática ao iniciar o 31º Dia
   const [trialStartMs, setTrialStartMs] = useState<number>(() => {
@@ -209,61 +243,126 @@ export default function App() {
   };
   /* v8 ignore stop */
 
-  const selectGoogleAccount = (email: string) => {
-    localStorage.setItem(STORAGE_KEY_AUTH, email);
-    setIsGooglePickerOpen(false);
-    setUserEmail(email);
+  const handleGoogleLogin = async () => {
+    setAuthError(null);
+    setAuthNotice(null);
+    setIsAuthBusy(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin },
+      });
+      if (error) throw error;
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Não foi possível iniciar o acesso com Google.');
+      setIsAuthBusy(false);
+    }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const emailToSave = loginEmail.trim();
-    const passwordToCheck = loginPassword.trim();
-
-    if (!emailToSave || !passwordToCheck) {
-      window.alert('Informe seu e-mail e sua senha para continuar.');
+    setAuthError(null);
+    setAuthNotice(null);
+    const email = loginEmail.trim().toLowerCase();
+    if (!email || !loginPassword) {
+      setAuthError('Informe seu e-mail e sua senha.');
       return;
     }
-
-    selectGoogleAccount(emailToSave);
+    setIsAuthBusy(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password: loginPassword });
+      if (error) throw error;
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Não foi possível entrar. Verifique suas credenciais.');
+    } finally {
+      setIsAuthBusy(false);
+    }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem(STORAGE_KEY_AUTH);
-    setIsGooglePickerOpen(false);
-
-    /* v8 ignore start */
-    const isTestEnv =
-      typeof navigator !== 'undefined' &&
-      /jsdom|node/i.test(navigator.userAgent || '');
-
-    if (!isTestEnv) {
-      try {
-        const exitLink = document.createElement('a');
-        exitLink.href = 'https://www.google.com.br';
-        exitLink.target = '_top';
-        exitLink.rel = 'noopener noreferrer';
-        document.body.appendChild(exitLink);
-        exitLink.click();
-        document.body.removeChild(exitLink);
-      } catch {
-        // ignore
-      }
-
-      try {
-        if (window.top && window.top !== window) {
-          window.top.location.href = 'https://www.google.com.br';
-        } else {
-          window.location.replace('https://www.google.com.br');
-        }
-      } catch {
-        window.location.replace('https://www.google.com.br');
-      }
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    setAuthNotice(null);
+    const email = loginEmail.trim().toLowerCase();
+    if (!email || loginPassword.length < 8) {
+      setAuthError('Informe um e-mail válido e uma senha com pelo menos 8 caracteres.');
       return;
     }
-    /* v8 ignore stop */
+    setIsAuthBusy(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password: loginPassword,
+        options: { emailRedirectTo: window.location.origin },
+      });
+      if (error) throw error;
+      if (!data.session) {
+        setAuthNotice('Cadastro recebido. Verifique seu e-mail e confirme o endereço antes de entrar.');
+      } else {
+        setAuthNotice('Cadastro realizado com sucesso.');
+      }
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Não foi possível criar sua conta.');
+    } finally {
+      setIsAuthBusy(false);
+    }
+  };
 
+  const handlePasswordReset = async () => {
+    setAuthError(null);
+    setAuthNotice(null);
+    const email = loginEmail.trim().toLowerCase();
+    if (!email) {
+      setAuthError('Informe seu e-mail para receber o link de recuperação.');
+      return;
+    }
+    setIsAuthBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin,
+      });
+      if (error) throw error;
+      setAuthNotice('Se o endereço estiver cadastrado, você receberá as instruções de recuperação por e-mail.');
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Não foi possível solicitar a recuperação de senha.');
+    } finally {
+      setIsAuthBusy(false);
+    }
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    setAuthNotice(null);
+    if (recoveryPassword.length < 8) {
+      setAuthError('A nova senha deve ter pelo menos 8 caracteres.');
+      return;
+    }
+    setIsAuthBusy(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: recoveryPassword });
+      if (error) throw error;
+      setIsRecoveryMode(false);
+      setRecoveryPassword('');
+      setAuthNotice('Senha alterada com sucesso. Você já pode acessar sua conta.');
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Não foi possível atualizar sua senha.');
+    } finally {
+      setIsAuthBusy(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    setAuthError(null);
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      setAuthError('Não foi possível encerrar a sessão. Tente novamente.');
+      return;
+    }
     setUserEmail(null);
+    setLoginPassword('');
+    setIsSignUpMode(false);
+    setIsRecoveryMode(false);
   };
 
   // Master Report State for the 3 requested fields (Vendas, A Receber, A Pagar) and 3 periods (Diário, Semanal, Mensal)
@@ -600,6 +699,32 @@ export default function App() {
     el?.scrollIntoView?.({ behavior: 'smooth' });
   };
 
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-[#0a0f1d] text-slate-100 flex items-center justify-center" role="status" aria-live="polite">
+        <div className="text-center space-y-3">
+          <div className="w-9 h-9 mx-auto rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
+          <p className="text-sm text-slate-300">Validando sua sessão com segurança...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isRecoveryMode && !userEmail) {
+    return (
+      <div className="min-h-screen bg-[#0a0f1d] text-slate-100 flex items-center justify-center p-4">
+        <form onSubmit={handleUpdatePassword} className="w-full max-w-md bg-[#111a2e] border border-[#1e2d4a] rounded-2xl p-6 space-y-4">
+          <h1 className="text-xl font-extrabold">Criar nova senha</h1>
+          <p className="text-sm text-slate-300">Digite uma nova senha para sua conta.</p>
+          <input type="password" required minLength={8} autoComplete="new-password" value={recoveryPassword} onChange={(e) => setRecoveryPassword(e.target.value)} placeholder="Nova senha (mínimo 8 caracteres)" className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-sm text-white" />
+          {authError && <p role="alert" className="text-sm text-red-300">{authError}</p>}
+          {authNotice && <p role="status" className="text-sm text-emerald-300">{authNotice}</p>}
+          <button type="submit" disabled={isAuthBusy} className="w-full py-3 rounded-xl bg-amber-500 text-slate-950 font-extrabold disabled:opacity-50">{isAuthBusy ? 'SALVANDO...' : 'SALVAR NOVA SENHA'}</button>
+        </form>
+      </div>
+    );
+  }
+
   if (!userEmail) {
     return (
       <div className="min-h-screen bg-[#0a0f1d] text-slate-100">
@@ -731,168 +856,51 @@ export default function App() {
                   </p>
                 </div>
 
-                {isGooglePickerOpen ? (
-                  <div className="space-y-4">
-                    <div className="bg-white text-slate-900 rounded-2xl p-5 space-y-4 shadow-xl">
-                      <div className="flex items-center gap-2.5 border-b border-slate-200 pb-3">
-                        <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
-                          <path
-                            fill="#4285F4"
-                            d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v2.98h3.86c2.26-2.09 3.56-5.17 3.56-8.8z"
-                          />
-                          <path
-                            fill="#34A853"
-                            d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-2.98c-1.08.72-2.45 1.16-4.07 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"
-                          />
-                          <path
-                            fill="#FBBC05"
-                            d="M5.28 14.31c-.24-.72-.38-1.49-.38-2.31s.14-1.59.38-2.31V6.6H1.29C.47 8.23 0 10.06 0 12s.47 3.77 1.29 5.4l3.99-3.09z"
-                          />
-                          <path
-                            fill="#EA4335"
-                            d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.6l3.99 3.09c.95-2.85 3.6-4.94 6.72-4.94z"
-                          />
-                        </svg>
-                        <span className="text-xs font-bold text-slate-600">
-                          Fazer login com o Google
-                        </span>
-                      </div>
-
-                      <div>
-                        <h3 className="text-lg font-extrabold text-slate-900">
-                          Escolha uma conta
-                        </h3>
-                        <p className="text-xs text-slate-600">
-                          para prosseguir para <strong>Copiloto Financeiro</strong>
-                        </p>
-                      </div>
-
-                      <div className="divide-y divide-slate-200 border-t border-b border-slate-200">
-                        <button
-                          type="button"
-                          onClick={() => selectGoogleAccount('faustoefiscal@gmail.com')}
-                          className="w-full py-3 px-2 flex items-center gap-3 hover:bg-slate-100 transition-colors text-left cursor-pointer"
-                        >
-                          <div className="w-9 h-9 rounded-full bg-sky-600 text-white font-bold text-sm flex items-center justify-center shrink-0">
-                            F
-                          </div>
-                          <div className="min-w-0">
-                            <div className="text-sm font-bold text-slate-900 truncate">
-                              Fausto Fiscal
-                            </div>
-                            <div className="text-xs text-slate-600 truncate">
-                              faustoefiscal@gmail.com
-                            </div>
-                          </div>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            selectGoogleAccount('contato@copilotofinanc.app.br')
-                          }
-                          className="w-full py-3 px-2 flex items-center gap-3 hover:bg-slate-100 transition-colors text-left cursor-pointer"
-                        >
-                          <div className="w-9 h-9 rounded-full bg-amber-600 text-white font-bold text-sm flex items-center justify-center shrink-0">
-                            C
-                          </div>
-                          <div className="min-w-0">
-                            <div className="text-sm font-bold text-slate-900 truncate">
-                              Copiloto Financeiro
-                            </div>
-                            <div className="text-xs text-slate-600 truncate">
-                              contato@copilotofinanc.app.br
-                            </div>
-                          </div>
-                        </button>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => setIsGooglePickerOpen(false)}
-                        className="w-full py-2 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-                      >
-                        Voltar
-                      </button>
-                    </div>
+                <div className="space-y-4">
+                  <button
+                    type="button"
+                    onClick={handleGoogleLogin}
+                    disabled={isAuthBusy}
+                    className="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm flex items-center justify-center gap-3 shadow-md transition-colors disabled:opacity-50"
+                  >
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+                      <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v2.98h3.86c2.26-2.09 3.56-5.17 3.56-8.8z"/>
+                      <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-2.98c-1.08.72-2.45 1.16-4.07 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"/>
+                      <path fill="#FBBC05" d="M5.28 14.31c-.24-.72-.38-1.49-.38-2.31s.14-1.59.38-2.31V6.6H1.29C.47 8.23 0 10.06 0 12s.47 3.77 1.29 5.4l3.99-3.09z"/>
+                      <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.6l3.99 3.09c.95-2.85 3.6-4.94 6.72-4.94z"/>
+                    </svg>
+                    <span>{isAuthBusy ? 'CONECTANDO...' : 'Entrar com o Google'}</span>
+                  </button>
+                  <div className="flex items-center gap-3 py-1">
+                    <div className="h-px flex-1 bg-[#1e2d4a]" />
+                    <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">ou acesse com e-mail</span>
+                    <div className="h-px flex-1 bg-[#1e2d4a]" />
                   </div>
-                ) : (
-                  <form onSubmit={handleLogin} className="space-y-4">
-                    <button
-                      type="button"
-                      onClick={() => setIsGooglePickerOpen(true)}
-                      className="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm flex items-center justify-center gap-3 shadow-md transition-colors cursor-pointer"
-                    >
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
-                        <path
-                          fill="#4285F4"
-                          d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v2.98h3.86c2.26-2.09 3.56-5.17 3.56-8.8z"
-                        />
-                        <path
-                          fill="#34A853"
-                          d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-2.98c-1.08.72-2.45 1.16-4.07 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"
-                        />
-                        <path
-                          fill="#FBBC05"
-                          d="M5.28 14.31c-.24-.72-.38-1.49-.38-2.31s.14-1.59.38-2.31V6.6H1.29C.47 8.23 0 10.06 0 12s.47 3.77 1.29 5.4l3.99-3.09z"
-                        />
-                        <path
-                          fill="#EA4335"
-                          d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.6l3.99 3.09c.95-2.85 3.6-4.94 6.72-4.94z"
-                        />
-                      </svg>
-                      <span>Entrar com o Google</span>
-                    </button>
-
-                    <div className="flex items-center gap-3 py-1">
-                      <div className="h-px flex-1 bg-[#1e2d4a]" />
-                      <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
-                        ou acesse com e-mail
-                      </span>
-                      <div className="h-px flex-1 bg-[#1e2d4a]" />
-                    </div>
-
+                  <form onSubmit={isSignUpMode ? handleSignUp : handleLogin} className="space-y-4">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                        Seu E-mail de Acesso
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        value={loginEmail}
-                        onChange={(e) => setLoginEmail(e.target.value)}
-                        placeholder="Ex: faustoefiscal@gmail.com"
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
-                      />
+                      <label className="block text-xs font-semibold text-slate-300 mb-1.5">Seu E-mail de Acesso</label>
+                      <input type="email" required autoComplete="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder="Ex: voce@empresa.com.br" className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500" />
                     </div>
-
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                        Sua Senha
-                      </label>
-                      <input
-                        type="password"
-                        required
-                        value={loginPassword}
-                        onChange={(e) => setLoginPassword(e.target.value)}
-                        placeholder="Digite sua senha"
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
-                      />
+                      <label className="block text-xs font-semibold text-slate-300 mb-1.5">Sua Senha</label>
+                      <input type="password" required minLength={isSignUpMode ? 8 : undefined} autoComplete={isSignUpMode ? 'new-password' : 'current-password'} value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder={isSignUpMode ? 'Crie uma senha (mínimo 8 caracteres)' : 'Digite sua senha'} className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500" />
                     </div>
-
-
-                    <button
-                      type="submit"
-                      className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm transition-colors shadow-lg cursor-pointer"
-                    >
-                      ENTRAR
+                    {authError && <p role="alert" className="text-xs text-red-300">{authError}</p>}
+                    {authNotice && <p role="status" className="text-xs text-emerald-300">{authNotice}</p>}
+                    <button type="submit" disabled={isAuthBusy} className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm transition-colors shadow-lg disabled:opacity-50">
+                      {isAuthBusy ? 'AGUARDE...' : isSignUpMode ? 'CRIAR MINHA CONTA' : 'ENTRAR'}
                     </button>
-
+                    <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs">
+                      <button type="button" onClick={() => { setIsSignUpMode((value) => !value); setAuthError(null); setAuthNotice(null); }} className="text-amber-300 hover:text-amber-200 underline">
+                        {isSignUpMode ? 'Já tenho conta — entrar' : 'Criar uma conta'}
+                      </button>
+                      {!isSignUpMode && <button type="button" onClick={handlePasswordReset} disabled={isAuthBusy} className="text-slate-300 hover:text-white underline disabled:opacity-50">Esqueci minha senha</button>}
+                    </div>
                     <div className="pt-1 text-center text-[11px] text-slate-400">
-                      🛡️ 100% em Conformidade com a <strong>LGPD (Lei nº 13.709/2018)</strong> · Sigilo Financeiro e Proteção de Dados Garantidos.
+                      🛡️ Proteção de acesso por autenticação segura.
                     </div>
                   </form>
-                )}
+                </div>
               </div>
             </div>
           </div>
