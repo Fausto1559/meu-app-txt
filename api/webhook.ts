@@ -53,7 +53,9 @@ export default async function handler(req: any, res: any) {
       : null;
     const subscriptionId = isObject(body.subscription) && typeof body.subscription.id === 'string'
       ? body.subscription.id.trim()
-      : null;
+      : isObject(body.payment) && typeof body.payment.subscription === 'string'
+        ? body.payment.subscription.trim()
+        : null;
 
     if (!eventId || !eventType || (!paymentId && !subscriptionId)) {
       return res.status(400).json({ ok: false, error: 'Payload Asaas inválido.' });
