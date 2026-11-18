@@ -1,80 +1,73 @@
-export interface StoredWebhookEvent {
-  id: string;
-  gateway: string;
-  eventType: 'pagamento_aprovado' | 'pagamento_recusado' | 'pagamento_estornado';
-  customerEmail: string;
-  amount: number;
-  status: 'processado' | 'falha';
-  httpStatus: 200 | 500;
-  attempts: number;
-  createdAt: string;
-  processedAt?: string;
-  errorMessage?: string;
+import { createClient } from '@supabase/supabase-js';
+import { timingSafeEqual } from 'node:crypto';
+
+function safeTokenEquals(received: unknown, expected: string): boolean {
+  if (typeof received !== 'string') return false;
+  const receivedBuffer = Buffer.from(received);
+  const expectedBuffer = Buffer.from(expected);
+  return receivedBuffer.length === expectedBuffer.length &&
+    timingSafeEqual(receivedBuffer, expectedBuffer);
 }
 
-const webhookEventsStore: StoredWebhookEvent[] = [];
-
 export default async function handler(req: any, res: any) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Webhook-Signature');
+  res.setHeader('Cache-Control', 'no-store');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST');
+    return res.status(405).json({ ok: false, error: 'Method Not Allowed' });
   }
 
-  if (req.method === 'GET') {
-    return res.status(200).json({
-      ok: true,
-      endpoint: '/api/webhook',
-      events: webhookEventsStore,
+  const webhookToken = process.env.ASAAS_WEBHOOK_TOKEN;
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!webhookToken || webhookToken.length < 32 || !supabaseUrl || !serviceRoleKey) {
+    return res.status(503).json({
+      ok: false,
+      error: 'Webhook Asaas ainda não configurado no servidor.',
     });
   }
 
-  if (req.method === 'POST') {
-    try {
-      const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
-
-      if (body.action === 'reprocess' && body.eventId) {
-        const existing = webhookEventsStore.find((e) => e.id === body.eventId);
-        if (existing) {
-          existing.status = 'processado';
-          existing.httpStatus = 200;
-          existing.attempts += 1;
-          existing.processedAt = new Date().toISOString();
-          existing.errorMessage = undefined;
-          return res.status(200).json({ ok: true, httpStatus: 200, event: existing });
-        }
-      }
-
-      const eventId = body.id || `evt_${Date.now()}`;
-      const simulateFailure = Boolean(body.simulateFailure);
-
-      const savedEvent: StoredWebhookEvent = {
-        id: eventId,
-        gateway: body.gateway || 'Asaas / Stripe / Mercado Pago',
-        eventType: body.eventType || 'pagamento_aprovado',
-        customerEmail: body.customerEmail || 'cliente@empresa.com.br',
-        amount: Number(body.amount ?? 197.0),
-        status: simulateFailure ? 'falha' : 'processado',
-        httpStatus: simulateFailure ? 500 : 200,
-        attempts: 1,
-        createdAt: new Date().toISOString(),
-        processedAt: simulateFailure ? undefined : new Date().toISOString(),
-        errorMessage: simulateFailure ? 'Falha salva no banco aguardando reprocessamento.' : undefined,
-      };
-
-      webhookEventsStore.unshift(savedEvent);
-
-      if (simulateFailure) {
-        return res.status(500).json({ ok: false, httpStatus: 500, event: savedEvent });
-      }
-
-      return res.status(200).json({ ok: true, httpStatus: 200, event: savedEvent });
-    } catch (err: any) {
-      return res.status(500).json({ ok: false, httpStatus: 500, message: err?.message });
-    }
+  if (!safeTokenEquals(req.headers?.['asaas-access-token'], webhookToken)) {
+    return res.status(401).json({ ok: false, error: 'Unauthorized' });
   }
 
-  return res.status(405).json({ ok: false, message: 'Method Not Allowed' });
+  try {
+    const body = typeof req.body === 'string'
+      ? JSON.parse(req.body || '{}')
+      : req.body || {};
+    const eventId = typeof body.id === 'string' ? body.id.trim() : '';
+    const eventType = typeof body.event === 'string' ? body.event.trim() : '';
+    const paymentId = typeof body.payment?.id === 'string' ? body.payment.id.trim() : '';
+
+    if (!eventId || !eventType || !paymentId) {
+      return res.status(400).json({ ok: false, error: 'Payload Asaas inválido.' });
+    }
+
+    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
+    const { error } = await supabase.from('webhook_events').insert({
+      provider: 'asaas',
+      provider_event_id: eventId,
+      event_type: eventType,
+      provider_payment_id: paymentId,
+      processing_status: 'received',
+      attempts: 1,
+    });
+
+    if (error?.code === '23505') {
+      return res.status(200).json({ ok: true, duplicate: true, id: eventId });
+    }
+    if (error) {
+      console.error('Falha ao persistir evento Asaas:', error.message);
+      return res.status(500).json({ ok: false, error: 'Falha ao persistir evento.' });
+    }
+
+    return res.status(200).json({ ok: true, received: true, persisted: true, id: eventId });
+  } catch (error: any) {
+    console.error('Erro no recebimento do webhook Asaas:', error?.message || error);
+    return res.status(400).json({ ok: false, error: 'Requisição inválida.' });
+  }
 }
