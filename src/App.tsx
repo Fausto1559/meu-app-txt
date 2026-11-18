@@ -192,9 +192,8 @@ export default function App() {
   const isTrialExpiredDay31 =
     currentDayOfUsage >= 31 && !activePlan;
 
-  const handleSelectPaidPlan = (planName: string) => {
-    localStorage.setItem(STORAGE_KEY_ACTIVE_PLAN, planName);
-    setActivePlan(planName);
+  const handleSelectPaidPlan = (_planName: string) => {
+    setAuthNotice('A contratação ainda não está disponível: a integração de cobrança Asaas precisa ser configurada e validada. Nenhum plano foi ativado.');
   };
 
   const handleSimulateDay31Lock = () => {
