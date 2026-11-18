@@ -35,45 +35,7 @@ export interface SaaSWebhookEvent {
 
 export const STORAGE_KEY_WEBHOOK_EVENTS = 'copiloto_webhook_events_v1';
 
-const INITIAL_WEBHOOK_EVENTS: SaaSWebhookEvent[] = [
-  {
-    id: 'evt_982341_aprov',
-    gateway: 'Asaas / PIX & Cartão',
-    eventType: 'pagamento_aprovado',
-    customerEmail: 'assinante.pro@empresa.com.br',
-    amount: 39.9,
-    status: 'processado',
-    httpStatus: 200,
-    attempts: 1,
-    createdAt: '02/10/2026 14:20:10',
-    processedAt: '02/10/2026 14:20:11',
-  },
-  {
-    id: 'evt_982342_recus',
-    gateway: 'Stripe / Cartão de Crédito',
-    eventType: 'pagamento_recusado',
-    customerEmail: 'cliente.teste@loja.com.br',
-    amount: 19.9,
-    status: 'processado',
-    httpStatus: 200,
-    attempts: 1,
-    createdAt: '02/10/2026 15:05:44',
-    processedAt: '02/10/2026 15:05:45',
-  },
-  {
-    id: 'evt_982349_falha',
-    gateway: 'Mercado Pago / Checkout',
-    eventType: 'pagamento_aprovado',
-    customerEmail: 'financeiro@comercio.com.br',
-    amount: 29.9,
-    status: 'falha',
-    httpStatus: 500,
-    attempts: 1,
-    createdAt: '02/10/2026 16:12:03',
-    errorMessage:
-      'Timeout temporário ao gravar liberação. Evento salvo no banco pronto para reprocessar (Passo 5).',
-  },
-];
+const INITIAL_WEBHOOK_EVENTS: SaaSWebhookEvent[] = [];
 
 interface WebhookSaasPanelProps {
   todayISO: string;
@@ -117,142 +79,22 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
     onNotify('URL do Webhook copiada: ' + webhookUrl);
   };
 
-  // Dispara um evento de Webhook (Passos 2, 3, 4 e 5)
+  // Simulações locais foram desativadas: somente eventos autenticados do Asaas
+  // podem ser aceitos pelo endpoint do servidor.
   const triggerWebhookEvent = async (
-    eventType: WebhookEventType,
-    amount: number,
-    simulateFailure = false
+    _eventType: WebhookEventType,
+    _amount: number,
+    _simulateFailure = false
   ) => {
-    const nowStr = new Date().toLocaleString('pt-BR');
-    const eventId = `evt_${Date.now().toString().slice(-6)}`;
-
-    const newEvent: SaaSWebhookEvent = {
-      id: eventId,
-      gateway: selectedGateway,
-      eventType,
-      customerEmail: 'cliente.saas@copilotofinanc.app.br',
-      amount,
-      status: simulateFailure ? 'falha' : 'processado',
-      httpStatus: simulateFailure ? 500 : 200,
-      attempts: 1,
-      createdAt: nowStr,
-      processedAt: simulateFailure ? undefined : nowStr,
-      errorMessage: simulateFailure
-        ? 'Falha simulada no processamento. Evento salvo no banco aguardando reprocessamento (Passo 5).'
-        : undefined,
-    };
-
-    // Tenta enviar também para a rota Serverless /api/webhook se disponível
-    try {
-      await fetch('/api/webhook', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: eventId,
-          gateway: selectedGateway,
-          eventType,
-          customerEmail: newEvent.customerEmail,
-          amount,
-          simulateFailure,
-        }),
-      });
-    } catch {
-      // Fallback local imediato
-    }
-
-    // Passo 3: Guarda referência no banco imediatamente
-    setEvents((prev) => [newEvent, ...prev]);
-
-    if (simulateFailure) {
-      onNotify(
-        `Passo 3 e 5: Evento ${eventId} salvo no banco com FALHA (HTTP 500). Clique em "Reprocessar" para concluir e devolver 200 OK!`
-      );
-      return;
-    }
-
-    // Passo 4: Processa o evento no financeiro e devolve 200 OK
-    applyFinancialEffect(newEvent);
-    onNotify(
-      `Passo 4 concluído: Webhook ${eventId} (${eventType}) salvo no banco, processado e HTTP 200 OK devolvido ao gateway!`
-    );
+    onNotify('Simulações desativadas. Configure o webhook autenticado do Asaas para receber eventos reais.');
   };
 
-  const applyFinancialEffect = (evt: SaaSWebhookEvent) => {
-    if (evt.eventType === 'pagamento_aprovado') {
-      onAddRecord({
-        type: 'vendas',
-        description: `Webhook SaaS Aprovado (${evt.id}) - ${evt.gateway}`,
-        grossAmount: evt.amount,
-        feeRate: 1.99,
-        feeAmount: Number(((evt.amount * 1.99) / 100).toFixed(2)),
-        netAmount: Number((evt.amount * (1 - 0.0199)).toFixed(2)),
-        date: todayISO,
-        time: '12:00',
-        paymentMethod: 'pix',
-        status: 'confirmado',
-        subcategory: 'Assinatura SaaS (Webhook 200 OK)',
-      });
-    } else if (evt.eventType === 'pagamento_estornado') {
-      onAddRecord({
-        type: 'pagar',
-        description: `Estorno Webhook SaaS (${evt.id}) - ${evt.gateway}`,
-        grossAmount: evt.amount,
-        feeRate: 0,
-        feeAmount: 0,
-        netAmount: evt.amount,
-        date: todayISO,
-        time: '12:00',
-        paymentMethod: 'pix',
-        status: 'confirmado',
-        subcategory: 'Estorno / Chargeback Gateway',
-      });
-    }
-  };
-
-  // Passo 5: Reprocessar evento salvo no banco até dar certo e devolver 200 OK
-  const handleReprocessEvent = async (eventId: string) => {
-    const target = events.find((e) => e.id === eventId);
-    if (!target) return;
-
-    try {
-      await fetch('/api/webhook', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'reprocess', eventId }),
-      });
-    } catch {
-      // Fallback local
-    }
-
-    const nowStr = new Date().toLocaleString('pt-BR');
-    setEvents((prev) =>
-      prev.map((e) =>
-        e.id === eventId
-          ? {
-              ...e,
-              status: 'processado',
-              httpStatus: 200,
-              attempts: e.attempts + 1,
-              processedAt: nowStr,
-              errorMessage: undefined,
-            }
-          : e
-      )
-    );
-
-    applyFinancialEffect(target);
-    onNotify(
-      `Passo 5 concluído: Evento ${eventId} reprocessado com sucesso! Lançado no painel e HTTP 200 OK enviado ao gateway.`
-    );
+  const handleReprocessEvent = async (_eventId: string) => {
+    onNotify('Reprocessamento indisponível até a implementação do processador persistente de eventos.');
   };
 
   const handleReprocessAllFailures = () => {
-    const failed = events.filter((e) => e.status === 'falha');
-    if (failed.length === 0) {
-      onNotify('Nenhuma falha pendente no banco de dados.');
-      return;
-    }
-    failed.forEach((f) => handleReprocessEvent(f.id));
+    onNotify('Não há reprocessamento local. Os eventos reais serão tratados pelo processador seguro do servidor.');
   };
 
   const failedCount = events.filter((e) => e.status === 'falha').length;
@@ -268,7 +110,7 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
             ARQUITETURA SAAS EM 5 PASSOS ATIVA
           </div>
           <h2 className="text-xl font-bold text-white">
-            Processamento de Pagamentos & Webhooks (SaaS)
+            Recebimento de Eventos Asaas — integração em configuração
           </h2>
           <p className="text-xs text-slate-400">
             Fluxo completo de ponta a ponta: Configuração de Eventos · Escuta no
@@ -355,25 +197,25 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
           {
             step: 'Passo 2',
             title: 'Escutar Webhook',
-            desc: 'Servidor recebe POST em /api/webhook em tempo real.',
+            desc: 'Endpoint exige token Asaas e persistência server-side; ativação pendente de credenciais.',
             icon: Server,
           },
           {
             step: 'Passo 3',
             title: 'Guardar no Banco',
-            desc: 'Salva referência única (evt_id) antes de processar.',
+            desc: 'Evento único persistido com idempotência; processamento financeiro ainda pendente.',
             icon: Database,
           },
           {
             step: 'Passo 4',
             title: 'Devolver 200 OK',
-            desc: 'Retorna HTTP 200 pro Gateway só após processar.',
+            desc: 'HTTP 200 somente após recebimento persistido; efeitos financeiros ainda não ativados.',
             icon: CheckCircle2,
           },
           {
             step: 'Passo 5',
             title: 'Processar Falhas',
-            desc: 'Reprocessa eventos do banco até devolver 200 OK.',
+            desc: 'Reprocessamento automático ainda não implementado.',
             icon: RefreshCw,
           },
         ].map((item) => {
@@ -461,8 +303,8 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
                 2. Escutar o Webhook no Servidor
               </span>
               <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                ONLINE (POST · HTTP 200)
+                <span className="w-2 h-2 rounded-full bg-amber-400" />
+                CONFIGURAÇÃO PENDENTE
               </span>
             </div>
             <p className="text-xs text-slate-400">
