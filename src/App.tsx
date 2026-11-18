@@ -84,6 +84,8 @@ export default function App() {
   const [referenceDate, setReferenceDate] = useState<string>(todayISO);
   const [activeNav, setActiveNav] = useState<NavTab>('painel');
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+  const [cloudReadyUserId, setCloudReadyUserId] = useState<string | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
   const [isAuthBusy, setIsAuthBusy] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -104,6 +106,7 @@ export default function App() {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
       setUserEmail(session?.user?.email ?? null);
+      setAuthUserId(session?.user?.id ?? null);
       setIsAuthLoading(false);
       if (event === 'PASSWORD_RECOVERY') {
         setIsRecoveryMode(true);
@@ -115,6 +118,7 @@ export default function App() {
       if (!mounted) return;
       if (error) setAuthError('Não foi possível validar sua sessão. Tente novamente.');
       setUserEmail(data.session?.user?.email ?? null);
+      setAuthUserId(data.session?.user?.id ?? null);
       setIsAuthLoading(false);
     }).catch(() => {
       if (!mounted) return;
@@ -364,6 +368,8 @@ export default function App() {
         return;
       }
       setUserEmail(null);
+      setAuthUserId(null);
+      setCloudReadyUserId(null);
       setLoginPassword('');
       setIsSignUpMode(false);
       setIsRecoveryMode(false);
@@ -423,12 +429,67 @@ export default function App() {
   const [toastBanner, setToastBanner] = useState<string | null>(null);
 
   useEffect(() => {
+    if (cloudReadyUserId !== authUserId || !authUserId) return;
     localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records));
-  }, [records]);
+    supabase
+      .from('financial_records')
+      .upsert({ user_id: authUserId, records, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+      .then(({ error }) => {
+        if (error) console.error('Falha ao sincronizar lançamentos financeiros:', error);
+      });
+  }, [records, authUserId, cloudReadyUserId]);
 
   useEffect(() => {
+    if (cloudReadyUserId !== authUserId || !authUserId) return;
     localStorage.setItem(STORAGE_KEY_MACHINES, JSON.stringify(machines));
-  }, [machines]);
+    supabase
+      .from('card_machines')
+      .upsert({ user_id: authUserId, machines, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+      .then(({ error }) => {
+        if (error) console.error('Falha ao sincronizar maquininhas:', error);
+      });
+  }, [machines, authUserId, cloudReadyUserId]);
+
+  useEffect(() => {
+    if (!authUserId) {
+      setCloudReadyUserId(null);
+      return;
+    }
+
+    let cancelled = false;
+    setCloudReadyUserId(null);
+
+    const loadUserData = async () => {
+      const [recordsResult, machinesResult] = await Promise.all([
+        supabase.from('financial_records').select('records').eq('user_id', authUserId).maybeSingle(),
+        supabase.from('card_machines').select('machines').eq('user_id', authUserId).maybeSingle(),
+      ]);
+
+      if (cancelled) return;
+      if (recordsResult.error || machinesResult.error) {
+        console.error('Falha ao carregar dados financeiros da conta:', recordsResult.error || machinesResult.error);
+        setAuthError('Não foi possível carregar seus dados financeiros na nuvem. Atualize a página ou tente novamente.');
+        return;
+      }
+
+      setRecords(Array.isArray(recordsResult.data?.records) ? recordsResult.data.records as FinancialRecord[] : []);
+      setMachines(Array.isArray(machinesResult.data?.machines) && machinesResult.data.machines.length > 0
+        ? machinesResult.data.machines as CardMachine[]
+        : INITIAL_CARD_MACHINES);
+      setCloudReadyUserId(authUserId);
+    };
+
+    loadUserData().catch((error) => {
+      if (!cancelled) {
+        console.error('Erro inesperado ao carregar dados financeiros:', error);
+        setAuthError('Não foi possível carregar seus dados financeiros na nuvem. Atualize a página ou tente novamente.');
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authUserId]);
 
   const showNotification = (msg: string) => {
     setToastBanner(msg);
@@ -728,6 +789,17 @@ export default function App() {
           {authNotice && <p role="status" className="text-sm text-emerald-300">{authNotice}</p>}
           <button type="submit" disabled={isAuthBusy} className="w-full py-3 rounded-xl bg-amber-500 text-slate-950 font-extrabold disabled:opacity-50">{isAuthBusy ? 'SALVANDO...' : 'SALVAR NOVA SENHA'}</button>
         </form>
+      </div>
+    );
+  }
+
+  if (userEmail && authUserId && cloudReadyUserId !== authUserId) {
+    return (
+      <div className="min-h-screen bg-[#0a0f1d] text-slate-100 flex items-center justify-center" role="status" aria-live="polite">
+        <div className="text-center space-y-3">
+          <div className="w-9 h-9 mx-auto rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
+          <p className="text-sm text-slate-300">Carregando seus dados financeiros com segurança...</p>
+        </div>
       </div>
     );
   }
