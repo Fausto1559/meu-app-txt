@@ -9,8 +9,13 @@ function safeTokenEquals(received: unknown, expected: string): boolean {
     timingSafeEqual(receivedBuffer, expectedBuffer);
 }
 
+function isObject(value: unknown): value is Record<string, any> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 export default async function handler(req: any, res: any) {
   res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
 
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -35,13 +40,37 @@ export default async function handler(req: any, res: any) {
   try {
     const body = typeof req.body === 'string'
       ? JSON.parse(req.body || '{}')
-      : req.body || {};
+      : req.body;
+
+    if (!isObject(body)) {
+      return res.status(400).json({ ok: false, error: 'Payload Asaas inválido.' });
+    }
+
     const eventId = typeof body.id === 'string' ? body.id.trim() : '';
     const eventType = typeof body.event === 'string' ? body.event.trim() : '';
-    const paymentId = typeof body.payment?.id === 'string' ? body.payment.id.trim() : '';
+    const paymentId = isObject(body.payment) && typeof body.payment.id === 'string'
+      ? body.payment.id.trim()
+      : null;
+    const subscriptionId = isObject(body.subscription) && typeof body.subscription.id === 'string'
+      ? body.subscription.id.trim()
+      : null;
 
-    if (!eventId || !eventType || !paymentId) {
+    if (!eventId || !eventType || (!paymentId && !subscriptionId)) {
       return res.status(400).json({ ok: false, error: 'Payload Asaas inválido.' });
+    }
+
+    if (eventId.length > 200 || eventType.length > 120 ||
+        (paymentId && paymentId.length > 200) ||
+        (subscriptionId && subscriptionId.length > 200)) {
+      return res.status(400).json({ ok: false, error: 'Identificadores Asaas inválidos.' });
+    }
+
+    const isPaymentEvent = eventType.startsWith('PAYMENT_');
+    const isSubscriptionEvent = eventType.startsWith('SUBSCRIPTION_');
+    if ((isPaymentEvent && !paymentId) ||
+        (isSubscriptionEvent && !subscriptionId) ||
+        (!isPaymentEvent && !isSubscriptionEvent)) {
+      return res.status(400).json({ ok: false, error: 'Tipo de evento não compatível com o recurso recebido.' });
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
@@ -53,6 +82,8 @@ export default async function handler(req: any, res: any) {
       provider_event_id: eventId,
       event_type: eventType,
       provider_payment_id: paymentId,
+      provider_subscription_id: subscriptionId,
+      payload: body,
       processing_status: 'received',
       attempts: 1,
     });
@@ -65,7 +96,15 @@ export default async function handler(req: any, res: any) {
       return res.status(500).json({ ok: false, error: 'Falha ao persistir evento.' });
     }
 
-    return res.status(200).json({ ok: true, received: true, persisted: true, id: eventId });
+    // O evento foi persistido, mas a ativação/alteração da assinatura depende
+    // do processador financeiro server-side, que ainda não está habilitado.
+    return res.status(200).json({
+      ok: true,
+      received: true,
+      persisted: true,
+      processed: false,
+      id: eventId,
+    });
   } catch (error: any) {
     console.error('Erro no recebimento do webhook Asaas:', error?.message || error);
     return res.status(400).json({ ok: false, error: 'Requisição inválida.' });
