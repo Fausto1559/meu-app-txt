@@ -92,6 +92,7 @@ export default function App() {
   const [authNotice, setAuthNotice] = useState<string | null>(null);
   const [loginEmail, setLoginEmail] = useState<string>('');
   const [loginPassword, setLoginPassword] = useState<string>('');
+  const [passwordSetupNotice, setPasswordSetupNotice] = useState<string | null>(null);
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const [isSignUpMode, setIsSignUpMode] = useState<boolean>(false);
   const [isRecoveryMode, setIsRecoveryMode] = useState<boolean>(false);
@@ -354,6 +355,8 @@ export default function App() {
       setIsRecoveryMode(false);
       setRecoveryPassword('');
       setAuthNotice('Senha alterada com sucesso. Você já pode acessar sua conta.');
+      setPasswordSetupNotice('Senha de acesso definida com sucesso. Agora você pode sair e entrar usando este mesmo e-mail e a nova senha.');
+      setActiveNav('perfil');
     } catch (error) {
       setAuthError(error instanceof Error ? error.message : 'Não foi possível atualizar sua senha.');
     } finally {
@@ -2264,7 +2267,25 @@ export default function App() {
                 Sair da Conta
               </button>
             </div>
+            {passwordSetupNotice && (
+              <p role="status" className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300">
+                {passwordSetupNotice}
+              </p>
+            )}
             <div className="flex flex-wrap gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setPasswordSetupNotice(null);
+                  setAuthError(null);
+                  setAuthNotice(null);
+                  setRecoveryPassword('');
+                  setIsRecoveryMode(true);
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 rounded-lg border border-emerald-500/40 cursor-pointer"
+              >
+                🔐 Definir senha para login por e-mail
+              </button>
               <button
                 type="button"
                 onClick={() => {
