@@ -1,5 +1,5 @@
 import type { VercelRequest } from '@vercel/node';
-import { getAdminSupabase } from './adminSupabase';
+import { getAdminSupabase } from './adminSupabase.js';
 
 export const ADMIN_ROLES = ['owner', 'admin', 'support', 'analyst'] as const;
 export type AdminRole = (typeof ADMIN_ROLES)[number];
