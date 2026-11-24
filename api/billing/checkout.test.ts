@@ -38,6 +38,64 @@ function createResponse() {
   return response;
 }
 
+
+function createConcurrentCheckoutSupabase() {
+  let existingLookups = 0;
+  let releaseExistingLookups!: () => void;
+  const existingLookupsBarrier = new Promise<void>((resolve) => {
+    releaseExistingLookups = resolve;
+  });
+  let reservationCreated = false;
+  const calls: Array<{ table: string; operation: string }> = [];
+
+  const supabase = {
+    from(table: string) {
+      let operation = 'select';
+      const query: any = {
+        select() { calls.push({ table, operation: 'select' }); return query; },
+        eq() { return query; },
+        in() { return query; },
+        order() { return query; },
+        limit() { return query; },
+        insert() { operation = 'insert'; calls.push({ table, operation }); return query; },
+        update() { operation = 'update'; calls.push({ table, operation }); return query; },
+        upsert() { operation = 'upsert'; calls.push({ table, operation }); return query; },
+        single: vi.fn(async () => {
+          if (table === 'billing_accounts' && operation === 'select') {
+            return { data: { trial_ends_at: '2026-12-24T00:00:00.000Z', access_status: 'trial', current_subscription_id: null }, error: null };
+          }
+          if (table === 'subscriptions' && operation === 'insert') {
+            if (reservationCreated) return { data: null, error: { code: '23505', message: 'unique reservation conflict' } };
+            reservationCreated = true;
+            return { data: { id: 'reservation-1' }, error: null };
+          }
+          if (table === 'subscriptions' && operation === 'update') {
+            return { data: { id: 'reservation-1' }, error: null };
+          }
+          return { data: null, error: null };
+        }),
+        maybeSingle: vi.fn(async () => {
+          if (table === 'subscriptions' && operation === 'select') {
+            existingLookups += 1;
+            if (existingLookups === 2) releaseExistingLookups();
+            await existingLookupsBarrier;
+            return { data: null, error: null };
+          }
+          if (table === 'billing_customers' && operation === 'select') {
+            return { data: { provider_customer_id: 'cus-existing' }, error: null };
+          }
+          return { data: null, error: null };
+        }),
+        then(resolve: (value: unknown) => unknown, reject: (reason: unknown) => unknown) {
+          return Promise.resolve({ error: null }).then(resolve, reject);
+        },
+      };
+      return query;
+    },
+  };
+  return { supabase, calls };
+}
+
 describe('POST /api/billing/checkout', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -154,5 +212,45 @@ describe('POST /api/billing/checkout', () => {
     });
     expect(from).not.toHaveBeenCalled();
     expect(mockAsaasRequest).not.toHaveBeenCalled();
+  });
+
+  it('serializes simultaneous checkouts before calling Asaas', async () => {
+    const { supabase } = createConcurrentCheckoutSupabase();
+    mockGetAuthenticatedUser.mockResolvedValue({
+      supabase,
+      user: {
+        id: 'user-concurrent-001',
+        email: 'concurrent@example.com',
+        created_at: '2026-11-24T00:00:00.000Z',
+      },
+    });
+    mockAsaasRequest.mockResolvedValue({
+      id: 'asaas-subscription-1',
+      status: 'PENDING',
+      nextDueDate: '2026-12-24',
+    });
+
+    const makeRequest = () => ({
+      method: 'POST',
+      headers: {},
+      body: {
+        planKey: 'essencial',
+        billingType: 'PIX',
+        customerName: 'Cliente Concorrente',
+        cpfCnpj: '52998224725',
+      },
+    } as any);
+
+    const firstResponse = createResponse();
+    const secondResponse = createResponse();
+    await Promise.all([
+      handler(makeRequest(), firstResponse),
+      handler(makeRequest(), secondResponse),
+    ]);
+
+    expect([firstResponse.statusCode, secondResponse.statusCode].sort()).toEqual([201, 409]);
+    expect(mockAsaasRequest).toHaveBeenCalledTimes(1);
+    expect(mockAsaasRequest).toHaveBeenCalledWith('/subscriptions', expect.objectContaining({ method: 'POST' }));
+    expect(mockAsaasRequest).not.toHaveBeenCalledWith('/customers', expect.anything());
   });
 });
