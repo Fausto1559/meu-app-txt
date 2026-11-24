@@ -62,3 +62,12 @@ See `PRODUCTION_SECURITY_GAP.md`. Production custom domain still serves the olde
 8. Obtain explicit approval for a controlled Production release.
 
 No Production deployment, alias change, Production migration, real payment, or webhook POST is authorized by this handoff. Keep `main` and production untouched until the separate release approval.
+
+## Serverless-function count correction — 2026-11-24
+- Vercel Preview build `dpl_3bZt39oeXj89ZRzqkKr2ATh8jTnx` failed with the Hobby limit: more than 12 Serverless Functions were detected.
+- The recovery tree contained eight API route handlers plus five route-level test files under `api/`. The five tests were moved to `tests/api/`, their imports were updated, and Vitest now discovers them from that location.
+- The resulting source tree was inspected: exactly eight route handlers remain under `api/`; the five moved tests are under `tests/api/`.
+- Commit `f5307363064190e5c4b6fbf506f5bb0679be6910` passed all CI gates: dependency audits, TypeScript, tests, and build.
+- The Vercel project install command was changed to `npm install --include=dev` after the prior deployment's TypeScript scanner could not resolve `vite/client` and `node` type definitions.
+- No deployment currently exists for commit `f5307363064190e5c4b6fbf506f5bb0679be6910`. The earlier deployment daily-creation limit remains in effect, so the function-count reduction and install-command change have not yet been verified by a new Preview.
+- Next gate: create a Preview for `f5307363064190e5c4b6fbf506f5bb0679` once Vercel permits a deployment. Confirm the deployment sees no more than eight application API functions, resolves TypeScript types, and reaches READY. Do not promote it.
