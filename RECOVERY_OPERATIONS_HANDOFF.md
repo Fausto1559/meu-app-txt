@@ -194,3 +194,13 @@ No Production deployment, domain alias change, Production migration, live paymen
 - The later Production deployment record `dpl_8xcgu4YWrci8kRmSMh7HpKPydVNp`, commit `a5b6fbc1676d6b739e7015c82dbfbc7daebdc2e3`, is in ERROR and has no aliases.
 - No custom domain, production alias, or deployment target was changed during recovery.
 - Current recovery head `72bf0c0fed0f10c5cc5df1935e9208dfc28938c0` passed CI run `45480155917`. Its Vercel status remains rate-limited by the Hobby daily deployment cap; the latest Vercel check was created at 2026-11-24T20:22:36Z and reports retry in 24 hours.
+
+## Branch-only public webhook hostname — 2026-11-24 20:28 UTC
+- Added Vercel project domain `sandbox-hook.copilotofinanc.app.br` with `gitBranch=recuperacao/build-2026-11-05`. It is attached as an alias to the current READY Preview deployment and does not target the production branch or production aliases.
+- Project SSO protection remains enabled with `all_except_custom_domains`; custom domains are exempt, while the regular `.vercel.app` preview URLs remain protected. No global SSO setting was changed.
+- Vercel DNS configuration reports the apex nameservers `a.auto.dns.br` and `b.auto.dns.br`, external DNS service, no CNAME record for `sandbox-hook`, and `misconfigured=true`.
+- Vercel's exact primary recommended CNAME target is `8a0a99e923e49803.vercel-dns-017.com.`; fallback is `cname.vercel-dns.com.`.
+- Required external DNS record: Type `CNAME`, Name/Host `sandbox-hook`, Target `8a0a99e923e49803.vercel-dns-017.com`. Existing production apex and www records must remain untouched.
+- DNS record creation is not available through this connected session because the authoritative DNS is external (Registro.br nameservers) and no connected DNS provider integration is available. After the owner creates the CNAME, recheck DNS resolution and Vercel domain status before using the public webhook ingress.
+- The first authenticated-fetch attempt automatically created a temporary Vercel shareable-link bypass. That link was immediately revoked; a follow-up alias inspection returned `protectionBypass: {}`. No temporary access bypass remains.
+- The external Asaas Sandbox webhook has not yet been configured or called. The app-level `ASAAS_WEBHOOK_TOKEN` validation remains mandatory after this subdomain resolves.
