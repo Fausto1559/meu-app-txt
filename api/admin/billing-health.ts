@@ -13,7 +13,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const authorization = await requireAdmin(req, ['owner']);
-  if (!authorization.ok) {
+  if ('status' in authorization) {
     return res.status(authorization.status).json({ ok: false, error: authorization.error });
   }
 
