@@ -85,6 +85,7 @@ export default function App() {
   const [activeNav, setActiveNav] = useState<NavTab>('painel');
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [authUserId, setAuthUserId] = useState<string | null>(null);
+  const [isAdminAuthorized, setIsAdminAuthorized] = useState<boolean>(false);
   const [cloudReadyUserId, setCloudReadyUserId] = useState<string | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
   const [isAuthBusy, setIsAuthBusy] = useState<boolean>(false);
@@ -132,6 +133,39 @@ export default function App() {
       authListener.subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const validateAdminAccess = async () => {
+      setIsAdminAuthorized(false);
+      if (!authUserId) return;
+
+      try {
+        const { data } = await supabase.auth.getSession();
+        const accessToken = data.session?.access_token;
+        if (!accessToken) return;
+
+        const response = await fetch('/api/admin/me', {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${accessToken}` },
+          cache: 'no-store',
+        });
+        const payload = await response.json().catch(() => null);
+
+        if (!cancelled && response.ok && payload?.ok === true &&
+            payload?.admin?.userId === authUserId &&
+            ['owner', 'admin', 'support', 'analyst'].includes(payload?.admin?.role)) {
+          setIsAdminAuthorized(true);
+        }
+      } catch {
+        if (!cancelled) setIsAdminAuthorized(false);
+      }
+    };
+
+    void validateAdminAccess();
+    return () => { cancelled = true; };
+  }, [authUserId]);
 
   // Controle de 30 Dias Grátis + Trava Automática ao iniciar o 31º Dia
   const [trialStartMs, setTrialStartMs] = useState<number>(() => {
@@ -1542,7 +1576,7 @@ export default function App() {
               { id: 'fechamento', label: 'Fechamento Diário', icon: FileText },
               { id: 'contador', label: 'Central Contador', icon: ShieldCheck },
               { id: 'openfinance', label: 'Open Finance', icon: Cpu },
-              ...(userEmail?.toLowerCase() === 'faustoefiscal@gmail.com'
+              ...(isAdminAuthorized
                 ? [{ id: 'escala', label: '📊 Escala & Uso (Admin)', icon: Crown }]
                 : []),
               { id: 'perfil', label: 'Perfil', icon: User },
@@ -2339,7 +2373,7 @@ export default function App() {
                 🛡️ Termo de Conformidade LGPD (Lei 13.709/2018)
               </button>
               {/* v8 ignore start */}
-              {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
+              {isAdminAuthorized && (
                 <>
                   <button
                     type="button"
@@ -2381,7 +2415,7 @@ export default function App() {
 
             {/* v8 ignore start */}
             {isAdminPanelOpen &&
-              userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
+              isAdminAuthorized && (
                 <div className="pt-4 border-t border-[#1e2d4a]">
                   <WebhookSaasPanel
                     todayISO={todayISO}
@@ -2512,7 +2546,7 @@ export default function App() {
                   className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-xs text-white placeholder-slate-500"
                 />
 
-                {userEmail?.toLowerCase() === 'faustoefiscal@gmail.com' && (
+                {isAdminAuthorized && (
                   <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-1.5">
                     <label className="block text-[11px] font-bold text-amber-300">
                       ⚙️ Configurador Admin: Número do WhatsApp Virtual da Central (com DDI 55 + DDD)
@@ -2572,7 +2606,7 @@ export default function App() {
         <OrganicGrowthHubModal
           isOpen={isGrowthHubOpen}
           onClose={() => setIsGrowthHubOpen(false)}
-          isAdminMode={userEmail?.toLowerCase() === 'faustoefiscal@gmail.com'}
+          isAdminMode={isAdminAuthorized}
           onNavigateTab={(tab) => setActiveNav(tab)}
         />
         {/* v8 ignore stop */}
