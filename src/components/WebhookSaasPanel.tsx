@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
-  AlertTriangle,
   CheckCircle2,
   Copy,
   Database,
-  Play,
   RefreshCw,
   Server,
   ShieldCheck,
@@ -289,19 +287,19 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
           {
             step: 'Passo 3',
             title: 'Guardar no Banco',
-            desc: 'Evento único persistido com idempotência; processamento financeiro ainda pendente.',
+            desc: 'Evento único persistido com idempotência e processamento financeiro no servidor.',
             icon: Database,
           },
           {
             step: 'Passo 4',
             title: 'Devolver 200 OK',
-            desc: 'HTTP 200 somente após recebimento persistido; efeitos financeiros ainda não ativados.',
+            desc: 'HTTP 200 somente após persistência e processamento bem-sucedido.',
             icon: CheckCircle2,
           },
           {
             step: 'Passo 5',
             title: 'Processar Falhas',
-            desc: 'Reprocessamento automático ainda não implementado.',
+            desc: 'Reprocessamento manual disponível para eventos com falha.',
             icon: RefreshCw,
           },
         ].map((item) => {
