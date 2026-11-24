@@ -26,7 +26,7 @@ jobs:
       - name: Reconcile lockfile and install dependencies
         run: |
           npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-          npm audit fix --package-lock-only --ignore-scripts --no-fund || true
+          npm audit fix --ignore-scripts --no-fund || true
           if ! git diff --quiet -- package-lock.json; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
