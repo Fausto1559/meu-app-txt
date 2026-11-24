@@ -164,3 +164,22 @@ No Auth users were created or changed, and no production records were modified.
 
 ### Production release remains prohibited
 No Production deployment, domain alias change, Production migration, live payment, or Asaas webhook POST was performed. Keep `main`, Production databases, domains, and live payment credentials untouched until a separate controlled-release approval.
+
+## Historical migration sources recovered — 2026-11-24 20:20 UTC
+- The six historical SQL files previously absent from Git were recovered from the authoritative `supabase_migrations.schema_migrations.statements` arrays in the production and homologation databases.
+- Exact statements are archived by source environment under `supabase/recovered-history/production/` and `supabase/recovered-history/homologation/`.
+- They are deliberately excluded from `supabase/migrations/`. Production and homologation have different historical migration version streams; placing both histories in the active folder could make a future push execute another environment's non-idempotent DDL.
+- This resolves the loss of historical source content, but not the environment-specific migration reconciliation. Do not run a blanket `supabase db push`; a reviewed baseline/repair workflow is still required.
+
+## Administrative webhook replay ownership — 2026-11-24
+- Admin replay success and failure finalization now both select the updated event row and confirm that the same invocation still owns the exact lease timestamp.
+- When a newer invocation took ownership, the earlier replay is reported as skipped instead of stale success/failure.
+- Added regression tests for successful and failed administrative replay losing the lease.
+
+## Current end-to-end readiness — 2026-11-24 20:20 UTC
+- Recovery branch head before this documentation update: `7b3aa5d177aab4d5a579e55e58e08478a79586e5`; GitHub Actions run `45478708072` passed all gates, including 55 tests.
+- Latest READY Vercel Preview remains commit `52859cbf88141fb7bc2541362b2cd6756ed4c7cc`; its build log no longer contains TS2688 and confirms Vite output deployment. This is not the current branch head.
+- Current-head Vercel status remains rate-limited for 24 hours by the Hobby daily deployment cap. The .vercel.app Preview is also SSO-protected, so the Asaas provider cannot call its webhook URL unless a separately approved public ingress/custom-domain protection arrangement is established.
+- No Vercel SSO protection was disabled, no custom domain or DNS record was changed, and no paid resource was created.
+- Production snapshot at this check: 2 Auth users, 0 billing accounts, 0 subscriptions, 0 billing customers, 0 payments, 0 webhook events. Production server Supabase key, live Asaas API key, and webhook token remain absent.
+- Homologation snapshot remains 2 Auth users, 2 billing accounts, and 0 subscriptions/customers/payments/webhook events.
