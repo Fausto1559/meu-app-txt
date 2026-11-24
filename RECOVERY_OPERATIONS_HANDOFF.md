@@ -50,3 +50,9 @@ See `supabase/MIGRATION_RECONCILIATION.md`. Six historical migration SQL files a
 ## Deployment rule
 
 This branch is for recovery and validation only. No production deployment, promotion, database migration, deletion, or production credential change is authorized by this document.
+
+## Confirmed production-domain divergence — 2026-11-24
+
+See `PRODUCTION_SECURITY_GAP.md` for the full evidence and release gate. The verified custom domain currently serves production deployment `dpl_AHBcx7iZa19VBWw6XLg6ku7en2z4` from `main` at commit `c4eda33ca3026cc2fc6fa994735d1ac547efa866`. The current Production deployment returns 404 for `/api/billing/status`, `/api/admin/me`, and `/api/billing/checkout`. Its `/api/webhook` is a public in-memory simulator that accepts unauthenticated POSTs and exposes its temporary event list on GET. `WEBHOOK_SECRET` is absent from Production, and the other legacy webhook endpoint only enforces it when present.
+
+The current recovery Preview is READY at commit `bd8ca10ebaefd4b277410c2df263170b5a830319`. Its new webhook requires `ASAAS_WEBHOOK_TOKEN`, persists events, and disables the legacy route with HTTP 410. Production promotion remains blocked by missing production server credentials and requires a separate explicit release decision.
