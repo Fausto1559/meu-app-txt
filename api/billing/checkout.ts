@@ -210,25 +210,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }),
       });
     } catch (gatewayError) {
-      const { error: cleanupError } = await supabase
+      // A network failure may happen after Asaas accepted the request. Keep the
+      // reservation to block duplicate charges until support reconciles it.
+      const { error: markerError } = await supabase
         .from('subscriptions')
-        .delete()
+        .update({
+          metadata: {
+            externalReference,
+            checkoutReservation: true,
+            checkoutResult: 'unknown',
+            checkoutAttemptAt: new Date().toISOString(),
+          },
+          updated_at: new Date().toISOString(),
+        })
         .eq('id', reservation.id)
         .eq('user_id', user.id);
-      if (cleanupError) {
-        console.error('Falha ao liberar reserva após erro do Asaas:', cleanupError.message);
-      }
-      throw gatewayError;
+      if (markerError) console.error('Falha ao registrar resultado incerto do checkout:', markerError.message);
+      console.error('Resultado do checkout Asaas incerto; reserva mantida para evitar cobrança duplicada.');
+      return sendError(res, 502, 'Não foi possível confirmar o resultado da solicitação ao Asaas. A contratação ficou reservada para evitar uma cobrança duplicada. Contate o suporte antes de tentar novamente.');
     }
 
     if (!createdSubscription?.id) {
-      const { error: cleanupError } = await supabase
+      await supabase
         .from('subscriptions')
-        .delete()
+        .update({
+          metadata: {
+            externalReference,
+            checkoutReservation: true,
+            checkoutResult: 'missing_provider_id',
+            checkoutAttemptAt: new Date().toISOString(),
+          },
+          updated_at: new Date().toISOString(),
+        })
         .eq('id', reservation.id)
         .eq('user_id', user.id);
-      if (cleanupError) console.error('Falha ao liberar reserva sem ID do Asaas:', cleanupError.message);
-      return sendError(res, 502, 'O Asaas não retornou o identificador da assinatura.');
+      return sendError(res, 502, 'O Asaas não confirmou o identificador da assinatura. A reserva foi mantida para impedir uma cobrança duplicada; contate o suporte.');
     }
 
     const { data: localSubscription, error: subscriptionSaveError } = await supabase
