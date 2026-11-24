@@ -130,4 +130,42 @@ describe('POST /api/admin/billing-reconciliation', () => {
     });
     expect(mockAsaasRequest).toHaveBeenCalledTimes(1);
   });
+
+  it('links an ACTIVE Asaas subscription without activating paid access before payment confirmation', async () => {
+    const { supabase, writes } = createSupabase();
+    mockGetAdminSupabase.mockReturnValue(supabase);
+    mockAsaasRequest
+      .mockResolvedValueOnce({
+        data: [{ id: 'cus-1', externalReference: 'user-1', name: 'Synthetic Test', email: 'synthetic@example.invalid' }],
+      })
+      .mockResolvedValueOnce({
+        data: [{
+          id: 'sub-1',
+          customer: 'cus-1',
+          externalReference: 'copiloto:user-1:essencial',
+          status: 'ACTIVE',
+          value: 19.9,
+          billingType: 'PIX',
+          nextDueDate: '2026-12-24',
+        }],
+      });
+
+    const res = createResponse();
+    await handler({
+      method: 'POST',
+      headers: {},
+      body: { reservationId: 'reservation-1' },
+    } as any, res as any);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      reconciled: true,
+      subscriptionLinked: true,
+      subscriptionStatus: 'pending',
+      accessActivated: false,
+    });
+    expect(writes.some((write) => write.startsWith('subscriptions.update'))).toBe(true);
+    expect(writes.some((write) => write.startsWith('billing_accounts.update'))).toBe(true);
+  });
 });
