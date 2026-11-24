@@ -41,6 +41,7 @@ import {
 import { OrganicGrowthHubModal } from './components/OrganicGrowthHubModal';
 import { ScaleAnalyticsCommandCenter } from './components/ScaleAnalyticsCommandCenter';
 import { WebhookSaasPanel } from './components/WebhookSaasPanel';
+import { BillingCheckoutModal } from './components/BillingCheckoutModal';
 import { supabase } from './supabaseClient';
 import {
   CardMachine,
@@ -181,6 +182,61 @@ export default function App() {
   const [activePlan, setActivePlan] = useState<string | null>(() =>
     localStorage.getItem(STORAGE_KEY_ACTIVE_PLAN)
   );
+  const [billingAccessStatus, setBillingAccessStatus] = useState<'loading' | 'trial' | 'active' | 'expired' | 'past_due' | 'suspended' | 'unavailable'>('loading');
+  const [billingRefreshCounter, setBillingRefreshCounter] = useState(0);
+  const [checkoutPlan, setCheckoutPlan] = useState<'essencial' | 'profissional' | 'pro' | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadBillingStatus = async () => {
+      if (!authUserId) {
+        setBillingAccessStatus('loading');
+        setActivePlan(null);
+        return;
+      }
+
+      try {
+        const { data } = await supabase.auth.getSession();
+        const accessToken = data.session?.access_token;
+        if (!accessToken) throw new Error('Sessão ausente');
+
+        const response = await fetch('/api/billing/status', {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${accessToken}` },
+          cache: 'no-store',
+        });
+        const payload = await response.json().catch(() => null);
+        if (!response.ok || payload?.ok !== true || !payload?.account) {
+          throw new Error(payload?.error || 'Não foi possível validar o acesso.');
+        }
+
+        if (cancelled) return;
+        const account = payload.account;
+        const startedAt = new Date(account.trialStartedAt).getTime();
+        if (Number.isFinite(startedAt)) {
+          setTrialStartMs(startedAt);
+          localStorage.setItem(STORAGE_KEY_TRIAL_START, String(startedAt));
+        }
+
+        const nextPlan = account.accessStatus === 'active' ? account.planName : null;
+        setActivePlan(nextPlan);
+        if (nextPlan) localStorage.setItem(STORAGE_KEY_ACTIVE_PLAN, nextPlan);
+        else localStorage.removeItem(STORAGE_KEY_ACTIVE_PLAN);
+
+        setBillingAccessStatus(account.accessStatus);
+      } catch (error) {
+        if (!cancelled) {
+          setBillingAccessStatus('unavailable');
+          setActivePlan(null);
+          setAuthNotice(error instanceof Error ? error.message : 'Não foi possível validar a assinatura.');
+        }
+      }
+    };
+
+    void loadBillingStatus();
+    return () => { cancelled = true; };
+  }, [authUserId, billingRefreshCounter]);
+
   const [isSupportModalOpen, setIsSupportModalOpen] = useState<boolean>(false);
   const [isDemoVideoModalOpen, setIsDemoVideoModalOpen] = useState<boolean>(() =>
     typeof window !== 'undefined' &&
@@ -225,10 +281,16 @@ export default function App() {
   const currentDayOfUsage = Math.max(1, elapsedDays + 1);
   const remainingTrialDays = Math.max(0, TRIAL_LIMIT_DAYS - elapsedDays);
   const isTrialExpiredDay31 =
-    currentDayOfUsage >= 31 && !activePlan;
+    billingAccessStatus !== 'loading' &&
+    billingAccessStatus !== 'trial' &&
+    billingAccessStatus !== 'active';
 
-  const handleSelectPaidPlan = (_planName: string) => {
-    setAuthNotice('A contratação ainda não está disponível: a integração de cobrança Asaas precisa ser configurada e validada. Nenhum plano foi ativado.');
+  const handleSelectPaidPlan = (planName: string) => {
+    const normalized = planName.toLowerCase();
+    if (normalized.includes('essencial')) setCheckoutPlan('essencial');
+    else if (normalized.includes('intermediário') || normalized.includes('profissional')) setCheckoutPlan('profissional');
+    else if (normalized.includes('pro')) setCheckoutPlan('pro');
+    else setAuthNotice('Plano não reconhecido. Atualize a página e tente novamente.');
   };
 
   const handleSimulateDay31Lock = () => {
@@ -2427,6 +2489,12 @@ export default function App() {
             {/* v8 ignore stop */}
           </div>
         )}
+
+        <BillingCheckoutModal
+          planKey={checkoutPlan}
+          onClose={() => setCheckoutPlan(null)}
+          onCompleted={() => setBillingRefreshCounter((value) => value + 1)}
+        />
 
         {/* Modals */}
         <NewTransactionModal
