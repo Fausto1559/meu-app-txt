@@ -152,7 +152,8 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
   };
 
   useEffect(() => {
-    void loadEvents();\n    void loadBillingReservations();
+    void loadEvents();
+    void loadBillingReservations();
   }, []);
 
   const webhookUrl = typeof window !== 'undefined'
