@@ -179,9 +179,8 @@ export default function App() {
     return now;
   });
 
-  const [activePlan, setActivePlan] = useState<string | null>(() =>
-    localStorage.getItem(STORAGE_KEY_ACTIVE_PLAN)
-  );
+  // O plano ativo sempre é confirmado pelo servidor; localStorage não concede acesso.
+  const [activePlan, setActivePlan] = useState<string | null>(null);
   const [billingAccessStatus, setBillingAccessStatus] = useState<'loading' | 'trial' | 'active' | 'expired' | 'past_due' | 'suspended' | 'unavailable'>('loading');
   const [billingRefreshCounter, setBillingRefreshCounter] = useState(0);
   const [checkoutPlan, setCheckoutPlan] = useState<'essencial' | 'profissional' | 'pro' | null>(null);
