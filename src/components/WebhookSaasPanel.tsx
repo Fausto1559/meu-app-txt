@@ -100,7 +100,9 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
     void loadEvents();
   }, []);
 
-  const webhookUrl = 'https://copilotofinanc.app.br/api/webhook';
+  const webhookUrl = typeof window !== 'undefined'
+    ? new URL('/api/webhook', window.location.origin).toString()
+    : '/api/webhook';
 
   const handleCopyUrl = () => {
     if (navigator.clipboard?.writeText) {
