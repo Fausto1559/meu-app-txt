@@ -1,4 +1,5 @@
 import { getAdminSupabase } from './_lib/adminSupabase.js';
+import { processAsaasEvent } from './_lib/processAsaasEvent.js';
 import { timingSafeEqual } from 'node:crypto';
 
 function safeTokenEquals(received: unknown, expected: string): boolean {
@@ -24,7 +25,7 @@ export default async function handler(req: any, res: any) {
 
   const webhookToken = process.env.ASAAS_WEBHOOK_TOKEN;
   if (!webhookToken || webhookToken.length < 32 ||
-      !process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      !process.env.SUPABASE_URL || !(process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY)) {
     return res.status(503).json({
       ok: false,
       error: 'Webhook Asaas ainda não configurado no servidor.',
@@ -99,15 +100,51 @@ export default async function handler(req: any, res: any) {
       return res.status(500).json({ ok: false, error: 'Falha ao persistir evento.' });
     }
 
-    // O evento foi persistido, mas a ativação/alteração da assinatura depende
-    // do processador financeiro server-side, que ainda não está habilitado.
-    return res.status(200).json({
-      ok: true,
-      received: true,
-      persisted: true,
-      processed: false,
-      id: eventId,
-    });
+    try {
+      await processAsaasEvent(body);
+      const { error: markProcessedError } = await supabase
+        .from('webhook_events')
+        .update({
+          processing_status: 'processed',
+          processed_at: new Date().toISOString(),
+          last_error: null,
+        })
+        .eq('provider', 'asaas')
+        .eq('provider_event_id', eventId);
+
+      if (markProcessedError) {
+        throw new Error('Evento aplicado, mas não foi possível registrar a conclusão: ' + markProcessedError.message);
+      }
+
+      return res.status(200).json({
+        ok: true,
+        received: true,
+        persisted: true,
+        processed: true,
+        id: eventId,
+      });
+    } catch (processingError) {
+      const message = processingError instanceof Error ? processingError.message : 'Falha desconhecida no processamento.';
+      await supabase
+        .from('webhook_events')
+        .update({
+          processing_status: 'failed',
+          attempts: 2,
+          last_error: message.slice(0, 2000),
+        })
+        .eq('provider', 'asaas')
+        .eq('provider_event_id', eventId);
+
+      console.error('Falha ao processar evento Asaas:', message);
+      return res.status(500).json({
+        ok: false,
+        received: true,
+        persisted: true,
+        processed: false,
+        retryable: true,
+        id: eventId,
+      });
+    }
   } catch (error: any) {
     console.error('Erro no recebimento do webhook Asaas:', error?.message || error);
     return res.status(400).json({ ok: false, error: 'Requisição inválida.' });
