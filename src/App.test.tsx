@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, within, act } from '@testing-library/react';
+import { render, screen, fireEvent, within, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const { mockSupabaseAuth } = vi.hoisted(() => {
@@ -33,6 +33,11 @@ vi.mock('./supabaseClient', () => ({ supabase: { auth: mockSupabaseAuth, from: v
 import App, { STORAGE_KEY_RECORDS, STORAGE_KEY_MACHINES, STORAGE_KEY_AUTH } from './App';
 
 describe('App.tsx - 100% Cobertura Total', () => {
+  const waitForAppReady = async () => {
+    await waitFor(() => {
+      expect(screen.queryByText('Carregando seus dados financeiros com segurança...')).not.toBeInTheDocument();
+    });
+  };
   beforeEach(() => {
     localStorage.clear();
     localStorage.setItem('copiloto_financeiro_auth_v1', 'faustoefiscal@gmail.com');
@@ -59,6 +64,7 @@ describe('App.tsx - 100% Cobertura Total', () => {
   it('1 - inicializa sem e com localStorage, alterna períodos, cards KPI, exportação CSV e fechamento do toast', () => {
     
     const { unmount } = render(<App />);
+    await waitForAppReady();
     expect(localStorage.getItem(STORAGE_KEY_RECORDS)).toBeTruthy();
     expect(localStorage.getItem(STORAGE_KEY_MACHINES)).toBeTruthy();
     unmount();
