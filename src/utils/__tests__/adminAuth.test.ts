@@ -12,7 +12,7 @@ import { requireAdmin } from '../../../api/_lib/adminAuth';
 
 function setupSupabase({
   userId = 'user-uuid-123',
-  authError = null as null | { status?: number },
+  authError = null as null | { status?: number; message?: string },
   membership = { role: 'admin', is_active: true } as null | { role: string; is_active: boolean },
   membershipError = null as null | { message: string },
 } = {}) {
@@ -61,6 +61,24 @@ describe('requireAdmin — autorização administrativa no servidor', () => {
 
     expect(result.ok).toBe(false);
     expect(result.status).toBe(401);
+  });
+
+  it('classifica uma chave API do servidor recusada como indisponibilidade, não como sessão expirada', async () => {
+    const { from } = setupSupabase({
+      authError: { status: 401, message: 'Invalid API key' },
+    });
+
+    const result = await requireAdmin({
+      headers: { authorization: 'Bearer token-valido' },
+    } as any);
+
+    expect(result).toEqual({
+      ok: false,
+      status: 503,
+      error: 'Não foi possível validar a sessão.',
+    });
+    // Não tenta gravar auditoria usando a mesma chave de servidor que foi recusada.
+    expect(from).not.toHaveBeenCalled();
   });
 
   it('nega usuário autenticado sem membership administrativa', async () => {
