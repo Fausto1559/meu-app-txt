@@ -79,20 +79,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .single();
     if (accountError || !account) return sendError(res, 503, 'Não foi possível consultar o período de avaliação.');
 
-    if (account.current_subscription_id) {
-      const { data: existingSubscription } = await supabase
-        .from('subscriptions')
-        .select('id, provider_subscription_id, status, plan_key')
-        .eq('id', account.current_subscription_id)
-        .maybeSingle();
-      if (existingSubscription && ['pending', 'active', 'overdue'].includes(existingSubscription.status)) {
-        return res.status(409).json({
-          ok: false,
-          error: 'Já existe uma assinatura em aberto para esta conta.',
-          subscriptionId: existingSubscription.provider_subscription_id,
-          status: existingSubscription.status,
-        });
-      }
+    const { data: existingSubscription, error: existingSubscriptionError } = await supabase
+      .from('subscriptions')
+      .select('id, provider_subscription_id, status, plan_key')
+      .eq('user_id', user.id)
+      .in('status', ['pending', 'active', 'overdue'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (existingSubscriptionError) {
+      console.error('Falha ao verificar assinatura existente:', existingSubscriptionError.message);
+      return sendError(res, 503, 'Não foi possível verificar uma assinatura anterior.');
+    }
+
+    if (existingSubscription) {
+      return res.status(409).json({
+        ok: false,
+        error: 'Já existe uma assinatura em aberto para esta conta.',
+        subscriptionId: existingSubscription.provider_subscription_id,
+        status: existingSubscription.status,
+      });
     }
 
     let customerId: string | null = null;
