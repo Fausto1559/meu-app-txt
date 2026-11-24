@@ -182,6 +182,7 @@ export default function App() {
   // O plano ativo sempre é confirmado pelo servidor; localStorage não concede acesso.
   const [activePlan, setActivePlan] = useState<string | null>(null);
   const [billingAccessStatus, setBillingAccessStatus] = useState<'loading' | 'trial' | 'active' | 'expired' | 'past_due' | 'suspended' | 'unavailable'>('loading');
+  const [billingValidationError, setBillingValidationError] = useState<string | null>(null);
   const [billingRefreshCounter, setBillingRefreshCounter] = useState(0);
   const [checkoutPlan, setCheckoutPlan] = useState<'essencial' | 'profissional' | 'pro' | null>(null);
   useEffect(() => {
@@ -189,6 +190,7 @@ export default function App() {
 
     const loadBillingStatus = async () => {
       setBillingAccessStatus('loading');
+      setBillingValidationError(null);
       setActivePlan(null);
 
       if (!authUserId) {
@@ -224,11 +226,12 @@ export default function App() {
         else localStorage.removeItem(STORAGE_KEY_ACTIVE_PLAN);
 
         setBillingAccessStatus(account.accessStatus);
+        setBillingValidationError(null);
       } catch (error) {
         if (!cancelled) {
           setBillingAccessStatus('unavailable');
+          setBillingValidationError(error instanceof Error ? error.message : 'Não foi possível validar a assinatura.');
           setActivePlan(null);
-          setAuthNotice(error instanceof Error ? error.message : 'Não foi possível validar a assinatura.');
         }
       }
     };
@@ -280,10 +283,12 @@ export default function App() {
   );
   const currentDayOfUsage = Math.max(1, elapsedDays + 1);
   const remainingTrialDays = Math.max(0, TRIAL_LIMIT_DAYS - elapsedDays);
+  // Somente estados financeiros confirmados pelo backend podem encerrar o teste gratuito.
+  // Falha de rede/autenticação nunca deve ser apresentada como 31º dia.
   const isTrialExpiredDay31 =
-    billingAccessStatus !== 'loading' &&
-    billingAccessStatus !== 'trial' &&
-    billingAccessStatus !== 'active';
+    billingAccessStatus === 'expired' ||
+    billingAccessStatus === 'past_due' ||
+    billingAccessStatus === 'suspended';
 
   const handleSelectPaidPlan = (planName: string) => {
     const normalized = planName.toLowerCase();
@@ -1335,6 +1340,51 @@ export default function App() {
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-slate-600 border-t-amber-400" />
           <p className="text-sm font-semibold">Validando seu acesso seguro…</p>
           <p className="text-xs text-slate-400">Aguarde a confirmação do período de avaliação ou da assinatura.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (authUserId && billingAccessStatus === 'unavailable') {
+    return (
+      <div className="min-h-screen bg-[#0a0f1d] text-slate-100 flex items-center justify-center px-4 py-10">
+        <div className="w-full max-w-xl rounded-2xl border border-amber-500/30 bg-[#111a2e] p-6 sm:p-8 space-y-5 text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/10 text-amber-300">
+            <ShieldCheck className="h-7 w-7" />
+          </div>
+          <span className="inline-flex rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-200">
+            Validação temporariamente indisponível
+          </span>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-white">
+            Não foi possível confirmar o status da sua conta
+          </h1>
+          <p className="text-sm leading-relaxed text-slate-300">
+            Isso não significa que seus 30 dias gratuitos terminaram. O Copiloto não conseguiu consultar o serviço de cobrança, então não vai marcar sua conta como vencida nem solicitar uma contratação por engano.
+          </p>
+          {billingValidationError && (
+            <p className="rounded-lg border border-[#2b3b59] bg-[#0b1120] p-3 text-xs text-slate-400" role="status">
+              {billingValidationError}
+            </p>
+          )}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              type="button"
+              onClick={() => setBillingRefreshCounter((value) => value + 1)}
+              className="flex-1 rounded-xl bg-amber-500 px-4 py-3 text-sm font-extrabold text-slate-950 hover:bg-amber-400"
+            >
+              Tentar novamente
+            </button>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex-1 rounded-xl border border-[#2b3b59] bg-[#17233d] px-4 py-3 text-sm font-semibold text-slate-200 hover:bg-[#1f2f50]"
+            >
+              Sair da conta
+            </button>
+          </div>
+          <p className="text-[11px] text-slate-500">
+            Seus lançamentos não foram apagados. A cobrança e a liberação de planos permanecem suspensas até a validação segura do servidor.
+          </p>
         </div>
       </div>
     );
