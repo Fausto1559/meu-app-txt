@@ -158,97 +158,25 @@ export async function processAsaasEvent(input: unknown): Promise<void> {
     throw new Error('Data do pagamento inválida.');
   }
 
-  const { data: previousPayment, error: previousPaymentError } = await supabase
-    .from('payments')
-    .select('status,metadata')
-    .eq('provider', 'asaas')
-    .eq('provider_payment_id', paymentId)
-    .maybeSingle();
-  if (previousPaymentError) throw new Error('Falha ao consultar estado anterior do pagamento: ' + previousPaymentError.message);
-
-  const incomingEventTime = Date.parse(event.dateCreated);
-  const previousEventTime = previousPayment?.metadata?.lastEventDate
-    ? Date.parse(previousPayment.metadata.lastEventDate)
-    : Number.NaN;
-  if (Number.isFinite(incomingEventTime) && Number.isFinite(previousEventTime) &&
-      incomingEventTime < previousEventTime) {
-    return;
+  const periodStart = paymentDate ? new Date(paymentDate) : new Date();
+  const periodEnd = addOneCalendarMonth(periodStart);
+  const { data: transactionResult, error: transactionError } = await supabase.rpc(
+    'apply_asaas_payment_event',
+    {
+      p_payment: paymentRecord,
+      p_subscription_id: localSubscription.id,
+      p_user_id: localSubscription.user_id,
+      p_plan_key: localSubscription.plan_key,
+      p_payment_status: mappedStatus,
+      p_period_start: periodStart.toISOString(),
+      p_period_end: periodEnd.toISOString(),
+      p_event_time: event.dateCreated,
+      p_event_id: event.id,
+      p_event_name: eventName,
+    },
+  );
+  if (transactionError) {
+    throw new Error('Falha na transação de pagamento e acesso: ' + transactionError.message);
   }
-
-  const paymentRecord = {
-    user_id: localSubscription.user_id,
-    subscription_id: localSubscription.id,
-    provider: 'asaas',
-    provider_payment_id: paymentId,
-    provider_subscription_id: subscriptionId,
-    provider_customer_id: payment.customer || localSubscription.provider_customer_id,
-    external_reference: payment.externalReference || null,
-    status: mappedStatus,
-    billing_type: payment.billingType || null,
-    value: amount,
-    net_value: Number.isFinite(Number(payment.netValue)) ? Number(payment.netValue) : null,
-    due_date: payment.dueDate || null,
-    payment_date: paymentDate ? new Date(paymentDate).toISOString() : null,
-    invoice_url: payment.invoiceUrl || null,
-    metadata: { lastEvent: eventName, lastEventDate: event.dateCreated || null, asaasEventId: event.id },
-    updated_at: new Date().toISOString(),
-  };
-
-  const { error: paymentError } = await supabase
-    .from('payments')
-    .upsert(paymentRecord, { onConflict: 'provider,provider_payment_id' });
-  if (paymentError) throw new Error('Falha ao persistir pagamento: ' + paymentError.message);
-
-  if (mappedStatus === 'confirmed' || mappedStatus === 'received') {
-    const periodStart = paymentDate && Number.isFinite(Date.parse(paymentDate))
-      ? new Date(paymentDate)
-      : new Date();
-    const periodEnd = addOneCalendarMonth(periodStart);
-    const { error: subError } = await supabase
-      .from('subscriptions')
-      .update({
-        status: 'active',
-        current_period_start: periodStart.toISOString(),
-        current_period_end: periodEnd.toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', localSubscription.id);
-    if (subError) throw new Error('Falha ao ativar assinatura: ' + subError.message);
-
-    const { error: accountError } = await supabase
-      .from('billing_accounts')
-      .update({
-        access_status: 'active',
-        current_plan_key: localSubscription.plan_key,
-        current_subscription_id: localSubscription.id,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('user_id', localSubscription.user_id);
-    if (accountError) throw new Error('Falha ao liberar acesso após pagamento: ' + accountError.message);
-  } else if (mappedStatus === 'overdue') {
-    const { error: subError } = await supabase
-      .from('subscriptions')
-      .update({ status: 'overdue', updated_at: new Date().toISOString() })
-      .eq('id', localSubscription.id);
-    if (subError) throw new Error('Falha ao marcar assinatura vencida: ' + subError.message);
-
-    const { error: accountError } = await supabase
-      .from('billing_accounts')
-      .update({ access_status: 'past_due', updated_at: new Date().toISOString() })
-      .eq('user_id', localSubscription.user_id);
-    if (accountError) throw new Error('Falha ao marcar conta em atraso: ' + accountError.message);
-  } else if (['refunded', 'partially_refunded', 'chargeback', 'failed', 'canceled'].includes(mappedStatus)) {
-    const { error: subError } = await supabase
-      .from('subscriptions')
-      .update({ status: mappedStatus === 'canceled' ? 'canceled' : 'suspended', updated_at: new Date().toISOString() })
-      .eq('id', localSubscription.id);
-    if (subError) throw new Error('Falha ao suspender assinatura: ' + subError.message);
-
-    const { error: accountError } = await supabase
-      .from('billing_accounts')
-      .update({ access_status: 'suspended', updated_at: new Date().toISOString() })
-      .eq('user_id', localSubscription.user_id)
-      .eq('current_subscription_id', localSubscription.id);
-    if (accountError) throw new Error('Falha ao suspender acesso: ' + accountError.message);
-  }
+  if (transactionResult === 'ignored') return;
 }
