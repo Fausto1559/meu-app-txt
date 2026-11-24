@@ -3,10 +3,10 @@ import { render, screen, fireEvent, within, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const { mockSupabaseAuth } = vi.hoisted(() => {
-  const session = { user: { email: 'faustoefiscal@gmail.com' } };
-  let authListener: ((event: string, session: { user: { email: string } } | null) => void) | null = null;
+  const session = { user: { id: 'test-user-id', email: 'faustoefiscal@gmail.com' } };
+  let authListener: ((event: string, session: { user: { id: string; email: string } } | null) => void) | null = null;
   const auth = {
-    onAuthStateChange: vi.fn((callback: (event: string, session: { user: { email: string } } | null) => void) => {
+    onAuthStateChange: vi.fn((callback: (event: string, session: { user: { id: string; email: string } } | null) => void) => {
       authListener = callback;
       callback('INITIAL_SESSION', session);
       return { data: { subscription: { unsubscribe: vi.fn() } } };
@@ -28,7 +28,7 @@ const { mockSupabaseAuth } = vi.hoisted(() => {
   return { mockSupabaseAuth: auth };
 });
 
-vi.mock('./supabaseClient', () => ({ supabase: { auth: mockSupabaseAuth } }));
+vi.mock('./supabaseClient', () => ({ supabase: { auth: mockSupabaseAuth, from: vi.fn(() => ({ select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: vi.fn(async () => ({ data: null, error: null })) })) })), upsert: vi.fn(async () => ({ error: null })) })) } }));
 
 import App, { STORAGE_KEY_RECORDS, STORAGE_KEY_MACHINES, STORAGE_KEY_AUTH } from './App';
 
@@ -213,7 +213,7 @@ describe('App.tsx - 100% Cobertura Total', () => {
     fireEvent.click(screen.getByRole('link', { name: /Copiloto Financeiro/i }));
     fireEvent.click(screen.getByRole('button', { name: /Perfil/i }));
     fireEvent.click(screen.getByRole('button', { name: /Sair da Conta/i }));
-    fireEvent.change(screen.getByPlaceholderText(/Ex: faustoefiscal@gmail.com/i), { target: { value: 'faustoefiscal@gmail.com' } });
+    fireEvent.change(screen.getByPlaceholderText(/Ex: voce@empresa.com.br/i), { target: { value: 'faustoefiscal@gmail.com' } });
     fireEvent.change(screen.getByPlaceholderText(/Digite sua senha/i), { target: { value: '123456' } });
     fireEvent.submit(screen.getByPlaceholderText(/Digite sua senha/i).closest('form')!);
     fireEvent.click(screen.getByRole('button', { name: /^Sair$/i }));
