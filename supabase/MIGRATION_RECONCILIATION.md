@@ -42,3 +42,25 @@ The first four historical versions were not present as migration files in the in
 Do not run a blanket migration push against either existing database until the missing historical SQL is recovered or a reviewed baseline/repair plan is prepared. Database schemas and RLS policies were inspected independently; their current security policies for financial records, card machines, admin tables, billing tables and webhook events were consistent across the two environments at inspection time.
 
 The production and homologation subscription-index migrations have different versions because the databases recorded different migration timestamps. Both SQL files intentionally create the same index idempotently with IF NOT EXISTS.
+
+## Extended repository search — 2026-11-24
+
+The available repository branches were checked:
+- `main`
+- `main-estavel`
+- `recuperacao/build-2026-11-05`
+
+The trees of `main` and `main-estavel` contain no `supabase/migrations/*.sql` files. The recovery branch contains the later migration files listed above, but not the six historical SQL files identified in the database histories. Exact-path commit searches for those six missing files returned no commits.
+
+This means the missing migration history could not be recovered from any currently available branch or path history. Do not reconstruct old migration files from their names or current schema. A separately reviewed baseline or schema-diff repair plan is required before attempting to make the repository fully reproducible.
+
+## Performance advisor findings
+
+The Supabase Performance Advisor reported unused-index INFO notices (16 in production and 10 in homologation at inspection time). The billing tables are not yet carrying representative production workload. These notices do not prove that the indexes are unnecessary; retain them until query plans and workload metrics show that removal is beneficial and safe.
+
+## Current environment boundary
+
+- Production Supabase URL points to `genbxhvhmrgyflptnrpi`.
+- Recovery Preview Supabase URL points to `eerqeimqzkgdpvutjfhm`.
+- The recovery Preview has a branch-scoped `SUPABASE_SERVICE_ROLE_KEY`; it must only be used with the homologation project.
+- Production currently has no server-side Supabase secret key and no Asaas production API/webhook credentials. Do not copy the homologation key into Production.
