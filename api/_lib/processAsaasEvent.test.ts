@@ -17,7 +17,7 @@ const localSubscription = {
   provider_customer_id: 'cus-1',
 };
 
-function createSupabaseMock() {
+function createSupabaseMock(subscriptionData = localSubscription) {
   const calls: Array<{ table: string; method: string; value?: unknown }> = [];
   const client = {
     from(table: string) {
@@ -32,9 +32,16 @@ function createSupabaseMock() {
         },
         maybeSingle: vi.fn(async () => {
           calls.push({ table, method: 'maybeSingle' });
-          if (table === 'subscriptions') return { data: localSubscription, error: null };
+          if (table === 'subscriptions') return { data: subscriptionData, error: null };
           return { data: null, error: null };
         }),
+        update(value: unknown) {
+          calls.push({ table, method: 'update', value });
+          return query;
+        },
+        then(resolve: (value: unknown) => unknown, reject: (reason: unknown) => unknown) {
+          return Promise.resolve({ error: null }).then(resolve, reject);
+        },
         upsert: vi.fn(async (record: unknown, options: unknown) => {
           calls.push({ table, method: 'upsert', value: { record, options } });
           return { error: null };
@@ -87,6 +94,25 @@ describe('processAsaasEvent — validação e persistência de pagamentos', () =
     ).rejects.toThrow('Data de criação do evento Asaas ausente ou inválida.');
 
     expect(calls.some((call) => call.method === 'upsert')).toBe(false);
+  });
+
+  it('ignora evento de assinatura mais antigo que o último evento processado', async () => {
+    const existingSubscription = {
+      ...localSubscription,
+      status: 'active',
+      metadata: { lastEventDate: '2026-11-24T12:00:00.000Z' },
+    };
+    const { client, calls } = createSupabaseMock(existingSubscription);
+    mockGetAdminSupabase.mockReturnValue(client);
+
+    await processAsaasEvent({
+      id: 'evt-old',
+      event: 'SUBSCRIPTION_UPDATED',
+      dateCreated: '2026-11-23T12:00:00.000Z',
+      subscription: { id: 'asaas-sub-1', customer: 'cus-1', nextDueDate: '2026-12-01' },
+    });
+
+    expect(calls.some((call) => call.method === 'update')).toBe(false);
   });
 
   it('persiste um pagamento válido com conflito idempotente por provedor e ID', async () => {
