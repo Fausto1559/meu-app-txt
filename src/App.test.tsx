@@ -32,7 +32,7 @@ vi.mock('./supabaseClient', () => ({ supabase: { auth: mockSupabaseAuth, from: v
 
 import App, { STORAGE_KEY_RECORDS, STORAGE_KEY_MACHINES, STORAGE_KEY_AUTH } from './App';
 
-describe('App.tsx - 100% Cobertura Total', () => {
+describe('App.tsx - 100% Cobertura Total', async () => {
   const waitForAppReady = async () => {
     await waitFor(() => {
       expect(screen.queryByText('Carregando seus dados financeiros com segurança...')).not.toBeInTheDocument();
@@ -61,7 +61,7 @@ describe('App.tsx - 100% Cobertura Total', () => {
     vi.useRealTimers();
   });
 
-  it('1 - inicializa sem e com localStorage, alterna períodos, cards KPI, exportação CSV e fechamento do toast', () => {
+  it('1 - inicializa sem e com localStorage, alterna períodos, cards KPI, exportação CSV e fechamento do toast', async () => {
     
     const { unmount } = render(<App />);
     await waitForAppReady();
@@ -119,7 +119,7 @@ describe('App.tsx - 100% Cobertura Total', () => {
     fireEvent.click(clearSaldoBtn);
   }, 90000);
 
-  it('2 - zera todos os campos, carrega dados de exemplo, alterna status, exclui item e foca relatório', () => {
+  it('2 - zera todos os campos, carrega dados de exemplo, alterna status, exclui item e foca relatório', async () => {
     render(<App />);
 
     const statusButtons = screen.getAllByRole('button', {
@@ -149,7 +149,7 @@ describe('App.tsx - 100% Cobertura Total', () => {
     fireEvent.click(loadExampleBtn);
   }, 90000);
 
-  it('3 - abre e fecha modais de Novo Lançamento e Maquininhas, desconecta maquininhas e simula lote', () => {
+  it('3 - abre e fecha modais de Novo Lançamento e Maquininhas, desconecta maquininhas e simula lote', async () => {
     render(<App />);
 
     fireEvent.click(
@@ -198,7 +198,7 @@ describe('App.tsx - 100% Cobertura Total', () => {
     fireEvent.click(screen.getAllByRole('button', { name: /Importar Lote Hoje/i })[0]);
   }, 90000);
 
-  it('4 - navega por todas as abas secundárias, sincroniza Open Finance, restaura/limpa no Perfil e faz Logout', () => {
+  it('4 - navega por todas as abas secundárias, sincroniza Open Finance, restaura/limpa no Perfil e faz Logout', async () => {
     render(<App />);
 
     fireEvent.click(screen.getByRole('button', { name: /Calculadora/i }));
