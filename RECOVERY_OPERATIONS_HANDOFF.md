@@ -56,3 +56,19 @@ This branch is for recovery and validation only. No production deployment, promo
 See `PRODUCTION_SECURITY_GAP.md` for the full evidence and release gate. The verified custom domain currently serves production deployment `dpl_AHBcx7iZa19VBWw6XLg6ku7en2z4` from `main` at commit `c4eda33ca3026cc2fc6fa994735d1ac547efa866`. The current Production deployment returns 404 for `/api/billing/status`, `/api/admin/me`, and `/api/billing/checkout`. Its `/api/webhook` is a public in-memory simulator that accepts unauthenticated POSTs and exposes its temporary event list on GET. `WEBHOOK_SECRET` is absent from Production, and the other legacy webhook endpoint only enforces it when present.
 
 The current recovery Preview is READY at commit `bd8ca10ebaefd4b277410c2df263170b5a830319`. Its new webhook requires `ASAAS_WEBHOOK_TOKEN`, persists events, and disables the legacy route with HTTP 410. Production promotion remains blocked by missing production server credentials and requires a separate explicit release decision.
+
+## Additional recovery work — 2026-11-24
+
+At the latest verified recovery commit `c34f5a8ceab5a6482be7c084eed2d02d35a921d7`:
+- Removed direct runtime dependencies `firebase` and `firebase-admin`. The production commit and recovery app/API source were both scanned; no executable Firebase/Firestore imports or initialization were found. Old Firebase configuration/rules and Vercel Production Firebase environment variables remain untouched as historical artifacts.
+- The CI synchronized `package-lock.json`; its resolved package graph contains no remaining Firebase packages.
+- Fixed the financial cloud-load failure screen. A failed fetch no longer leaves the signed-in user on an endless spinner; it presents an error, a retry control, and a sign-out control. An automated regression test covers a failed fetch followed by a successful retry.
+- The recovery CI currently passes with 55 tests in 13 test files, zero vulnerabilities in both full and production dependency audits, TypeScript typecheck, and the Vite build.
+
+## Latest Preview/deployment quota
+
+A new Preview deployment was successfully created earlier at `dpl_2cRQwN4F4gk3AYvLq5GQrRMjANGV`, SHA `bd8ca10ebaefd4b277410c2df263170b5a830319`, state READY. It does not include the newer Firebase-dependency removal and cloud-load retry fix.
+
+A new Preview build was requested for SHA `c34f5a8ceab5a6482be7c084eed2d02d35a921d7`, but Vercel returned HTTP 402, `api-deployments-free-per-day`, retry after 86400 seconds. No CLI or alternative deployment path was used to bypass the limit, and no Production aliases or targets were changed.
+
+The next deployment action is to create a Preview for the latest recovery SHA after Vercel's quota is available, then test the retry path and authenticated admin/billing routes against that deployment. Do not promote to Production as part of that step.
