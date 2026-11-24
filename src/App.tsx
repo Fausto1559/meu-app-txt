@@ -188,9 +188,10 @@ export default function App() {
     let cancelled = false;
 
     const loadBillingStatus = async () => {
+      setBillingAccessStatus('loading');
+      setActivePlan(null);
+
       if (!authUserId) {
-        setBillingAccessStatus('loading');
-        setActivePlan(null);
         return;
       }
 
@@ -1458,6 +1459,11 @@ export default function App() {
             </button>
           </div>
         </div>
+        <BillingCheckoutModal
+          planKey={checkoutPlan}
+          onClose={() => setCheckoutPlan(null)}
+          onCompleted={() => setBillingRefreshCounter((value) => value + 1)}
+        />
       </div>
     );
   }
