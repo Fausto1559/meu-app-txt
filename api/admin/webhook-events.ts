@@ -45,7 +45,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .select('id,provider_event_id,payload,processing_status')
       .eq('provider', 'asaas')
       .in('id', ids)
-      .eq('processing_status', 'failed');
+      .in('processing_status', ['failed', 'received', 'processing']);
 
     if (lookupError) {
       console.error('Falha ao localizar eventos para reprocessamento:', lookupError.message);
