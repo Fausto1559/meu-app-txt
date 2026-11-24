@@ -1,0 +1,80 @@
+name: Recovery security and build audit
+
+on:
+  push:
+    branches:
+      - recuperacao/build-2026-11-05
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout recovery branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Run full dependency audit
+        id: audit
+        continue-on-error: true
+        run: |
+          npm audit --json > npm-audit-full.json || true
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const report = JSON.parse(fs.readFileSync('npm-audit-full.json', 'utf8'));
+          const counts = report.metadata?.vulnerabilities ?? {};
+          console.log('FULL AUDIT COUNTS:', JSON.stringify(counts));
+          for (const [name, item] of Object.entries(report.vulnerabilities ?? {})) {
+            console.log(JSON.stringify({
+              name,
+              severity: item.severity,
+              direct: item.isDirect,
+              range: item.range,
+              fixAvailable: item.fixAvailable,
+              via: item.via.map(v => typeof v === 'string' ? v : {
+                name: v.name, title: v.title, range: v.range, url: v.url
+              })
+            }));
+          }
+          NODE
+
+      - name: Run production dependency audit
+        continue-on-error: true
+        run: |
+          npm audit --omit=dev --json > npm-audit-production.json || true
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const report = JSON.parse(fs.readFileSync('npm-audit-production.json', 'utf8'));
+          console.log('PRODUCTION AUDIT COUNTS:', JSON.stringify(report.metadata?.vulnerabilities ?? {}));
+          for (const [name, item] of Object.entries(report.vulnerabilities ?? {})) {
+            console.log(JSON.stringify({name, severity:item.severity, direct:item.isDirect, range:item.range, fixAvailable:item.fixAvailable}));
+          }
+          NODE
+
+      - name: Run automated tests
+        run: npm test -- --run
+
+      - name: Build application
+        run: npm run build
+
+      - name: Upload audit reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: recovery-npm-audit
+          path: |
+            npm-audit-full.json
+            npm-audit-production.json
+          if-no-files-found: warn
