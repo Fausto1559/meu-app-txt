@@ -46,7 +46,7 @@ Do not copy Preview credentials into Production. Add the production Supabase ser
 Preview variables for `recuperacao/build-2026-11-05` point to homologation project `eerqeimqzkgdpvutjfhm` and Asaas Sandbox. The existence and scope of secrets were inspected without decrypting values. Presence does not prove validity; an authenticated Preview health check and end-to-end Sandbox test are still required.
 
 ## Database migration history
-See `supabase/MIGRATION_RECONCILIATION.md`. Six historical migration SQL files are absent from all available branches and exact-path commit histories. Do not fabricate historical migrations or run a blanket migration push. Recover original SQL or approve a separately reviewed baseline/schema-repair plan.
+See `supabase/MIGRATION_RECONCILIATION.md`. The six historical SQL sources have been recovered from the databases' migration registry and archived under `supabase/recovered-history/`. They remain outside the active migration directory because production and homologation have different version streams. Do not run a blanket migration push; a reviewed environment-specific baseline/reconciliation plan is still required.
 
 ## Confirmed production-domain divergence — 2026-11-24
 See `PRODUCTION_SECURITY_GAP.md`. Production custom domain still serves the older `main` deployment at commit `c4eda33ca3026cc2fc6fa994735d1ac547efa866`. It does not expose the new billing/admin routes; its legacy `/api/webhook` is an unauthenticated in-memory simulator. The recovery branch replaces this with authenticated, persistent webhook processing and disables the legacy route, but this is not yet serving production.
@@ -57,7 +57,7 @@ See `PRODUCTION_SECURITY_GAP.md`. Production custom domain still serves the olde
 3. Authenticate to Preview with a synthetic test user; verify owner/admin membership and protected routes.
 4. Validate Supabase server credentials and Asaas Sandbox key through authenticated health checks without exposing secret values.
 5. Execute a complete Asaas Sandbox checkout/webhook flow; verify persistence, duplicate handling, refunds, and paid-access gating.
-6. Recover the six missing historical migrations or approve a reviewed baseline/schema repair.
+6. Complete a reviewed environment-specific migration baseline/reconciliation plan before any blanket migration push. The six original SQL sources are now archived outside the active migration directory.
 7. Add production-only server credentials and webhook token through a separately approved release procedure.
 8. Obtain explicit approval for a controlled Production release.
 
@@ -158,7 +158,7 @@ No Auth users were created or changed, and no production records were modified.
 4. Preview secret variables exist and are scoped to Sandbox/homologation, but their values were not exposed and their validity was not checked. No authenticated `/api/admin/billing-health` call was possible.
 5. No Asaas Sandbox customer, subscription, payment or webhook was created or called.
 6. Production has only its frontend Supabase key, `SUPABASE_URL`, and `ASAAS_ENVIRONMENT=production`; production server-side Supabase key, live Asaas API key, and webhook token are absent. Do not copy Preview credentials into Production.
-7. Six historical SQL migration files remain absent from all available branches and exact-path commit history: two production historical files and four homologation historical files (see `supabase/MIGRATION_RECONCILIATION.md`). Do not invent or regenerate them from names.
+7. Six historical SQL sources were recovered from the database migration registry and archived under `supabase/recovered-history/` by environment. The remaining issue is migration-stream reconciliation: keep them out of `supabase/migrations/` until an environment-specific baseline/repair plan is approved.
 8. Security Advisor continues to show only `auth_leaked_password_protection` disabled in each Supabase project. Enabling it requires a plan that supports the feature; no plan upgrade was performed.
 9. A >500 KB minified frontend chunk warning remains in the Vite build. This is a performance optimization item, not a build failure.
 
