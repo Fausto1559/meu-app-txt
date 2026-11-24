@@ -20,12 +20,13 @@ async function claimEvent(
   allowedStatuses: string[],
   attempts: number,
   expectedProcessingStartedAt?: string | null,
-) {
+): Promise<string | null> {
+  const processingStartedAt = new Date().toISOString();
   let query = supabase
     .from('webhook_events')
     .update({
       processing_status: 'processing',
-      processing_started_at: new Date().toISOString(),
+      processing_started_at: processingStartedAt,
       attempts,
       last_error: null,
     })
@@ -41,7 +42,7 @@ async function claimEvent(
 
   const { data, error } = await query.select('id').maybeSingle();
   if (error) throw new Error('Não foi possível reservar o evento para processamento: ' + error.message);
-  return Boolean(data?.id);
+  return data?.id ? processingStartedAt : null;
 }
 async function processClaimedEvent(
   supabase: ReturnType<typeof getAdminSupabase>,
@@ -49,6 +50,7 @@ async function processClaimedEvent(
   payload: Record<string, any>,
   attempts: number,
   duplicate: boolean,
+  processingStartedAt: string,
   res: any,
 ) {
   try {
@@ -63,7 +65,8 @@ async function processClaimedEvent(
       })
       .eq('provider', 'asaas')
       .eq('provider_event_id', eventId)
-      .eq('processing_status', 'processing');
+      .eq('processing_status', 'processing')
+      .eq('processing_started_at', processingStartedAt);
 
     if (error) throw new Error('Evento aplicado, mas não foi possível registrar a conclusão: ' + error.message);
 
@@ -87,7 +90,8 @@ async function processClaimedEvent(
       })
       .eq('provider', 'asaas')
       .eq('provider_event_id', eventId)
-      .eq('processing_status', 'processing');
+      .eq('processing_status', 'processing')
+      .eq('processing_started_at', processingStartedAt);
 
     console.error('Falha ao processar evento Asaas:', message);
     return res.status(500).json({
@@ -206,17 +210,25 @@ export default async function handler(req: any, res: any) {
       }
 
       attempts = Number(existing.attempts || 0) + 1;
-      const claimed = await claimEvent(
+      const processingStartedAt = await claimEvent(
         supabase,
         eventId,
         [existing.processing_status],
         attempts,
         expectedProcessingStartedAt,
       );
-      if (!claimed) {
+      if (!processingStartedAt) {
         return res.status(202).json({ ok: true, duplicate: true, processing: true, id: eventId });
       }
-      return processClaimedEvent(supabase, eventId, existing.payload, attempts, true, res);
+      return processClaimedEvent(
+        supabase,
+        eventId,
+        existing.payload,
+        attempts,
+        true,
+        processingStartedAt,
+        res,
+      );
     }
 
     if (insertError) {
@@ -224,12 +236,20 @@ export default async function handler(req: any, res: any) {
       return res.status(500).json({ ok: false, error: 'Falha ao persistir evento.' });
     }
 
-    const claimed = await claimEvent(supabase, eventId, ['received'], attempts);
-    if (!claimed) {
+    const processingStartedAt = await claimEvent(supabase, eventId, ['received'], attempts);
+    if (!processingStartedAt) {
       return res.status(409).json({ ok: false, persisted: true, error: 'Evento persistido, mas não foi possível reservar o processamento.' });
     }
 
-    return processClaimedEvent(supabase, eventId, body, attempts, false, res);
+    return processClaimedEvent(
+      supabase,
+      eventId,
+      body,
+      attempts,
+      false,
+      processingStartedAt,
+      res,
+    );
   } catch (error: any) {
     console.error('Erro no recebimento do webhook Asaas:', error?.message || error);
     return res.status(400).json({ ok: false, error: 'Requisição inválida.' });

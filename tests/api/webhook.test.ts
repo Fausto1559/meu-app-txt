@@ -35,6 +35,61 @@ function createResponse() {
   return response;
 }
 
+
+function createWebhookDatabaseMock() {
+  const operations: Array<{
+    table: string;
+    operation: string;
+    payload?: Record<string, unknown>;
+    filters: Array<[string, unknown]>;
+  }> = [];
+
+  const client = {
+    from(table: string) {
+      let operation = 'select';
+      let payload: Record<string, unknown> | undefined;
+      const filters: Array<[string, unknown]> = [];
+      const query: any = {
+        insert(value: Record<string, unknown>) {
+          operation = 'insert';
+          payload = value;
+          return query;
+        },
+        update(value: Record<string, unknown>) {
+          operation = 'update';
+          payload = value;
+          return query;
+        },
+        eq(column: string, value: unknown) {
+          filters.push([column, value]);
+          return query;
+        },
+        in(column: string, value: unknown) {
+          filters.push([column, value]);
+          return query;
+        },
+        is(column: string, value: unknown) {
+          filters.push([column, value]);
+          return query;
+        },
+        select() {
+          return query;
+        },
+        maybeSingle: vi.fn(async () => {
+          operations.push({ table, operation, payload, filters: [...filters] });
+          return { data: { id: 'webhook-row-1' }, error: null };
+        }),
+        then(resolve: (value: unknown) => unknown, reject: (reason: unknown) => unknown) {
+          operations.push({ table, operation, payload, filters: [...filters] });
+          return Promise.resolve({ error: null }).then(resolve, reject);
+        },
+      };
+      return query;
+    },
+  };
+  return { client, operations };
+}
+
 describe('POST /api/webhook', () => {
   beforeEach(() => {
     vi.stubEnv('ASAAS_WEBHOOK_TOKEN', '0123456789abcdef0123456789abcdef');
@@ -130,4 +185,55 @@ describe('POST /api/webhook', () => {
     });
     expect(supabase.from).not.toHaveBeenCalled();
   });
+
+  it('finalizes only the processing lease acquired by this delivery', async () => {
+    const { client, operations } = createWebhookDatabaseMock();
+    mockGetAdminSupabase.mockReturnValue(client);
+    mockProcessAsaasEvent.mockResolvedValue(undefined);
+
+    const res = createResponse();
+    await handler({
+      method: 'POST',
+      headers: { 'asaas-access-token': '0123456789abcdef0123456789abcdef' },
+      body: {
+        id: 'evt-lease-success',
+        event: 'PAYMENT_CREATED',
+        payment: { id: 'pay-lease-success' },
+        dateCreated: '2026-11-24T12:00:00.000Z',
+      },
+    } as any, res);
+
+    expect(res.statusCode).toBe(200);
+    const updates = operations.filter((operation) => operation.operation === 'update');
+    expect(updates).toHaveLength(2);
+    const leaseTimestamp = updates[0].payload?.processing_started_at;
+    expect(typeof leaseTimestamp).toBe('string');
+    expect(updates[1].filters).toContainEqual(['processing_started_at', leaseTimestamp]);
+  });
+
+  it('releases a failed processing lease only when this delivery still owns it', async () => {
+    const { client, operations } = createWebhookDatabaseMock();
+    mockGetAdminSupabase.mockReturnValue(client);
+    mockProcessAsaasEvent.mockRejectedValue(new Error('simulated processing failure'));
+
+    const res = createResponse();
+    await handler({
+      method: 'POST',
+      headers: { 'asaas-access-token': '0123456789abcdef0123456789abcdef' },
+      body: {
+        id: 'evt-lease-failure',
+        event: 'PAYMENT_CREATED',
+        payment: { id: 'pay-lease-failure' },
+        dateCreated: '2026-11-24T12:00:00.000Z',
+      },
+    } as any, res);
+
+    expect(res.statusCode).toBe(500);
+    const updates = operations.filter((operation) => operation.operation === 'update');
+    expect(updates).toHaveLength(2);
+    const leaseTimestamp = updates[0].payload?.processing_started_at;
+    expect(typeof leaseTimestamp).toBe('string');
+    expect(updates[1].filters).toContainEqual(['processing_started_at', leaseTimestamp]);
+  });
+
 });

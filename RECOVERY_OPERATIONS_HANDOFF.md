@@ -78,3 +78,10 @@ No Production deployment, alias change, Production migration, real payment, or w
 - The guardrail fails if a test/spec file is placed in a routable `api/` location or if the number of deployable API handlers exceeds the Hobby limit of 12.
 - Current source count is eight deployable API handlers. Tests remain in `tests/api/`; shared helpers/tests remain in the private `api/_lib/` directory.
 - This guardrail catches future accidental route creation before deployment; it does not replace a successful Vercel Preview build.
+
+## Webhook inbound lease ownership guard — 2026-11-24
+- Review found the public Asaas webhook's completion and failure updates matched only `provider_event_id` and `processing_status='processing'`, unlike the admin replay route which already compared `processing_started_at`.
+- This could let an older, delayed delivery finalize a webhook event after a retry had acquired a newer processing lease.
+- The route now records the exact timestamp returned by the successful lease claim and includes it in both success and failure finalization filters.
+- Added automated tests covering lease ownership on successful processing and failed processing.
+- The transaction RPCs already use event timestamps/IDs for idempotency; this route-level guard additionally prevents an obsolete execution from clearing a newer lease.
