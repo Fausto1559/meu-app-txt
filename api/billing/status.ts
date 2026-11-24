@@ -62,8 +62,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let planName: string | null = null;
     if (account.current_plan_key) {
       planName = ({
-        essencial: 'Essencial',
-        profissional: 'Profissional',
+        essencial: 'Essencial Básico',
+        profissional: 'Copiloto Intermediário',
         pro: 'Copiloto PRO',
       } as Record<string, string>)[account.current_plan_key] || null;
     }
