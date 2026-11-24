@@ -1,4 +1,9 @@
-const ASAAS_SANDBOX_BASE_URL = 'https://api-sandbox.asaas.com/v3';
+const ASAAS_BASE_URLS = {
+  sandbox: 'https://api-sandbox.asaas.com/v3',
+  production: 'https://api.asaas.com/v3',
+} as const;
+
+export type AsaasEnvironment = keyof typeof ASAAS_BASE_URLS;
 
 export class AsaasApiError extends Error {
   constructor(
@@ -10,16 +15,38 @@ export class AsaasApiError extends Error {
   }
 }
 
+/**
+ * Preview defaults to Sandbox. Production must explicitly choose its
+ * Asaas environment so a missing variable can never silently select an API.
+ */
+export function getAsaasEnvironment(): AsaasEnvironment {
+  const configured = process.env.ASAAS_ENVIRONMENT?.trim().toLowerCase();
+
+  if (!configured) {
+    if (process.env.VERCEL_ENV === 'production') {
+      throw new AsaasApiError('ASAAS_ENVIRONMENT deve ser definido explicitamente em Production.', 503);
+    }
+    return 'sandbox';
+  }
+
+  if (configured !== 'sandbox' && configured !== 'production') {
+    throw new AsaasApiError('ASAAS_ENVIRONMENT inválido. Use sandbox ou production.', 503);
+  }
+
+  return configured;
+}
+
 export async function asaasRequest<T>(
   path: string,
   init: RequestInit = {},
 ): Promise<T> {
+  const environment = getAsaasEnvironment();
   const apiKey = process.env.ASAAS_API_KEY;
   if (!apiKey) {
-    throw new AsaasApiError('Credencial do Asaas Sandbox ausente no servidor.', 503);
+    throw new AsaasApiError('Credencial do Asaas ausente no servidor.', 503);
   }
 
-  const response = await fetch(`${ASAAS_SANDBOX_BASE_URL}${path}`, {
+  const response = await fetch(`${ASAAS_BASE_URLS[environment]}${path}`, {
     ...init,
     headers: {
       accept: 'application/json',
