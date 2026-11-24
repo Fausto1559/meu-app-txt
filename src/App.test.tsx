@@ -2,7 +2,8 @@ import React from 'react';
 import { render, screen, fireEvent, within, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-const { mockSupabaseAuth } = vi.hoisted(() => {
+const { mockSupabaseAuth, mockCloudLoadError } = vi.hoisted(() => {
+  const cloudLoadError = { current: false };
   const session = { access_token: 'test-access-token', user: { id: 'test-user-id', email: 'faustoefiscal@gmail.com' } };
   let authListener: ((event: string, session: { user: { id: string; email: string } } | null) => void) | null = null;
   const auth = {
@@ -25,7 +26,7 @@ const { mockSupabaseAuth } = vi.hoisted(() => {
       return { error: null };
     }),
   };
-  return { mockSupabaseAuth: auth };
+  return { mockSupabaseAuth: auth, mockCloudLoadError: cloudLoadError };
 });
 
 vi.mock('./supabaseClient', () => {
@@ -43,7 +44,7 @@ vi.mock('./supabaseClient', () => {
           eq: vi.fn(() => ({
             maybeSingle: vi.fn(async () => ({
               data: table === 'financial_records' ? { records } : { machines: [] },
-              error: null,
+              error: mockCloudLoadError.current ? { message: 'database unavailable' } : null,
             })),
           })),
         })),
@@ -62,6 +63,7 @@ describe('App.tsx - 100% Cobertura Total', () => {
     });
   };
   beforeEach(() => {
+    mockCloudLoadError.current = false;
     localStorage.clear();
     localStorage.setItem('copiloto_financeiro_auth_v1', 'faustoefiscal@gmail.com');
     localStorage.setItem('copiloto_financeiro_auth_v2', 'faustoefiscal@gmail.com');
@@ -89,6 +91,25 @@ describe('App.tsx - 100% Cobertura Total', () => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     vi.useRealTimers();
+  });
+
+  it('oferece nova tentativa quando a nuvem falha ao carregar os dados financeiros', async () => {
+    mockCloudLoadError.current = true;
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Não foi possível carregar seus dados financeiros na nuvem.',
+      );
+    });
+
+    mockCloudLoadError.current = false;
+    fireEvent.click(screen.getByRole('button', { name: /Tentar novamente/i }));
+
+    await waitForAppReady();
+    await waitFor(() => {
+      expect(screen.getByText('Vendas Hoje')).toBeInTheDocument();
+    });
   });
 
   it('1 - inicializa sem e com localStorage, alterna períodos, cards KPI, exportação CSV e fechamento do toast', async () => {
