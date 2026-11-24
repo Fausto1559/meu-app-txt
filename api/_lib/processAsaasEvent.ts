@@ -146,7 +146,10 @@ export async function processAsaasEvent(input: unknown): Promise<void> {
     .maybeSingle();
   if (previousPaymentError) throw new Error('Falha ao consultar estado anterior do pagamento: ' + previousPaymentError.message);
 
-  const incomingEventTime = event.dateCreated ? Date.parse(event.dateCreated) : Number.NaN;
+  if (!event.dateCreated || !Number.isFinite(Date.parse(event.dateCreated))) {
+    throw new Error('Data de criação do evento Asaas ausente ou inválida.');
+  }
+  const incomingEventTime = Date.parse(event.dateCreated);
   const previousEventTime = previousPayment?.metadata?.lastEventDate
     ? Date.parse(previousPayment.metadata.lastEventDate)
     : Number.NaN;
