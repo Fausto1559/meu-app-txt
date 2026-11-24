@@ -112,48 +112,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    let customerId: string | null = null;
-    const { data: storedCustomer, error: storedCustomerError } = await supabase
-      .from('billing_customers')
-      .select('provider_customer_id')
-      .eq('user_id', user.id)
-      .eq('provider', 'asaas')
-      .maybeSingle();
-    if (storedCustomerError) {
-      console.error('Falha ao consultar cliente Asaas:', storedCustomerError.message);
-      return sendError(res, 503, 'Não foi possível consultar o cadastro de cobrança.');
-    }
-    customerId = storedCustomer?.provider_customer_id ?? null;
-
-    if (!customerId) {
-      const createdCustomer = await asaasRequest<{ id?: string }>('/customers', {
-        method: 'POST',
-        body: JSON.stringify({
-          name: customerName,
-          cpfCnpj,
-          email,
-          externalReference: user.id,
-          notificationDisabled: false,
-        }),
-      });
-      if (!createdCustomer?.id) return sendError(res, 502, 'O Asaas não retornou o identificador do cliente.');
-
-      customerId = createdCustomer.id;
-      const { error: customerSaveError } = await supabase
-        .from('billing_customers')
-        .insert({
-          user_id: user.id,
-          provider: 'asaas',
-          provider_customer_id: customerId,
-          customer_name: customerName,
-          customer_email: email,
-          updated_at: new Date().toISOString(),
-        });
-      if (customerSaveError) {
-        console.error('Falha ao salvar vínculo de cliente Asaas:', customerSaveError.message);
-        return sendError(res, 503, 'Cliente foi criado no gateway, mas não foi possível salvar o vínculo local. Contate o suporte antes de tentar novamente.');
-      }
-    }
 
     const today = new Date();
     const trialEnd = new Date(account.trial_ends_at);
@@ -162,14 +120,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       : new Date(today.getTime() + 86400000);
 
     const externalReference = `copiloto:${user.id}:${planKey}`;
-    // Reserve the user's single open subscription slot before creating anything
-    // at Asaas. The partial unique index makes concurrent requests mutually exclusive.
+    // Reserve the user's single open subscription slot before creating or
+    // looking up a remote customer. This serializes concurrent checkouts per user.
     const { data: reservation, error: reservationError } = await supabase
       .from('subscriptions')
       .insert({
         user_id: user.id,
         provider: 'asaas',
-        provider_customer_id: customerId,
+        provider_customer_id: null,
         plan_key: planKey,
         status: 'pending',
         billing_type: billingType,
@@ -187,6 +145,93 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       console.error('Falha ao reservar contratação:', reservationError?.message);
       return sendError(res, 503, 'Não foi possível reservar a contratação.');
+    }
+
+    let customerId: string | null = null;
+    const { data: storedCustomer, error: storedCustomerError } = await supabase
+      .from('billing_customers')
+      .select('provider_customer_id')
+      .eq('user_id', user.id)
+      .eq('provider', 'asaas')
+      .maybeSingle();
+    if (storedCustomerError) {
+      await supabase.from('subscriptions').delete().eq('id', reservation.id).eq('user_id', user.id);
+      console.error('Falha ao consultar cliente Asaas:', storedCustomerError.message);
+      return sendError(res, 503, 'Não foi possível consultar o cadastro de cobrança.');
+    }
+    customerId = storedCustomer?.provider_customer_id ?? null;
+
+    if (!customerId) {
+      let createdCustomer: { id?: string };
+      try {
+        createdCustomer = await asaasRequest<{ id?: string }>('/customers', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: customerName,
+            cpfCnpj,
+            email,
+            externalReference: user.id,
+            notificationDisabled: false,
+          }),
+        });
+      } catch {
+        await supabase.from('subscriptions')
+          .update({
+            metadata: { externalReference, checkoutReservation: true, checkoutResult: 'customer_creation_unknown', checkoutAttemptAt: new Date().toISOString() },
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', reservation.id)
+          .eq('user_id', user.id);
+        console.error('Resultado da criação do cliente Asaas incerto; reserva mantida.');
+        return sendError(res, 502, 'Não foi possível confirmar o cadastro no Asaas. A contratação ficou reservada para evitar duplicidade. Contate o suporte antes de tentar novamente.');
+      }
+      if (!createdCustomer?.id) {
+        await supabase.from('subscriptions')
+          .update({
+            metadata: { externalReference, checkoutReservation: true, checkoutResult: 'customer_missing_provider_id', checkoutAttemptAt: new Date().toISOString() },
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', reservation.id)
+          .eq('user_id', user.id);
+        return sendError(res, 502, 'O Asaas não confirmou o identificador do cliente. A reserva foi mantida; contate o suporte.');
+      }
+
+      customerId = createdCustomer.id;
+      const { error: customerSaveError } = await supabase
+        .from('billing_customers')
+        .insert({
+          user_id: user.id,
+          provider: 'asaas',
+          provider_customer_id: customerId,
+          customer_name: customerName,
+          customer_email: email,
+          updated_at: new Date().toISOString(),
+        });
+      if (customerSaveError) {
+        await supabase.from('subscriptions')
+          .update({
+            metadata: { externalReference, checkoutReservation: true, checkoutResult: 'customer_created_unlinked', checkoutAttemptAt: new Date().toISOString() },
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', reservation.id)
+          .eq('user_id', user.id);
+        console.error('Falha ao salvar vínculo de cliente Asaas:', customerSaveError.message);
+        return sendError(res, 503, 'Cliente foi criado no gateway, mas não foi possível salvar o vínculo local. A contratação ficou reservada; contate o suporte antes de tentar novamente.');
+      }
+    }
+
+    const { error: reservationCustomerError } = await supabase
+      .from('subscriptions')
+      .update({
+        provider_customer_id: customerId,
+        metadata: { externalReference, checkoutReservation: true },
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', reservation.id)
+      .eq('user_id', user.id);
+    if (reservationCustomerError) {
+      console.error('Falha ao vincular cliente à reserva:', reservationCustomerError.message);
+      return sendError(res, 503, 'O cliente foi identificado, mas não foi possível concluir a reserva local. Contate o suporte antes de tentar novamente.');
     }
 
     let createdSubscription: {
