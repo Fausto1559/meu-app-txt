@@ -48,10 +48,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const { data: pending, error: lookupError } = await supabase
       .from('webhook_events')
-      .select('id,provider_event_id,payload,processing_status,attempts')
+      .select('id,provider_event_id,payload,processing_status,attempts,processing_started_at')
       .eq('provider', 'asaas')
       .in('id', ids)
-      .in('processing_status', ['failed', 'received']);
+      .or(`processing_status.in.(failed,received),and(processing_status.eq.processing,processing_started_at.is.null),and(processing_status.eq.processing,processing_started_at.lt.${new Date(Date.now()-15*60*1000).toISOString()})`);
 
     if (lookupError) {
       console.error('Falha ao localizar eventos para reprocessamento:', lookupError.message);
@@ -61,15 +61,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const results: Array<{ id: string; processed: boolean; skipped?: boolean }> = [];
     for (const event of pending || []) {
       const attempts = Number(event.attempts || 0) + 1;
+      const processingStartedAt = new Date().toISOString();
+      const leaseCutoff = new Date(Date.now() - 15 * 60 * 1000).toISOString();
       const { data: claimed, error: claimError } = await supabase
         .from('webhook_events')
         .update({
           processing_status: 'processing',
+          processing_started_at: processingStartedAt,
           attempts,
           last_error: null,
         })
         .eq('id', event.id)
-        .in('processing_status', ['failed', 'received'])
+        .or(`processing_status.in.(failed,received),and(processing_status.eq.processing,processing_started_at.is.null),and(processing_status.eq.processing,processing_started_at.lt.${leaseCutoff})`)
         .select('id')
         .maybeSingle();
 
@@ -89,10 +92,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           .update({
             processing_status: 'processed',
             processed_at: new Date().toISOString(),
+            processing_started_at: null,
             last_error: null,
           })
           .eq('id', event.id)
-          .eq('processing_status', 'processing');
+          .eq('processing_status', 'processing')
+          .eq('processing_started_at', processingStartedAt);
         if (error) throw new Error(error.message);
         results.push({ id: event.id, processed: true });
       } catch (error) {
@@ -101,10 +106,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           .from('webhook_events')
           .update({
             processing_status: 'failed',
+            processing_started_at: null,
             last_error: message.slice(0, 2000),
           })
           .eq('id', event.id)
-          .eq('processing_status', 'processing');
+          .eq('processing_status', 'processing')
+          .eq('processing_started_at', processingStartedAt);
         results.push({ id: event.id, processed: false });
       }
     }
