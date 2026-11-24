@@ -22,7 +22,7 @@ export async function getAuthenticatedUser(req: Pick<VercelRequest, 'headers'>) 
   const authorization = req.headers?.authorization;
   if (typeof authorization !== 'string') return null;
 
-  const match = /^Bearer\\s+([^\\s]+)$/i.exec(authorization.trim());
+  const match = /^Bearer\s+([^\s]+)$/i.exec(authorization.trim());
   if (!match?.[1]) return null;
 
   let supabase;
