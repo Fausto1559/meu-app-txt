@@ -31,14 +31,6 @@ function addOneCalendarMonth(value: Date): Date {
   return result;
 }
 
-function subscriptionStatus(event: string, current: string): string | null {
-  if (event === 'SUBSCRIPTION_INACTIVATED' || event === 'SUBSCRIPTION_DELETED') return 'canceled';
-  if (event === 'SUBSCRIPTION_CREATED' || event === 'SUBSCRIPTION_UPDATED') {
-    if (['canceled', 'suspended', 'expired'].includes(current)) return current;
-    return current === 'active' ? 'active' : 'pending';
-  }
-  return null;
-}
 
 export async function processAsaasEvent(input: unknown): Promise<void> {
   if (
@@ -72,55 +64,27 @@ export async function processAsaasEvent(input: unknown): Promise<void> {
 
   if (eventName.startsWith('SUBSCRIPTION_')) {
     if (!subscriptionId) throw new Error('Evento de assinatura sem identificador.');
-    const { data: local, error: lookupError } = await supabase
-      .from('subscriptions')
-      .select('id,user_id,status,provider_customer_id,metadata')
-      .eq('provider', 'asaas')
-      .eq('provider_subscription_id', subscriptionId)
-      .maybeSingle();
-    if (lookupError) throw new Error('Falha ao localizar assinatura: ' + lookupError.message);
-    if (!local) throw new Error('Assinatura ainda não vinculada no sistema.');
-
-    if (subscription?.customer && local.provider_customer_id &&
-        subscription.customer !== local.provider_customer_id) {
-      throw new Error('Cliente do evento não corresponde à assinatura cadastrada.');
+    const nextDueDate = subscription?.nextDueDate || null;
+    if (nextDueDate && (!/^\\d{4}-\\d{2}-\\d{2}$/.test(nextDueDate) ||
+        !Number.isFinite(Date.parse(nextDueDate)))) {
+      throw new Error('Data de vencimento da assinatura inválida.');
     }
 
-    const incomingEventTime = Date.parse(event.dateCreated!);
-    const previousEventTime = local.metadata?.lastEventDate
-      ? Date.parse(local.metadata.lastEventDate)
-      : Number.NaN;
-    if (Number.isFinite(previousEventTime) && incomingEventTime < previousEventTime) {
-      return;
+    const { data: transactionResult, error: transactionError } = await supabase.rpc(
+      'apply_asaas_subscription_event',
+      {
+        p_provider_subscription_id: subscriptionId,
+        p_provider_customer_id: subscription?.customer || null,
+        p_next_due_date: nextDueDate,
+        p_event_time: event.dateCreated,
+        p_event_id: event.id,
+        p_event_name: eventName,
+      },
+    );
+    if (transactionError) {
+      throw new Error('Falha na transação do evento de assinatura: ' + transactionError.message);
     }
-
-    const nextStatus = subscriptionStatus(eventName, local.status);
-    if (nextStatus) {
-      const { error: updateError } = await supabase
-        .from('subscriptions')
-        .update({
-          status: nextStatus,
-          next_due_date: subscription?.nextDueDate || undefined,
-          metadata: {
-            ...(local.metadata && typeof local.metadata === 'object' ? local.metadata : {}),
-            lastEvent: eventName,
-            lastEventDate: event.dateCreated,
-            asaasEventId: event.id,
-          },
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', local.id);
-      if (updateError) throw new Error('Falha ao atualizar assinatura: ' + updateError.message);
-
-      if (nextStatus === 'canceled') {
-        const { error: accountError } = await supabase
-          .from('billing_accounts')
-          .update({ access_status: 'suspended', updated_at: new Date().toISOString() })
-          .eq('user_id', local.user_id)
-          .eq('current_subscription_id', local.id);
-        if (accountError) throw new Error('Falha ao suspender acesso: ' + accountError.message);
-      }
-    }
+    if (transactionResult === 'ignored') return;
     return;
   }
 
