@@ -21,7 +21,7 @@ export default async function handler(
 
   const authorization = await requireAdmin(req);
 
-  if (!authorization.ok) {
+  if ('status' in authorization) {
     return res.status(authorization.status).json({
       ok: false,
       error: authorization.error,
