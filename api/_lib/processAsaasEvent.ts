@@ -40,7 +40,18 @@ function subscriptionStatus(event: string, current: string): string | null {
   return null;
 }
 
-export async function processAsaasEvent(event: AsaasEvent): Promise<void> {
+export async function processAsaasEvent(input: unknown): Promise<void> {
+  if (
+    typeof input !== 'object' ||
+    input === null ||
+    Array.isArray(input) ||
+    typeof (input as Record<string, unknown>).id !== 'string' ||
+    typeof (input as Record<string, unknown>).event !== 'string'
+  ) {
+    throw new Error('Payload Asaas inválido para processamento.');
+  }
+
+  const event = input as AsaasEvent;
   const supabase = getAdminSupabase();
   const eventName = event.event;
   const payment = event.payment;
