@@ -6,6 +6,41 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
  */
 let adminClient: SupabaseClient | null = null;
 
+function getProjectRefFromUrl(value: string): string {
+  const parsed = new URL(value);
+  const isLocalHttp =
+    parsed.protocol === 'http:' &&
+    (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1');
+
+  if (parsed.protocol !== 'https:' && !isLocalHttp) {
+    throw new Error('SUPABASE_URL deve utilizar HTTPS.');
+  }
+
+  const match = /^([a-z0-9]{20})\.supabase\.co$/i.exec(parsed.hostname);
+  if (!match) {
+    throw new Error('SUPABASE_URL não identifica um projeto Supabase válido.');
+  }
+  return match[1];
+}
+
+function assertServiceRoleMatchesProject(serviceRoleKey: string, expectedRef: string): void {
+  const parts = serviceRoleKey.split('.');
+  if (parts.length !== 3) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY deve ser uma chave JWT de servidor.');
+  }
+
+  let claims: Record<string, unknown>;
+  try {
+    claims = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+  } catch {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY inválida.');
+  }
+
+  if (claims.role !== 'service_role' || claims.ref !== expectedRef) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY não corresponde ao projeto configurado.');
+  }
+}
+
 export function getAdminSupabase(): SupabaseClient {
   if (adminClient) return adminClient;
 
@@ -16,20 +51,14 @@ export function getAdminSupabase(): SupabaseClient {
     throw new Error('Configuração administrativa do Supabase ausente no servidor.');
   }
 
-  let parsedUrl: URL;
+  let projectRef: string;
   try {
-    parsedUrl = new URL(supabaseUrl);
-  } catch {
-    throw new Error('SUPABASE_URL inválida no servidor.');
+    projectRef = getProjectRefFromUrl(supabaseUrl);
+  } catch (error) {
+    throw error instanceof Error ? error : new Error('SUPABASE_URL inválida no servidor.');
   }
 
-  const isLocalHttp =
-    parsedUrl.protocol === 'http:' &&
-    (parsedUrl.hostname === 'localhost' || parsedUrl.hostname === '127.0.0.1');
-
-  if (parsedUrl.protocol !== 'https:' && !isLocalHttp) {
-    throw new Error('SUPABASE_URL deve utilizar HTTPS.');
-  }
+  assertServiceRoleMatchesProject(serviceRoleKey, projectRef);
 
   adminClient = createClient(supabaseUrl, serviceRoleKey, {
     auth: {
