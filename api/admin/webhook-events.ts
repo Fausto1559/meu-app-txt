@@ -85,24 +85,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         continue;
       }
 
+      let processingError: unknown = null;
       try {
         await processAsaasEvent(event.payload);
-        const { error } = await supabase
-          .from('webhook_events')
-          .update({
-            processing_status: 'processed',
-            processed_at: new Date().toISOString(),
-            processing_started_at: null,
-            last_error: null,
-          })
-          .eq('id', event.id)
-          .eq('processing_status', 'processing')
-          .eq('processing_started_at', processingStartedAt);
-        if (error) throw new Error(error.message);
-        results.push({ id: event.id, processed: true });
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Falha desconhecida';
-        await supabase
+        processingError = error;
+      }
+
+      if (processingError) {
+        const message = processingError instanceof Error
+          ? processingError.message
+          : 'Falha desconhecida';
+        const { data: released, error: releaseError } = await supabase
           .from('webhook_events')
           .update({
             processing_status: 'failed',
@@ -111,8 +105,44 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           })
           .eq('id', event.id)
           .eq('processing_status', 'processing')
-          .eq('processing_started_at', processingStartedAt);
+          .eq('processing_started_at', processingStartedAt)
+          .select('id')
+          .maybeSingle();
+
+        if (releaseError) {
+          console.error('Falha ao liberar lease de webhook após erro:', releaseError.message);
+          results.push({ id: event.id, processed: false });
+        } else if (!released?.id) {
+          // A newer execution took over this lease; do not label its event failed.
+          results.push({ id: event.id, processed: false, skipped: true });
+        } else {
+          results.push({ id: event.id, processed: false });
+        }
+        continue;
+      }
+
+      const { data: finalized, error: finalizeError } = await supabase
+        .from('webhook_events')
+        .update({
+          processing_status: 'processed',
+          processed_at: new Date().toISOString(),
+          processing_started_at: null,
+          last_error: null,
+        })
+        .eq('id', event.id)
+        .eq('processing_status', 'processing')
+        .eq('processing_started_at', processingStartedAt)
+        .select('id')
+        .maybeSingle();
+
+      if (finalizeError) {
+        console.error('Falha ao finalizar lease de webhook:', finalizeError.message);
         results.push({ id: event.id, processed: false });
+      } else if (!finalized?.id) {
+        // Another invocation owns the lease. Never report stale success.
+        results.push({ id: event.id, processed: false, skipped: true });
+      } else {
+        results.push({ id: event.id, processed: true });
       }
     }
 

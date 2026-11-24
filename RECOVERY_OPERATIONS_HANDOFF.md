@@ -103,3 +103,9 @@ No Production deployment, alias change, Production migration, real payment, or w
 - Added checks that payment plan, amount, provider subscription ID, and customer ID match the local subscription.
 - Applied migration `20261124200921` to homologation only. Verified both transaction functions retain `SECURITY DEFINER`, `search_path=public`, and EXECUTE only for `service_role`/postgres.
 - Homologation records remain unchanged: 2 existing auth users and 2 billing accounts; 0 subscriptions, 0 billing customers, 0 payments, and 0 webhook events.
+
+## Administrative webhook replay lease ownership — 2026-11-24
+- Administrative replay now checks that the final UPDATE returned the event row before reporting success.
+- Failed replays likewise confirm that the same execution still owns the lease before reporting a processing failure.
+- If a newer invocation has taken the lease, the old invocation reports the event as skipped rather than stale success or stale failure.
+- Added success and failure regression tests for the lease-takeover case.

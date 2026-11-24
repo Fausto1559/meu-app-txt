@@ -23,8 +23,9 @@ function createResponse() {
   };
 }
 
-function createSupabase(event: any) {
+function createSupabase(event: any, finalizationLost = false) {
   const updates: any[] = [];
+  let maybeSingleCalls = 0;
   const filters: any[] = [];
   const supabase = {
     from(table: string) {
@@ -37,7 +38,13 @@ function createSupabase(event: any) {
         order() { return query; },
         limit() { return query; },
         update(value: unknown) { updateValue = value; updates.push(value); return query; },
-        maybeSingle: vi.fn(async () => ({ data: { id: event.id }, error: null })),
+        maybeSingle: vi.fn(async () => {
+          maybeSingleCalls += 1;
+          if (finalizationLost && maybeSingleCalls === 2) {
+            return { data: null, error: null };
+          }
+          return { data: { id: event.id }, error: null };
+        }),
         then(resolve: (value: unknown) => unknown, reject: (reason: unknown) => unknown) {
           if (updateValue) return Promise.resolve({ error: null }).then(resolve, reject);
           return Promise.resolve({ data: [event], error: null }).then(resolve, reject);
@@ -123,4 +130,68 @@ describe('/api/admin/webhook-events', () => {
     expect(updates[1]).toMatchObject({ processing_status: 'failed', processing_started_at: null });
     expect(updates[1].last_error).toContain('simulated processing failure');
   });
+
+  it('does not report successful replay when the processing lease was taken over', async () => {
+    const event = {
+      id: 'evt-lease-lost',
+      provider_event_id: 'asaas-evt-lease-lost',
+      payload: { id: 'asaas-evt-lease-lost', event: 'PAYMENT_CREATED' },
+      processing_status: 'processing',
+      processing_started_at: '2026-11-24T18:00:00.000Z',
+      attempts: 2,
+    };
+    const { supabase, updates } = createSupabase(event, true);
+    mockGetAdminSupabase.mockReturnValue(supabase);
+    mockProcessAsaasEvent.mockResolvedValue(undefined);
+    const res = createResponse();
+
+    await handler({
+      method: 'POST',
+      headers: {},
+      body: { eventIds: ['evt-lease-lost'] },
+    } as any, res as any);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      requested: 1,
+      processed: 0,
+      failed: 0,
+      skipped: 1,
+    });
+    expect(updates[0]).toMatchObject({ processing_status: 'processing' });
+    expect(updates[1]).toMatchObject({ processing_status: 'processed' });
+  });
+
+  it('does not report a replay as failed when another execution owns the lease', async () => {
+    const event = {
+      id: 'evt-failure-lease-lost',
+      provider_event_id: 'asaas-evt-failure-lease-lost',
+      payload: { id: 'asaas-evt-failure-lease-lost', event: 'PAYMENT_CREATED' },
+      processing_status: 'failed',
+      processing_started_at: null,
+      attempts: 0,
+    };
+    const { supabase, updates } = createSupabase(event, true);
+    mockGetAdminSupabase.mockReturnValue(supabase);
+    mockProcessAsaasEvent.mockRejectedValue(new Error('simulated processing failure'));
+    const res = createResponse();
+
+    await handler({
+      method: 'POST',
+      headers: {},
+      body: { eventIds: ['evt-failure-lease-lost'] },
+    } as any, res as any);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      requested: 1,
+      processed: 0,
+      failed: 0,
+      skipped: 1,
+    });
+    expect(updates[1]).toMatchObject({ processing_status: 'failed' });
+  });
+
 });
