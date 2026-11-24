@@ -52,12 +52,12 @@ See `supabase/MIGRATION_RECONCILIATION.md`. The six historical SQL sources have 
 See `PRODUCTION_SECURITY_GAP.md`. Production custom domain still serves the older `main` deployment at commit `c4eda33ca3026cc2fc6fa994735d1ac547efa866`. It does not expose the new billing/admin routes; its legacy `/api/webhook` is an unauthenticated in-memory simulator. The recovery branch replaces this with authenticated, persistent webhook processing and disables the legacy route, but this is not yet serving production.
 
 ## Release gate — do not bypass
-1. Obtain a current Preview for the latest recovery commit after Vercel's daily deployment quota resets.
-2. Confirm the TypeScript type-scan fix and test the cloud-load retry path.
-3. Authenticate to Preview with a synthetic test user; verify owner/admin membership and protected routes.
-4. Validate Supabase server credentials and Asaas Sandbox key through authenticated health checks without exposing secret values.
-5. Execute a complete Asaas Sandbox checkout/webhook flow; verify persistence, duplicate handling, refunds, and paid-access gating.
-6. Complete a reviewed environment-specific migration baseline/reconciliation plan before any blanket migration push. The six original SQL sources are now archived outside the active migration directory.
+1. Use the current READY Preview for recovery head `fd920f1fb7998b158673e4353b7fac2252135ec0`; a new build is not currently needed.
+2. Establish an approved runtime access path for Preview that preserves SSO protection for ordinary visitors.
+3. Create a synthetic Supabase Auth user through the Auth Admin API using the server-side homologation key; never insert directly into `auth.users`.
+4. Validate Supabase and Asaas Sandbox credentials through authenticated health checks without exposing secret values.
+5. Provide an approved public ingress for Asaas webhook delivery, then execute Sandbox checkout/webhook tests for confirmation, duplicates, out-of-order events, refunds, cancellation, and paid-access gating.
+6. Complete an environment-specific migration baseline/reconciliation plan before any blanket migration push. The six original SQL sources are archived byte-for-byte outside the active migration directory.
 7. Add production-only server credentials and webhook token through a separately approved release procedure.
 8. Obtain explicit approval for a controlled Production release.
 
@@ -145,22 +145,21 @@ No Auth users were created or changed, and no production records were modified.
 - RPC ACL recheck: both transaction functions remain `SECURITY DEFINER`, `search_path=public`; `anon` and `authenticated` cannot execute; `service_role` and postgres can.
 
 ### Current Vercel Preview state
-- Latest READY Preview observed: `dpl_E7ck72mLc2WPVy4X1jk3NqE9VGxB`, commit `52859cbf88141fb7bc2541362b2cd6756ed4c7cc`.
-- Build log confirms `npm install --include=dev`, zero npm audit vulnerabilities, Vite build completed, TypeScript function scanning emitted no TS2688 errors, and the deployment reached READY.
-- The current branch head `7b3aa5d` is newer than that Preview; there is no deployment for the current head yet.
-- Vercel Git status for the current branch reports `Deployment rate limited — retry in 24 hours` (Hobby daily deployment cap). Do not bypass the cap or purchase an upgrade without a separate cost decision.
+- Latest READY Preview: `dpl_FSf9vMrWqFYQ1FUtRsMDuCQQZHHL`, URL `https://meu-app-ar1db23y9-app-copiloto-financeiro.vercel.app`, commit `fd920f1fb7998b158673e4353b7fac2252135ec0`.
+- Build log confirms `npm install --include=dev`, zero npm audit vulnerabilities, Vite build completed, TypeScript function scanning emitted no TS2688 errors, and Vercel marked the deployment READY.
+- GitHub Actions run `45480362457` for the same commit completed successfully; all 55 tests, typecheck, function-count guard, dependency audits, and build passed.
+- The manual Vercel deployment API had returned the Hobby daily rate limit earlier, but Git integration has now automatically deployed the current branch head. Do not bypass the cap or purchase an upgrade without a separate cost decision.
 - Project Deployment Protection is SSO-enabled for all non-custom deployment domains. The Preview's `.vercel.app` URL is therefore protected. An external Asaas webhook cannot complete an end-to-end call to this URL by presenting only `ASAAS_WEBHOOK_TOKEN`; Vercel SSO intercepts the request before the function. Do not disable SSO. A separately approved branch-specific custom domain / DNS arrangement or another reviewed public webhook ingress is required before provider delivery tests.
 
 ### Remaining blockers that require external access or explicit decisions
-1. A Preview for the exact current branch head `7b3aa5d` remains pending Vercel's daily deployment quota.
-2. Preview runtime HTTP validation is blocked by SSO because no Vercel CLI session / trusted OIDC header is available in this environment.
-3. No synthetic Supabase Auth user was created; the available Supabase tools do not expose Auth Admin createUser. Do not insert directly into `auth.users`.
-4. Preview secret variables exist and are scoped to Sandbox/homologation, but their values were not exposed and their validity was not checked. No authenticated `/api/admin/billing-health` call was possible.
-5. No Asaas Sandbox customer, subscription, payment or webhook was created or called.
-6. Production has only its frontend Supabase key, `SUPABASE_URL`, and `ASAAS_ENVIRONMENT=production`; production server-side Supabase key, live Asaas API key, and webhook token are absent. Do not copy Preview credentials into Production.
-7. Six historical SQL sources were recovered from the database migration registry and archived under `supabase/recovered-history/` by environment. The remaining issue is migration-stream reconciliation: keep them out of `supabase/migrations/` until an environment-specific baseline/repair plan is approved.
-8. Security Advisor continues to show only `auth_leaked_password_protection` disabled in each Supabase project. Enabling it requires a plan that supports the feature; no plan upgrade was performed.
-9. A >500 KB minified frontend chunk warning remains in the Vite build. This is a performance optimization item, not a build failure.
+1. Preview runtime HTTP validation is blocked by Vercel SSO because no Vercel CLI session / trusted OIDC access is available in this environment.
+2. No synthetic Supabase Auth user was created; the available Supabase tools do not expose Auth Admin createUser. Do not insert directly into `auth.users`.
+3. Preview secret variables exist and are scoped to Sandbox/homologation, but their values were not exposed and their validity was not checked. No authenticated `/api/admin/billing-health` call was possible.
+4. No Asaas Sandbox customer, subscription, payment or webhook was created or called. The Asaas webhook cannot call the SSO-protected Preview URL; a separately approved public ingress/custom-domain approach is required.
+5. Production has only its frontend Supabase key, `SUPABASE_URL`, and `ASAAS_ENVIRONMENT=production`; production server-side Supabase key, live Asaas API key, and webhook token are absent. Do not copy Preview credentials into Production.
+6. Six historical SQL sources are now archived byte-for-byte under `supabase/recovered-history/`; the remaining issue is environment-specific migration-stream reconciliation before any blanket push.
+7. Security Advisor continues to show only `auth_leaked_password_protection` disabled in each Supabase project. Enabling it requires a plan that supports the feature; no plan upgrade was performed.
+8. A >500 KB minified frontend chunk warning remains in the Vite build. This is a performance optimization item, not a build failure.
 
 ### Production release remains prohibited
 No Production deployment, domain alias change, Production migration, live payment, or Asaas webhook POST was performed. Keep `main`, Production databases, domains, and live payment credentials untouched until a separate controlled-release approval.
@@ -176,13 +175,14 @@ No Production deployment, domain alias change, Production migration, live paymen
 - When a newer invocation took ownership, the earlier replay is reported as skipped instead of stale success/failure.
 - Added regression tests for successful and failed administrative replay losing the lease.
 
-## Current end-to-end readiness — 2026-11-24 20:20 UTC
-- Recovery branch head before this documentation update: `7b3aa5d177aab4d5a579e55e58e08478a79586e5`; GitHub Actions run `45478708072` passed all gates, including 55 tests.
-- Latest READY Vercel Preview remains commit `52859cbf88141fb7bc2541362b2cd6756ed4c7cc`; its build log no longer contains TS2688 and confirms Vite output deployment. This is not the current branch head.
-- Current-head Vercel status remains rate-limited for 24 hours by the Hobby daily deployment cap. The .vercel.app Preview is also SSO-protected, so the Asaas provider cannot call its webhook URL unless a separately approved public ingress/custom-domain protection arrangement is established.
+## Current end-to-end readiness — 2026-11-24 20:24 UTC
+- Recovery branch head: `fd920f1fb7998b158673e4353b7fac2252135ec0`.
+- GitHub Actions run `45480362457` completed successfully; all checks passed, including 55 tests, zero dependency vulnerabilities, eight deployable functions, TypeScript, and Vite build.
+- Current branch head has a Vercel Preview READY: `dpl_FSf9vMrWqFYQ1FUtRsMDuCQQZHHL`, URL `https://meu-app-ar1db23y9-app-copiloto-financeiro.vercel.app`. The build log contains no TS2688 errors.
+- The Preview remains SSO-protected. The Asaas provider cannot reach its webhook endpoint through the `.vercel.app` URL without an approved public ingress/custom-domain protection arrangement.
 - No Vercel SSO protection was disabled, no custom domain or DNS record was changed, and no paid resource was created.
-- Production snapshot at this check: 2 Auth users, 0 billing accounts, 0 subscriptions, 0 billing customers, 0 payments, 0 webhook events. Production server Supabase key, live Asaas API key, and webhook token remain absent.
-- Homologation snapshot remains 2 Auth users, 2 billing accounts, and 0 subscriptions/customers/payments/webhook events.
+- Production snapshot: 2 Auth users, 0 billing accounts, 0 subscriptions, 0 billing customers, 0 payments, 0 webhook events. Production server Supabase key, live Asaas API key, and webhook token remain absent.
+- Homologation snapshot: 2 Auth users, 2 billing accounts, and 0 subscriptions/customers/payments/webhook events.
 
 ## Recovered migration archive integrity — 2026-11-24
 - All six archived SQL files were compared byte-for-byte with the original `statements` text from their source database's `supabase_migrations.schema_migrations` record.
