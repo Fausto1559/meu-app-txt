@@ -21,6 +21,16 @@ function paymentStatus(event: string): string | null {
   return null;
 }
 
+function addOneCalendarMonth(value: Date): Date {
+  const result = new Date(value);
+  const originalDay = result.getUTCDate();
+  result.setUTCDate(1);
+  result.setUTCMonth(result.getUTCMonth() + 1);
+  const lastDay = new Date(Date.UTC(result.getUTCFullYear(), result.getUTCMonth() + 1, 0)).getUTCDate();
+  result.setUTCDate(Math.min(originalDay, lastDay));
+  return result;
+}
+
 function subscriptionStatus(event: string, current: string): string | null {
   if (event === 'SUBSCRIPTION_INACTIVATED' || event === 'SUBSCRIPTION_DELETED') return 'canceled';
   if (event === 'SUBSCRIPTION_CREATED' || event === 'SUBSCRIPTION_UPDATED') {
@@ -155,12 +165,16 @@ export async function processAsaasEvent(event: AsaasEvent): Promise<void> {
   if (paymentError) throw new Error('Falha ao persistir pagamento: ' + paymentError.message);
 
   if (mappedStatus === 'confirmed' || mappedStatus === 'received') {
+    const periodStart = paymentDate && Number.isFinite(Date.parse(paymentDate))
+      ? new Date(paymentDate)
+      : new Date();
+    const periodEnd = addOneCalendarMonth(periodStart);
     const { error: subError } = await supabase
       .from('subscriptions')
       .update({
         status: 'active',
-        current_period_start: new Date().toISOString(),
-        current_period_end: new Date(Date.now() + 30 * 86400000).toISOString(),
+        current_period_start: periodStart.toISOString(),
+        current_period_end: periodEnd.toISOString(),
         updated_at: new Date().toISOString(),
       })
       .eq('id', localSubscription.id);
