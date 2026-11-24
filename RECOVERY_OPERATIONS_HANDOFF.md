@@ -188,3 +188,9 @@ No Production deployment, domain alias change, Production migration, live paymen
 - All six archived SQL files were compared byte-for-byte with the original `statements` text from their source database's `supabase_migrations.schema_migrations` record.
 - All six exact-content comparisons passed; recorded file lengths and source statement lengths were identical.
 - The archived SQL files remain outside the active migration path.
+
+## Production domain alias verification — 2026-11-24 20:22 UTC
+- Verified production aliases `copilotofinanc.app.br`, `www.copilotofinanc.app.br`, `meu-app-txt.vercel.app`, and the project main Git alias are still assigned to READY production deployment `dpl_AHBcx7iZa19VBWw6XLg6ku7en2z4`, commit `c4eda33ca3026cc2fc6fa994735d1ac547efa866`.
+- The later Production deployment record `dpl_8xcgu4YWrci8kRmSMh7HpKPydVNp`, commit `a5b6fbc1676d6b739e7015c82dbfbc7daebdc2e3`, is in ERROR and has no aliases.
+- No custom domain, production alias, or deployment target was changed during recovery.
+- Current recovery head `72bf0c0fed0f10c5cc5df1935e9208dfc28938c0` passed CI run `45480155917`. Its Vercel status remains rate-limited by the Hobby daily deployment cap; the latest Vercel check was created at 2026-11-24T20:22:36Z and reports retry in 24 hours.
