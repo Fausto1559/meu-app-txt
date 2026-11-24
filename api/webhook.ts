@@ -93,7 +93,38 @@ export default async function handler(req: any, res: any) {
     });
 
     if (error?.code === '23505') {
-      return res.status(200).json({ ok: true, duplicate: true, id: eventId });
+      const { data: existing, error: existingError } = await supabase
+        .from('webhook_events')
+        .select('payload,processing_status')
+        .eq('provider', 'asaas')
+        .eq('provider_event_id', eventId)
+        .maybeSingle();
+
+      if (existingError || !existing) {
+        return res.status(500).json({ ok: false, error: 'Não foi possível consultar o evento duplicado.' });
+      }
+      if (existing.processing_status === 'processed') {
+        return res.status(200).json({ ok: true, duplicate: true, processed: true, id: eventId });
+      }
+
+      try {
+        await processAsaasEvent(existing.payload);
+        const { error: retryMarkError } = await supabase
+          .from('webhook_events')
+          .update({ processing_status: 'processed', processed_at: new Date().toISOString(), last_error: null })
+          .eq('provider', 'asaas')
+          .eq('provider_event_id', eventId);
+        if (retryMarkError) throw new Error(retryMarkError.message);
+        return res.status(200).json({ ok: true, duplicate: true, processed: true, retried: true, id: eventId });
+      } catch (retryError) {
+        const message = retryError instanceof Error ? retryError.message : 'Falha desconhecida';
+        await supabase
+          .from('webhook_events')
+          .update({ processing_status: 'failed', attempts: 2, last_error: message.slice(0, 2000) })
+          .eq('provider', 'asaas')
+          .eq('provider_event_id', eventId);
+        return res.status(500).json({ ok: false, duplicate: true, processed: false, retryable: true, id: eventId });
+      }
     }
     if (error) {
       console.error('Falha ao persistir evento Asaas:', error.message);
