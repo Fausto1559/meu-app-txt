@@ -25,10 +25,7 @@
       ]
     },
     "allowImportingTsExtensions": true,
-    "types": [
-      "vite/client",
-      "node"
-    ]
+    "types": []
   },
   "include": [
     "src",
