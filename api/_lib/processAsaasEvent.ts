@@ -3,6 +3,7 @@ import { getAdminSupabase } from './adminSupabase.js';
 type AsaasEvent = {
   id: string;
   event: string;
+  dateCreated?: string;
   payment?: Record<string, any>;
   subscription?: Record<string, any>;
 };
@@ -15,14 +16,17 @@ function paymentStatus(event: string): string | null {
   if (event === 'PAYMENT_DELETED') return 'canceled';
   if (event === 'PAYMENT_REFUNDED') return 'refunded';
   if (event === 'PAYMENT_PARTIALLY_REFUNDED') return 'partially_refunded';
-  if (event === 'PAYMENT_CHARGEBACK_REQUESTED' || event === 'PAYMENT_CHARGEBACK_DISPUTE') return 'chargeback';
+  if (event === 'PAYMENT_CHARGEBACK_REQUESTED' || event === 'PAYMENT_CHARGEBACK_DISPUTE' || event === 'PAYMENT_RECEIVED_IN_CASH_UNDONE') return 'chargeback';
   if (event === 'PAYMENT_CREDIT_CARD_CAPTURE_REFUSED' || event === 'PAYMENT_REPROVED_BY_RISK_ANALYSIS') return 'failed';
   return null;
 }
 
 function subscriptionStatus(event: string, current: string): string | null {
   if (event === 'SUBSCRIPTION_INACTIVATED' || event === 'SUBSCRIPTION_DELETED') return 'canceled';
-  if (event === 'SUBSCRIPTION_CREATED' || event === 'SUBSCRIPTION_UPDATED') return current === 'active' ? 'active' : 'pending';
+  if (event === 'SUBSCRIPTION_CREATED' || event === 'SUBSCRIPTION_UPDATED') {
+    if (['canceled', 'suspended', 'expired'].includes(current)) return current;
+    return current === 'active' ? 'active' : 'pending';
+  }
   return null;
 }
 
@@ -107,6 +111,23 @@ export async function processAsaasEvent(event: AsaasEvent): Promise<void> {
   const mappedStatus = paymentStatus(eventName);
   if (!mappedStatus) return;
 
+  const { data: previousPayment, error: previousPaymentError } = await supabase
+    .from('payments')
+    .select('status,metadata')
+    .eq('provider', 'asaas')
+    .eq('provider_payment_id', paymentId)
+    .maybeSingle();
+  if (previousPaymentError) throw new Error('Falha ao consultar estado anterior do pagamento: ' + previousPaymentError.message);
+
+  const incomingEventTime = event.dateCreated ? Date.parse(event.dateCreated) : Number.NaN;
+  const previousEventTime = previousPayment?.metadata?.lastEventDate
+    ? Date.parse(previousPayment.metadata.lastEventDate)
+    : Number.NaN;
+  if (Number.isFinite(incomingEventTime) && Number.isFinite(previousEventTime) &&
+      incomingEventTime < previousEventTime) {
+    return;
+  }
+
   const paymentDate = payment.clientPaymentDate || payment.paymentDate || payment.confirmedDate || null;
   const paymentRecord = {
     user_id: localSubscription.user_id,
@@ -123,7 +144,7 @@ export async function processAsaasEvent(event: AsaasEvent): Promise<void> {
     due_date: payment.dueDate || null,
     payment_date: paymentDate ? new Date(paymentDate).toISOString() : null,
     invoice_url: payment.invoiceUrl || null,
-    metadata: { lastEvent: eventName, asaasEventId: event.id },
+    metadata: { lastEvent: eventName, lastEventDate: event.dateCreated || null, asaasEventId: event.id },
     updated_at: new Date().toISOString(),
   };
 
