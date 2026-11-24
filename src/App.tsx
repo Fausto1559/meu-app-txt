@@ -88,6 +88,8 @@ export default function App() {
   const [authUserId, setAuthUserId] = useState<string | null>(null);
   const [isAdminAuthorized, setIsAdminAuthorized] = useState<boolean>(false);
   const [cloudReadyUserId, setCloudReadyUserId] = useState<string | null>(null);
+  const [cloudLoadError, setCloudLoadError] = useState<string | null>(null);
+  const [cloudRefreshCounter, setCloudRefreshCounter] = useState(0);
   const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
   const [isAuthBusy, setIsAuthBusy] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -551,11 +553,13 @@ export default function App() {
   useEffect(() => {
     if (!authUserId) {
       setCloudReadyUserId(null);
+      setCloudLoadError(null);
       return;
     }
 
     let cancelled = false;
     setCloudReadyUserId(null);
+    setCloudLoadError(null);
 
     const loadUserData = async () => {
       const [recordsResult, machinesResult] = await Promise.all([
@@ -566,7 +570,7 @@ export default function App() {
       if (cancelled) return;
       if (recordsResult.error || machinesResult.error) {
         console.error('Falha ao carregar dados financeiros da conta:', recordsResult.error || machinesResult.error);
-        setAuthError('Não foi possível carregar seus dados financeiros na nuvem. Atualize a página ou tente novamente.');
+        setCloudLoadError('Não foi possível carregar seus dados financeiros na nuvem. Verifique sua conexão e tente novamente.');
         return;
       }
 
@@ -580,14 +584,14 @@ export default function App() {
     loadUserData().catch((error) => {
       if (!cancelled) {
         console.error('Erro inesperado ao carregar dados financeiros:', error);
-        setAuthError('Não foi possível carregar seus dados financeiros na nuvem. Atualize a página ou tente novamente.');
+        setCloudLoadError('Não foi possível carregar seus dados financeiros na nuvem. Verifique sua conexão e tente novamente.');
       }
     });
 
     return () => {
       cancelled = true;
     };
-  }, [authUserId]);
+  }, [authUserId, cloudRefreshCounter]);
 
   const showNotification = (msg: string) => {
     setToastBanner(msg);
@@ -893,10 +897,35 @@ export default function App() {
 
   if (userEmail && authUserId && cloudReadyUserId !== authUserId) {
     return (
-      <div className="min-h-screen bg-[#0a0f1d] text-slate-100 flex items-center justify-center" role="status" aria-live="polite">
-        <div className="text-center space-y-3">
-          <div className="w-9 h-9 mx-auto rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
-          <p className="text-sm text-slate-300">Carregando seus dados financeiros com segurança...</p>
+      <div className="min-h-screen bg-[#0a0f1d] text-slate-100 flex items-center justify-center px-4" role="status" aria-live="polite">
+        <div className="w-full max-w-md text-center space-y-4">
+          {cloudLoadError ? (
+            <>
+              <div className="mx-auto h-12 w-12 rounded-2xl border border-amber-500/30 bg-amber-500/10 flex items-center justify-center text-amber-300">
+                <ShieldCheck className="h-6 w-6" />
+              </div>
+              <p className="text-sm leading-relaxed text-amber-100" role="alert">{cloudLoadError}</p>
+              <button
+                type="button"
+                onClick={() => setCloudRefreshCounter((value) => value + 1)}
+                className="w-full rounded-xl bg-amber-500 px-4 py-3 text-sm font-extrabold text-slate-950 hover:bg-amber-400"
+              >
+                Tentar novamente
+              </button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-full rounded-xl border border-[#2b3b59] bg-[#17233d] px-4 py-3 text-sm font-semibold text-slate-200 hover:bg-[#1f2f50]"
+              >
+                Sair da conta
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="w-9 h-9 mx-auto rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
+              <p className="text-sm text-slate-300">Carregando seus dados financeiros com segurança...</p>
+            </>
+          )}
         </div>
       </div>
     );
