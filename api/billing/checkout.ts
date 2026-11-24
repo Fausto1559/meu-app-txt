@@ -64,9 +64,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const email = user.email;
     if (!email) return sendError(res, 400, 'A conta autenticada não possui e-mail confirmado.');
 
+    const signupDate = typeof user.created_at === 'string' && Number.isFinite(Date.parse(user.created_at))
+      ? new Date(user.created_at)
+      : new Date();
+    const trialStartedAt = signupDate.toISOString();
+    const trialEndsAt = new Date(signupDate.getTime() + 30 * 86400000).toISOString();
+
     const { error: accountCreateError } = await supabase
       .from('billing_accounts')
-      .upsert({ user_id: user.id }, { onConflict: 'user_id', ignoreDuplicates: true });
+      .upsert({
+        user_id: user.id,
+        trial_started_at: trialStartedAt,
+        trial_ends_at: trialEndsAt,
+      }, { onConflict: 'user_id', ignoreDuplicates: true });
     if (accountCreateError) {
       console.error('Falha ao inicializar conta de cobrança:', accountCreateError.message);
       return sendError(res, 503, 'Não foi possível inicializar a conta de cobrança.');
