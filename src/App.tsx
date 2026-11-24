@@ -1328,6 +1328,18 @@ export default function App() {
     );
   }
 
+  if (authUserId && billingAccessStatus === 'loading') {
+    return (
+      <div className="min-h-screen bg-[#0a0f1d] text-slate-100 flex items-center justify-center px-4">
+        <div className="rounded-2xl border border-[#1e2d4a] bg-[#111a2e] px-8 py-7 text-center space-y-3">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-slate-600 border-t-amber-400" />
+          <p className="text-sm font-semibold">Validando seu acesso seguro…</p>
+          <p className="text-xs text-slate-400">Aguarde a confirmação do período de avaliação ou da assinatura.</p>
+        </div>
+      </div>
+    );
+  }
+
   /* v8 ignore start */
   if (isTrialExpiredDay31) {
     return (
