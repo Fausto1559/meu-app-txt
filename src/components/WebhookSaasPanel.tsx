@@ -49,6 +49,15 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
   );
   const [healthResult, setHealthResult] = useState<{ ok: boolean; checks?: Record<string, { ok: boolean; detail: string }> } | null>(null);
   const [healthLoading, setHealthLoading] = useState(false);
+  const [billingReservations, setBillingReservations] = useState<Array<{
+    id: string;
+    planKey: string;
+    value: number;
+    billingType: string;
+    result: string;
+    createdAt: string;
+  }>>([]);
+  const [reconcilingReservationId, setReconcilingReservationId] = useState<string | null>(null);
   const [enabledEvents, setEnabledEvents] = useState<{
     pagamento_aprovado: boolean;
     pagamento_recusado: boolean;
@@ -96,8 +105,54 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
     }
   };
 
+  const loadBillingReservations = async () => {
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) return;
+      const response = await fetch('/api/admin/billing-reconciliation', {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || payload?.ok !== true) {
+        throw new Error(payload?.error || 'Falha ao consultar reservas de cobrança.');
+      }
+      setBillingReservations(payload.reservations || []);
+    } catch (error) {
+      onNotify(error instanceof Error ? error.message : 'Falha ao consultar reservas de cobrança.');
+    }
+  };
+
+  const reconcileBillingReservation = async (reservationId: string) => {
+    setReconcilingReservationId(reservationId);
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) throw new Error('Sessão administrativa expirada.');
+      const response = await fetch('/api/admin/billing-reconciliation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ reservationId }),
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || payload?.ok !== true) {
+        throw new Error(payload?.error || 'Falha ao conciliar reserva.');
+      }
+      onNotify(payload.message || 'Conciliação executada.');
+      await loadBillingReservations();
+    } catch (error) {
+      onNotify(error instanceof Error ? error.message : 'Falha ao conciliar reserva.');
+    } finally {
+      setReconcilingReservationId(null);
+    }
+  };
+
   useEffect(() => {
-    void loadEvents();
+    void loadEvents();\n    void loadBillingReservations();
   }, []);
 
   const webhookUrl = typeof window !== 'undefined'
@@ -217,6 +272,35 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
             </div>
           ))}
         </div>
+      )}
+
+      {billingReservations.length > 0 && (
+        <section className="rounded-xl border border-amber-500/30 bg-[#0b1120] p-4 space-y-3">
+          <div>
+            <h3 className="text-sm font-bold text-amber-300">Reservas de cobrança que exigem conciliação</h3>
+            <p className="text-xs text-slate-400">Consulta somente registros pendentes e confere referências exatas no Asaas. Nenhuma cobrança ou assinatura nova é criada por esta ação.</p>
+          </div>
+          <div className="space-y-2">
+            {billingReservations.map((reservation) => (
+              <div key={reservation.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#243659] p-3">
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-white">{reservation.planKey} · {formatBRL(Number(reservation.value))} · {reservation.billingType}</div>
+                  <div className="text-[11px] text-slate-400 break-all">{reservation.id}</div>
+                  <div className="text-[11px] text-amber-300">Situação: {reservation.result}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void reconcileBillingReservation(reservation.id)}
+                  disabled={reconcilingReservationId !== null}
+                  className="px-3 py-2 rounded-lg bg-amber-500 text-slate-950 text-xs font-bold disabled:opacity-50"
+                >
+                  {reconcilingReservationId === reservation.id ? 'Conferindo Asaas…' : 'Conciliar com Asaas'}
+                </button>
+              </div>
+            ))}
+          </div>
+          <button type="button" onClick={() => void loadBillingReservations()} className="text-xs text-slate-300 underline">Atualizar reservas</button>
+        </section>
       )}
 
       {/* Blindagem de Segurança SaaS - As 5 Camadas */}
