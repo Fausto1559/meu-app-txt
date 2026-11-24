@@ -19,24 +19,30 @@ async function claimEvent(
   eventId: string,
   allowedStatuses: string[],
   attempts: number,
+  expectedProcessingStartedAt?: string | null,
 ) {
-  const { data, error } = await supabase
+  let query = supabase
     .from('webhook_events')
     .update({
       processing_status: 'processing',
+      processing_started_at: new Date().toISOString(),
       attempts,
       last_error: null,
     })
     .eq('provider', 'asaas')
     .eq('provider_event_id', eventId)
-    .in('processing_status', allowedStatuses)
-    .select('id')
-    .maybeSingle();
+    .in('processing_status', allowedStatuses);
 
+  if (expectedProcessingStartedAt === null) {
+    query = query.is('processing_started_at', null);
+  } else if (typeof expectedProcessingStartedAt === 'string') {
+    query = query.eq('processing_started_at', expectedProcessingStartedAt);
+  }
+
+  const { data, error } = await query.select('id').maybeSingle();
   if (error) throw new Error('Não foi possível reservar o evento para processamento: ' + error.message);
   return Boolean(data?.id);
 }
-
 async function processClaimedEvent(
   supabase: ReturnType<typeof getAdminSupabase>,
   eventId: string,
@@ -51,6 +57,7 @@ async function processClaimedEvent(
       .from('webhook_events')
       .update({
         processing_status: 'processed',
+        processing_started_at: null,
         processed_at: new Date().toISOString(),
         last_error: null,
       })
@@ -74,6 +81,7 @@ async function processClaimedEvent(
       .from('webhook_events')
       .update({
         processing_status: 'failed',
+        processing_started_at: null,
         attempts,
         last_error: message.slice(0, 2000),
       })
@@ -174,7 +182,7 @@ export default async function handler(req: any, res: any) {
       duplicate = true;
       const { data: existing, error: existingError } = await supabase
         .from('webhook_events')
-        .select('payload,processing_status,attempts')
+        .select('payload,processing_status,attempts,processing_started_at,received_at')
         .eq('provider', 'asaas')
         .eq('provider_event_id', eventId)
         .maybeSingle();
@@ -185,15 +193,26 @@ export default async function handler(req: any, res: any) {
       if (existing.processing_status === 'processed') {
         return res.status(200).json({ ok: true, duplicate: true, processed: true, id: eventId });
       }
+      let expectedProcessingStartedAt: string | null | undefined;
       if (existing.processing_status === 'processing') {
-        return res.status(202).json({ ok: true, duplicate: true, processing: true, id: eventId });
-      }
-      if (!['received', 'failed'].includes(existing.processing_status)) {
+        expectedProcessingStartedAt = existing.processing_started_at || null;
+        const leaseOrigin = existing.processing_started_at || existing.received_at;
+        const leaseAge = Date.now() - Date.parse(leaseOrigin);
+        if (!Number.isFinite(leaseAge) || leaseAge < 5 * 60 * 1000) {
+          return res.status(202).json({ ok: true, duplicate: true, processing: true, id: eventId });
+        }
+      } else if (!['received', 'failed'].includes(existing.processing_status)) {
         return res.status(409).json({ ok: false, duplicate: true, error: 'Estado do evento não permite reprocessamento automático.' });
       }
 
       attempts = Number(existing.attempts || 0) + 1;
-      const claimed = await claimEvent(supabase, eventId, [existing.processing_status], attempts);
+      const claimed = await claimEvent(
+        supabase,
+        eventId,
+        [existing.processing_status],
+        attempts,
+        expectedProcessingStartedAt,
+      );
       if (!claimed) {
         return res.status(202).json({ ok: true, duplicate: true, processing: true, id: eventId });
       }
