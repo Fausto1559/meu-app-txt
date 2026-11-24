@@ -65,7 +65,7 @@ export async function processAsaasEvent(input: unknown): Promise<void> {
   if (eventName.startsWith('SUBSCRIPTION_')) {
     if (!subscriptionId) throw new Error('Evento de assinatura sem identificador.');
     const nextDueDate = subscription?.nextDueDate || null;
-    if (nextDueDate && (!/^\\d{4}-\\d{2}-\\d{2}$/.test(nextDueDate) ||
+    if (nextDueDate && (!/^\d{4}-\d{2}-\d{2}$/.test(nextDueDate) ||
         !Number.isFinite(Date.parse(nextDueDate)))) {
       throw new Error('Data de vencimento da assinatura inválida.');
     }
