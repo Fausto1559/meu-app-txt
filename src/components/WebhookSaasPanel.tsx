@@ -13,11 +13,9 @@ import {
 } from 'lucide-react';
 import { FinancialRecord } from '../types/finance';
 import { formatBRL } from '../utils/financeUtils';
+import { supabase } from '../supabaseClient';
 
-export type WebhookEventType =
-  | 'pagamento_aprovado'
-  | 'pagamento_recusado'
-  | 'pagamento_estornado';
+export type WebhookEventType = string;
 
 export interface SaaSWebhookEvent {
   id: string;
@@ -62,13 +60,45 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
   });
 
   const [events, setEvents] = useState<SaaSWebhookEvent[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY_WEBHOOK_EVENTS);
-    return saved ? JSON.parse(saved) : INITIAL_WEBHOOK_EVENTS;
+    return INITIAL_WEBHOOK_EVENTS;
   });
 
+  const loadEvents = async () => {
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) return;
+
+      const response = await fetch('/api/admin/webhook-events', {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || payload?.ok !== true) {
+        throw new Error(payload?.error || 'Falha ao consultar eventos.');
+      }
+
+      setEvents((payload.events || []).map((item: any) => ({
+        id: item.id,
+        gateway: 'Asaas',
+        eventType: item.event_type,
+        customerEmail: item.provider_payment_id || item.provider_subscription_id || '—',
+        amount: 0,
+        status: item.processing_status === 'processed' ? 'processado' : 'falha',
+        httpStatus: item.processing_status === 'processed' ? 200 : 500,
+        attempts: item.attempts,
+        createdAt: item.received_at,
+        processedAt: item.processed_at || undefined,
+        errorMessage: item.last_error || (item.processing_status === 'failed' ? 'Processamento pendente de reprocessamento' : undefined),
+      })));
+    } catch (error) {
+      onNotify(error instanceof Error ? error.message : 'Falha ao consultar eventos Asaas.');
+    }
+  };
+
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_WEBHOOK_EVENTS, JSON.stringify(events));
-  }, [events]);
+    void loadEvents();
+  }, []);
 
   const webhookUrl = 'https://copilotofinanc.app.br/api/webhook';
 
@@ -79,22 +109,38 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
     onNotify('URL do Webhook copiada: ' + webhookUrl);
   };
 
-  // Simulações locais foram desativadas: somente eventos autenticados do Asaas
-  // podem ser aceitos pelo endpoint do servidor.
-  const triggerWebhookEvent = async (
-    _eventType: WebhookEventType,
-    _amount: number,
-    _simulateFailure = false
-  ) => {
-    onNotify('Simulações desativadas. Configure o webhook autenticado do Asaas para receber eventos reais.');
+  const reprocessEvents = async (eventIds: string[]) => {
+    if (!eventIds.length) return;
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) throw new Error('Sessão administrativa expirada.');
+
+      const response = await fetch('/api/admin/webhook-events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ eventIds }),
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || payload?.ok !== true) {
+        throw new Error(payload?.error || 'Falha ao reprocessar eventos.');
+      }
+      onNotify(`Reprocessamento concluído: ${payload.processed} processado(s), ${payload.failed} com falha.`);
+      await loadEvents();
+    } catch (error) {
+      onNotify(error instanceof Error ? error.message : 'Falha ao reprocessar eventos.');
+    }
   };
 
-  const handleReprocessEvent = async (_eventId: string) => {
-    onNotify('Reprocessamento indisponível até a implementação do processador persistente de eventos.');
+  const handleReprocessEvent = async (eventId: string) => {
+    await reprocessEvents([eventId]);
   };
 
-  const handleReprocessAllFailures = () => {
-    onNotify('Não há reprocessamento local. Os eventos reais serão tratados pelo processador seguro do servidor.');
+  const handleReprocessAllFailures = async () => {
+    await reprocessEvents(events.filter((event) => event.status === 'falha').map((event) => event.id));
   };
 
   const failedCount = events.filter((e) => e.status === 'falha').length;
@@ -330,52 +376,11 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
             </div>
           </div>
 
-          {/* Simulador em Tempo Real dos Passos 3, 4 e 5 */}
-          <div className="pt-3 border-t border-[#1e2d4a] space-y-2">
-            <div className="text-xs font-semibold text-slate-300">
-              Testar Recebimento de Evento Agora (Grava no Banco + Lança no
-              Painel):
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() =>
-                  triggerWebhookEvent('pagamento_aprovado', 39.9, false)
-                }
-                className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
-              >
-                <Play className="w-3.5 h-3.5" />
-                Simular Pagamento Aprovado (R$ 39,90)
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  triggerWebhookEvent('pagamento_recusado', 19.9, false)
-                }
-                className="px-3 py-1.5 rounded-lg bg-[#17233d] hover:bg-[#1f2f50] border border-[#293d66] text-slate-200 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"
-              >
-                Simular Recusado (R$ 19,90)
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  triggerWebhookEvent('pagamento_estornado', 29.9, false)
-                }
-                className="px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"
-              >
-                Simular Estornado (R$ 29,90)
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  triggerWebhookEvent('pagamento_aprovado', 39.9, true)
-                }
-                className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"
-              >
-                <AlertTriangle className="w-3.5 h-3.5" />
-                Simular Falha (Passo 5)
-              </button>
-            </div>
+          <div className="pt-3 border-t border-[#1e2d4a] flex items-center justify-between gap-3">
+            <p className="text-xs text-slate-400">Eventos reais recebidos e persistidos pelo webhook autenticado do Asaas.</p>
+            <button type="button" onClick={() => void loadEvents()} className="px-3 py-2 rounded-lg bg-[#17233d] border border-[#293d66] text-slate-200 text-xs font-semibold inline-flex items-center gap-1.5">
+              <RefreshCw className="w-3.5 h-3.5" /> Atualizar
+            </button>
           </div>
         </div>
       </div>
@@ -435,24 +440,12 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
                     </div>
                   </td>
                   <td className="py-3 px-4">
-                    {evt.eventType === 'pagamento_aprovado' && (
-                      <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-semibold">
-                        pagamento.aprovado
-                      </span>
-                    )}
-                    {evt.eventType === 'pagamento_recusado' && (
-                      <span className="px-2.5 py-1 rounded-full bg-slate-500/20 text-slate-300 border border-slate-500/30 font-semibold">
-                        pagamento.recusado
-                      </span>
-                    )}
-                    {evt.eventType === 'pagamento_estornado' && (
-                      <span className="px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 font-semibold">
-                        pagamento.estornado
-                      </span>
-                    )}
+                    <span className="px-2.5 py-1 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30 font-semibold">
+                      {evt.eventType}
+                    </span>
                   </td>
                   <td className="py-3 px-4 font-mono font-bold text-white">
-                    {formatBRL(evt.amount)}
+                    {evt.amount > 0 ? formatBRL(evt.amount) : '—'}
                   </td>
                   <td className="py-3 px-4">
                     {evt.status === 'processado' ? (
