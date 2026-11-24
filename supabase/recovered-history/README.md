@@ -23,3 +23,6 @@ Before any future migration push:
 3. Do not apply the other environment's archived SQL merely to make version numbers match.
 
 No SQL from these archive files was executed as part of this recovery step.
+
+## Source integrity verification — 2026-11-24
+All six archived files were compared byte-for-byte against `array_to_string(statements, '')` read from their source database's `supabase_migrations.schema_migrations` row. All six comparisons returned exact matches, with identical byte lengths.

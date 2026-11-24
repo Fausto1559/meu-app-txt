@@ -80,3 +80,7 @@ The missing six SQL sources have been recovered from the authoritative `supabase
 - Homologation: 2 Auth users, 2 billing accounts, 0 subscriptions, 0 billing customers, 0 payments, 0 webhook events.
 - Production: 2 Auth users, 0 billing accounts, 0 subscriptions, 0 billing customers, 0 payments, 0 webhook events.
 - The rollback-only Asaas event-ordering proof left both counts unchanged.
+
+## Exact-source verification — 2026-11-24
+
+Each of the six archived files was compared byte-for-byte with the database's `array_to_string(statements, '')` output for the matching version. All six comparisons matched exactly, including identical source/file lengths.

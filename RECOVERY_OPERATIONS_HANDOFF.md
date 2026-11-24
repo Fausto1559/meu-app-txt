@@ -183,3 +183,8 @@ No Production deployment, domain alias change, Production migration, live paymen
 - No Vercel SSO protection was disabled, no custom domain or DNS record was changed, and no paid resource was created.
 - Production snapshot at this check: 2 Auth users, 0 billing accounts, 0 subscriptions, 0 billing customers, 0 payments, 0 webhook events. Production server Supabase key, live Asaas API key, and webhook token remain absent.
 - Homologation snapshot remains 2 Auth users, 2 billing accounts, and 0 subscriptions/customers/payments/webhook events.
+
+## Recovered migration archive integrity — 2026-11-24
+- All six archived SQL files were compared byte-for-byte with the original `statements` text from their source database's `supabase_migrations.schema_migrations` record.
+- All six exact-content comparisons passed; recorded file lengths and source statement lengths were identical.
+- The archived SQL files remain outside the active migration path.
