@@ -28,7 +28,30 @@ const { mockSupabaseAuth } = vi.hoisted(() => {
   return { mockSupabaseAuth: auth };
 });
 
-vi.mock('./supabaseClient', () => ({ supabase: { auth: mockSupabaseAuth, from: vi.fn(() => ({ select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: vi.fn(async () => ({ data: null, error: null })) })) })), upsert: vi.fn(async () => ({ error: null })) })) } }));
+vi.mock('./supabaseClient', () => {
+  const today = new Date().toISOString().slice(0, 10);
+  const records = [
+    { id: 'test-sale', type: 'vendas', title: 'Venda de teste', entityName: 'Cliente teste', grossAmount: 100, feeAmount: 0, netAmount: 100, date: today, time: '09:00', paymentMethod: 'pix', status: 'confirmado', subcategory: 'Pix' },
+    { id: 'test-receivable', type: 'receber', title: 'Recebimento de teste', entityName: 'Cliente teste', grossAmount: 200, feeAmount: 0, netAmount: 200, date: today, time: '10:00', paymentMethod: 'boleto', status: 'pendente', subcategory: 'Clientes' },
+    { id: 'test-payable', type: 'pagar', title: 'Pagamento de teste', entityName: 'Fornecedor teste', grossAmount: 50, feeAmount: 0, netAmount: 50, date: today, time: '11:00', paymentMethod: 'pix', status: 'confirmado', subcategory: 'Fornecedores' },
+  ];
+  return {
+    supabase: {
+      auth: mockSupabaseAuth,
+      from: vi.fn((table: string) => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn(async () => ({
+              data: table === 'financial_records' ? { records } : { machines: [] },
+              error: null,
+            })),
+          })),
+        })),
+        upsert: vi.fn(async () => ({ error: null })),
+      })),
+    },
+  };
+});
 
 import App, { STORAGE_KEY_RECORDS, STORAGE_KEY_MACHINES, STORAGE_KEY_AUTH } from './App';
 
@@ -233,6 +256,7 @@ describe('App.tsx - 100% Cobertura Total', () => {
     fireEvent.change(screen.getByPlaceholderText(/Ex: voce@empresa.com.br/i), { target: { value: 'faustoefiscal@gmail.com' } });
     fireEvent.change(screen.getByPlaceholderText(/Digite sua senha/i), { target: { value: '123456' } });
     fireEvent.submit(screen.getByPlaceholderText(/Digite sua senha/i).closest('form')!);
+    await waitForAppReady();
     fireEvent.click(screen.getByRole('button', { name: /^Sair$/i }));
   }, 90000);
 });
