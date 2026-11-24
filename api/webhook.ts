@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { getAdminSupabase } from './_lib/adminSupabase.js';
 import { timingSafeEqual } from 'node:crypto';
 
 function safeTokenEquals(received: unknown, expected: string): boolean {
@@ -23,10 +23,8 @@ export default async function handler(req: any, res: any) {
   }
 
   const webhookToken = process.env.ASAAS_WEBHOOK_TOKEN;
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!webhookToken || webhookToken.length < 32 || !supabaseUrl || !serviceRoleKey) {
+  if (!webhookToken || webhookToken.length < 32 ||
+      !process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return res.status(503).json({
       ok: false,
       error: 'Webhook Asaas ainda não configurado no servidor.',
@@ -35,6 +33,13 @@ export default async function handler(req: any, res: any) {
 
   if (!safeTokenEquals(req.headers?.['asaas-access-token'], webhookToken)) {
     return res.status(401).json({ ok: false, error: 'Unauthorized' });
+  }
+
+  let supabase;
+  try {
+    supabase = getAdminSupabase();
+  } catch {
+    return res.status(503).json({ ok: false, error: 'Configuração do banco do webhook indisponível.' });
   }
 
   try {
@@ -74,10 +79,6 @@ export default async function handler(req: any, res: any) {
         (!isPaymentEvent && !isSubscriptionEvent)) {
       return res.status(400).json({ ok: false, error: 'Tipo de evento não compatível com o recurso recebido.' });
     }
-
-    const supabase = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
 
     const { error } = await supabase.from('webhook_events').insert({
       provider: 'asaas',
