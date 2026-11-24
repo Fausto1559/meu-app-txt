@@ -17,9 +17,13 @@ const localSubscription = {
   provider_customer_id: 'cus-1',
 };
 
-function createSupabaseMock(subscriptionData = localSubscription, paymentData: unknown = null) {
+function createSupabaseMock(subscriptionData = localSubscription, paymentData: unknown = null, rpcResult: string = 'applied') {
   const calls: Array<{ table: string; method: string; value?: unknown }> = [];
   const client = {
+    rpc: vi.fn(async (name: string, args: unknown) => {
+      calls.push({ table: 'rpc', method: name, value: args });
+      return { data: rpcResult, error: null };
+    }),
     from(table: string) {
       const query: any = {
         select(columns: string) {
@@ -121,7 +125,7 @@ describe('processAsaasEvent — validação e persistência de pagamentos', () =
       status: 'received',
       metadata: { lastEventDate: '2026-11-24T12:00:00.000Z' },
     };
-    const { client, calls } = createSupabaseMock(localSubscription, previousPayment);
+    const { client, calls } = createSupabaseMock(localSubscription, previousPayment, 'ignored');
     mockGetAdminSupabase.mockReturnValue(client);
 
     await processAsaasEvent({
@@ -131,6 +135,7 @@ describe('processAsaasEvent — validação e persistência de pagamentos', () =
       dateCreated: '2026-11-23T12:00:00.000Z',
     });
 
+    expect(calls.some((call) => call.table === 'rpc' && call.method === 'apply_asaas_payment_event')).toBe(true);
     expect(calls.some((call) => call.method === 'upsert')).toBe(false);
     expect(calls.some((call) => call.method === 'update')).toBe(false);
   });
@@ -144,14 +149,18 @@ describe('processAsaasEvent — validação e persistência de pagamentos', () =
       event: 'PAYMENT_REFUNDED',
     });
 
-    const paymentUpsert = calls.find((call) => call.method === 'upsert');
-    expect(paymentUpsert?.value).toMatchObject({
-      record: { status: 'refunded', provider_payment_id: 'pay-1' },
+    const transaction = calls.find((call) => call.table === 'rpc');
+    expect(transaction?.method).toBe('apply_asaas_payment_event');
+    expect(transaction?.value).toMatchObject({
+      p_payment_status: 'refunded',
+      p_subscription_id: 'local-sub-1',
+      p_user_id: 'user-1',
+      p_event_id: 'evt-1',
+      p_event_name: 'PAYMENT_REFUNDED',
     });
-    expect(calls.some((call) => call.table === 'subscriptions' && call.method === 'update' &&
-      (call.value as Record<string, unknown>).status === 'suspended')).toBe(true);
-    expect(calls.some((call) => call.table === 'billing_accounts' && call.method === 'update' &&
-      (call.value as Record<string, unknown>).access_status === 'suspended')).toBe(true);
+    expect(calls.some((call) => call.table === 'payments' && call.method === 'upsert')).toBe(false);
+    expect(calls.some((call) => call.table === 'subscriptions' && call.method === 'update')).toBe(false);
+    expect(calls.some((call) => call.table === 'billing_accounts' && call.method === 'update')).toBe(false);
   });
 
   it('persiste um pagamento válido com conflito idempotente por provedor e ID', async () => {
@@ -160,12 +169,10 @@ describe('processAsaasEvent — validação e persistência de pagamentos', () =
 
     await processAsaasEvent(paymentEvent());
 
-    const upsert = calls.find((call) => call.method === 'upsert');
-    expect(upsert).toBeDefined();
-    expect(upsert?.table).toBe('payments');
-    expect(upsert?.value).toMatchObject({
-      options: { onConflict: 'provider,provider_payment_id' },
-      record: {
+    const transaction = calls.find((call) => call.table === 'rpc');
+    expect(transaction?.method).toBe('apply_asaas_payment_event');
+    expect(transaction?.value).toMatchObject({
+      p_payment: {
         provider: 'asaas',
         provider_payment_id: 'pay-1',
         user_id: 'user-1',
@@ -173,6 +180,9 @@ describe('processAsaasEvent — validação e persistência de pagamentos', () =
         value: 19.9,
         status: 'pending',
       },
+      p_payment_status: 'pending',
+      p_event_id: 'evt-1',
     });
+    expect(calls.some((call) => call.table === 'payments' && call.method === 'upsert')).toBe(false);
   });
 });
