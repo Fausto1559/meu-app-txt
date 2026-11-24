@@ -4,7 +4,7 @@ import { getAdminSupabase } from '../_lib/adminSupabase.js';
 import { asaasRequest } from '../_lib/asaas.js';
 
 type AsaasList<T> = { data?: T[]; totalCount?: number };
-type AsaasCustomer = { id?: string; externalReference?: string };
+type AsaasCustomer = { id?: string; externalReference?: string; name?: string; email?: string };
 type AsaasSubscription = {
   id?: string;
   customer?: string;
@@ -151,23 +151,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    const { error: customerSaveError } = await supabase
+    if (!customers[0].name || !customers[0].email) {
+      return jsonError(res, 409, 'O Asaas não retornou nome e e-mail do cliente. Nenhuma alteração foi feita.');
+    }
+
+    const saveCustomerLink = async () => supabase
       .from('billing_customers')
       .upsert({
         user_id: reservation.user_id,
         provider: 'asaas',
         provider_customer_id: customerId,
-        customer_name: 'Conciliado via Asaas',
-        customer_email: '',
+        customer_name: customers[0].name,
+        customer_email: customers[0].email,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' });
 
-    if (customerSaveError) {
-      console.error('Falha ao salvar cliente conciliado:', customerSaveError.message);
-      return jsonError(res, 503, 'Cliente encontrado no Asaas, mas não foi possível salvar o vínculo local.');
-    }
-
     if (subscriptions.length === 0) {
+      const { error: customerSaveError } = await saveCustomerLink();
+      if (customerSaveError) {
+        console.error('Falha ao salvar cliente conciliado:', customerSaveError.message);
+        return jsonError(res, 503, 'Cliente encontrado no Asaas, mas não foi possível salvar o vínculo local.');
+      }
       const { error: updateError } = await supabase
         .from('subscriptions')
         .update({
@@ -198,6 +202,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     if (typeof remoteSubscription.value !== 'number' || Math.abs(remoteSubscription.value - expectedValue) > 0.001) {
       return jsonError(res, 409, 'O valor da assinatura encontrada diverge do plano reservado. Nenhuma alteração foi feita.');
+    }
+
+    const { error: customerSaveError } = await saveCustomerLink();
+    if (customerSaveError) {
+      console.error('Falha ao salvar cliente conciliado:', customerSaveError.message);
+      return jsonError(res, 503, 'Cliente encontrado no Asaas, mas não foi possível salvar o vínculo local.');
     }
 
     const remoteStatus = remoteSubscription.status === 'ACTIVE'
