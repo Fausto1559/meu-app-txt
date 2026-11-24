@@ -16,6 +16,14 @@ function isObject(value: unknown): value is Record<string, any> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+export function isWebhookProcessingLeaseStale(
+  leaseOrigin: string,
+  now = Date.now(),
+): boolean {
+  const leaseAge = now - Date.parse(leaseOrigin);
+  return Number.isFinite(leaseAge) && leaseAge >= WEBHOOK_PROCESSING_LEASE_TTL_MS;
+}
+
 async function claimEvent(
   supabase: ReturnType<typeof getAdminSupabase>,
   eventId: string,
@@ -219,8 +227,7 @@ export default async function handler(req: any, res: any) {
       if (existing.processing_status === 'processing') {
         expectedProcessingStartedAt = existing.processing_started_at || null;
         const leaseOrigin = existing.processing_started_at || existing.received_at;
-        const leaseAge = Date.now() - Date.parse(leaseOrigin);
-        if (!Number.isFinite(leaseAge) || leaseAge < WEBHOOK_PROCESSING_LEASE_TTL_MS) {
+        if (!isWebhookProcessingLeaseStale(leaseOrigin)) {
           return res.status(202).json({ ok: true, duplicate: true, processing: true, id: eventId });
         }
       } else if (!['received', 'failed'].includes(existing.processing_status)) {

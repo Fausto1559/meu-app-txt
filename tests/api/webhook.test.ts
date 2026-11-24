@@ -1,3 +1,22 @@
+
+describe('Asaas webhook processing lease duration', () => {
+  const now = Date.parse('2026-11-24T20:00:00.000Z');
+
+  it('does not treat a 14m59s processing lease as stale', () => {
+    const leaseOrigin = new Date(now - (14 * 60 + 59) * 60 * 1000).toISOString();
+    expect(isWebhookProcessingLeaseStale(leaseOrigin, now)).toBe(false);
+  });
+
+  it('treats a processing lease as stale at exactly 15 minutes', () => {
+    const leaseOrigin = new Date(now - 15 * 60 * 1000).toISOString();
+    expect(isWebhookProcessingLeaseStale(leaseOrigin, now)).toBe(true);
+  });
+
+  it('keeps an invalid timestamp non-reclaimable instead of stealing its lease', () => {
+    expect(isWebhookProcessingLeaseStale('not-a-date', now)).toBe(false);
+  });
+});
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { mockGetAdminSupabase, mockProcessAsaasEvent } = vi.hoisted(() => ({
@@ -13,7 +32,7 @@ vi.mock('../../api/_lib/processAsaasEvent.js', () => ({
   processAsaasEvent: mockProcessAsaasEvent,
 }));
 
-import handler from '../../api/webhook';
+import handler, { isWebhookProcessingLeaseStale } from '../../api/webhook';
 
 function createResponse() {
   const response: any = {

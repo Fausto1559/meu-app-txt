@@ -91,3 +91,7 @@ No Production deployment, alias change, Production migration, real payment, or w
 - Public webhook completion now selects the updated row and confirms that the caller still owns the exact `processing_started_at` lease.
 - If the lease was taken by a newer execution, the route returns HTTP 202 with `processing: true` instead of falsely reporting the event as fully processed.
 - Added a regression test for lease loss during finalization; existing success/failure ownership tests remain.
+
+## Public webhook lease TTL regression coverage — 2026-11-24
+- Extracted the public route's 15-minute stale-lease decision into a small pure helper.
+- Added deterministic tests for a lease at 14m59s (not stale), exactly 15 minutes (stale), and an invalid timestamp (not automatically reclaimed).
