@@ -133,6 +133,11 @@ export async function processAsaasEvent(input: unknown): Promise<void> {
   const mappedStatus = paymentStatus(eventName);
   if (!mappedStatus) return;
 
+  const paymentDate = payment.clientPaymentDate || payment.paymentDate || payment.confirmedDate || null;
+  if (paymentDate && !Number.isFinite(Date.parse(paymentDate))) {
+    throw new Error('Data do pagamento inválida.');
+  }
+
   const { data: previousPayment, error: previousPaymentError } = await supabase
     .from('payments')
     .select('status,metadata')
@@ -150,7 +155,6 @@ export async function processAsaasEvent(input: unknown): Promise<void> {
     return;
   }
 
-  const paymentDate = payment.clientPaymentDate || payment.paymentDate || payment.confirmedDate || null;
   const paymentRecord = {
     user_id: localSubscription.user_id,
     subscription_id: localSubscription.id,
