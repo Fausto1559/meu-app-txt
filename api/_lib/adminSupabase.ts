@@ -50,9 +50,8 @@ export function getAdminSupabase(): SupabaseClient {
   if (adminClient) return adminClient;
 
   const supabaseUrl = process.env.SUPABASE_URL;
-  const serverKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!supabaseUrl || !serverKey) {
+  if (!supabaseUrl) {
     throw new Error('Configuração administrativa do Supabase ausente no servidor.');
   }
 
@@ -63,7 +62,34 @@ export function getAdminSupabase(): SupabaseClient {
     throw error instanceof Error ? error : new Error('SUPABASE_URL inválida no servidor.');
   }
 
-  assertServerKeyMatchesProject(serverKey, projectRef);
+  // Prefer the branch-scoped legacy key when both are present. A generic
+  // Preview secret can otherwise shadow the explicit homologation key.
+  // Every legacy JWT is checked against SUPABASE_URL; an opaque sb_secret_
+  // key is accepted by format and its project binding is verified by Supabase.
+  const candidates = [
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    process.env.SUPABASE_SECRET_KEY,
+  ].filter((value): value is string => Boolean(value));
+
+  if (candidates.length === 0) {
+    throw new Error('Configuração administrativa do Supabase ausente no servidor.');
+  }
+
+  let serverKey: string | null = null;
+  let lastKeyError: Error | null = null;
+  for (const candidate of candidates) {
+    try {
+      assertServerKeyMatchesProject(candidate, projectRef);
+      serverKey = candidate;
+      break;
+    } catch (error) {
+      lastKeyError = error instanceof Error ? error : new Error('Chave privilegiada do Supabase inválida.');
+    }
+  }
+
+  if (!serverKey) {
+    throw lastKeyError || new Error('Chave privilegiada do Supabase inválida.');
+  }
 
   adminClient = createClient(supabaseUrl, serverKey, {
     auth: {
