@@ -6,11 +6,11 @@ const { mockRequireAdmin, mockGetAdminSupabase, mockAsaasRequest } = vi.hoisted(
   mockAsaasRequest: vi.fn(),
 }));
 
-vi.mock('../_lib/adminAuth.js', () => ({ requireAdmin: mockRequireAdmin }));
-vi.mock('../_lib/adminSupabase.js', () => ({ getAdminSupabase: mockGetAdminSupabase }));
-vi.mock('../_lib/asaas.js', () => ({ asaasRequest: mockAsaasRequest }));
+vi.mock('../../../api/_lib/adminAuth.js', () => ({ requireAdmin: mockRequireAdmin }));
+vi.mock('../../../api/_lib/adminSupabase.js', () => ({ getAdminSupabase: mockGetAdminSupabase }));
+vi.mock('../../../api/_lib/asaas.js', () => ({ asaasRequest: mockAsaasRequest }));
 
-import handler from './billing-reconciliation';
+import handler from '../../../api/admin/billing-reconciliation';
 
 const reservation = {
   id: 'reservation-1',

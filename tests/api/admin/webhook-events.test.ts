@@ -6,11 +6,11 @@ const { mockRequireAdmin, mockGetAdminSupabase, mockProcessAsaasEvent } = vi.hoi
   mockProcessAsaasEvent: vi.fn(),
 }));
 
-vi.mock('../_lib/adminAuth.js', () => ({ requireAdmin: mockRequireAdmin }));
-vi.mock('../_lib/adminSupabase.js', () => ({ getAdminSupabase: mockGetAdminSupabase }));
-vi.mock('../_lib/processAsaasEvent.js', () => ({ processAsaasEvent: mockProcessAsaasEvent }));
+vi.mock('../../../api/_lib/adminAuth.js', () => ({ requireAdmin: mockRequireAdmin }));
+vi.mock('../../../api/_lib/adminSupabase.js', () => ({ getAdminSupabase: mockGetAdminSupabase }));
+vi.mock('../../../api/_lib/processAsaasEvent.js', () => ({ processAsaasEvent: mockProcessAsaasEvent }));
 
-import handler from './webhook-events';
+import handler from '../../../api/admin/webhook-events';
 
 function createResponse() {
   return {

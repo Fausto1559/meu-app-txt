@@ -5,15 +5,15 @@ const { mockGetAdminSupabase, mockProcessAsaasEvent } = vi.hoisted(() => ({
   mockProcessAsaasEvent: vi.fn(),
 }));
 
-vi.mock('./_lib/adminSupabase.js', () => ({
+vi.mock('../../api/_lib/adminSupabase.js', () => ({
   getAdminSupabase: mockGetAdminSupabase,
 }));
 
-vi.mock('./_lib/processAsaasEvent.js', () => ({
+vi.mock('../../api/_lib/processAsaasEvent.js', () => ({
   processAsaasEvent: mockProcessAsaasEvent,
 }));
 
-import handler from './webhook';
+import handler from '../../api/webhook';
 
 function createResponse() {
   const response: any = {

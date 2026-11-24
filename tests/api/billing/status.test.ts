@@ -26,11 +26,11 @@ const { mockGetAuthenticatedUser } = vi.hoisted(() => {
   };
 });
 
-vi.mock('../_lib/userAuth.js', () => ({
+vi.mock('../../../api/_lib/userAuth.js', () => ({
   getAuthenticatedUser: mockGetAuthenticatedUser,
 }));
 
-import handler from './status';
+import handler from '../../../api/billing/status';
 
 function createResponse() {
   const response: any = {

@@ -7,16 +7,16 @@ const { mockGetAuthenticatedUser, mockAsaasRequest, mockGetAsaasEnvironment, moc
   mockIsValidCpfCnpj: vi.fn(() => true),
 }));
 
-vi.mock('../_lib/userAuth.js', () => ({
+vi.mock('../../../api/_lib/userAuth.js', () => ({
   getAuthenticatedUser: mockGetAuthenticatedUser,
 }));
-vi.mock('../_lib/asaas.js', () => ({
+vi.mock('../../../api/_lib/asaas.js', () => ({
   asaasRequest: mockAsaasRequest,
   getAsaasEnvironment: mockGetAsaasEnvironment,
   isValidCpfCnpj: mockIsValidCpfCnpj,
 }));
 
-import handler from './checkout';
+import handler from '../../../api/billing/checkout';
 
 function createResponse() {
   const response: any = {
