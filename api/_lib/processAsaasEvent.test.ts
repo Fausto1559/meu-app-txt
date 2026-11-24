@@ -17,7 +17,7 @@ const localSubscription = {
   provider_customer_id: 'cus-1',
 };
 
-function createSupabaseMock(subscriptionData = localSubscription) {
+function createSupabaseMock(subscriptionData = localSubscription, paymentData: unknown = null) {
   const calls: Array<{ table: string; method: string; value?: unknown }> = [];
   const client = {
     from(table: string) {
@@ -33,6 +33,7 @@ function createSupabaseMock(subscriptionData = localSubscription) {
         maybeSingle: vi.fn(async () => {
           calls.push({ table, method: 'maybeSingle' });
           if (table === 'subscriptions') return { data: subscriptionData, error: null };
+          if (table === 'payments') return { data: paymentData, error: null };
           return { data: null, error: null };
         }),
         update(value: unknown) {
@@ -113,6 +114,44 @@ describe('processAsaasEvent — validação e persistência de pagamentos', () =
     });
 
     expect(calls.some((call) => call.method === 'update')).toBe(false);
+  });
+
+  it('ignora evento de pagamento mais antigo que o último evento persistido', async () => {
+    const previousPayment = {
+      status: 'received',
+      metadata: { lastEventDate: '2026-11-24T12:00:00.000Z' },
+    };
+    const { client, calls } = createSupabaseMock(localSubscription, previousPayment);
+    mockGetAdminSupabase.mockReturnValue(client);
+
+    await processAsaasEvent({
+      ...paymentEvent(),
+      id: 'evt-old-payment',
+      event: 'PAYMENT_CREATED',
+      dateCreated: '2026-11-23T12:00:00.000Z',
+    });
+
+    expect(calls.some((call) => call.method === 'upsert')).toBe(false);
+    expect(calls.some((call) => call.method === 'update')).toBe(false);
+  });
+
+  it('suspende assinatura e acesso quando recebe reembolso', async () => {
+    const { client, calls } = createSupabaseMock();
+    mockGetAdminSupabase.mockReturnValue(client);
+
+    await processAsaasEvent({
+      ...paymentEvent(),
+      event: 'PAYMENT_REFUNDED',
+    });
+
+    const paymentUpsert = calls.find((call) => call.method === 'upsert');
+    expect(paymentUpsert?.value).toMatchObject({
+      record: { status: 'refunded', provider_payment_id: 'pay-1' },
+    });
+    expect(calls.some((call) => call.table === 'subscriptions' && call.method === 'update' &&
+      (call.value as Record<string, unknown>).status === 'suspended')).toBe(true);
+    expect(calls.some((call) => call.table === 'billing_accounts' && call.method === 'update' &&
+      (call.value as Record<string, unknown>).access_status === 'suspended')).toBe(true);
   });
 
   it('persiste um pagamento válido com conflito idempotente por provedor e ID', async () => {
