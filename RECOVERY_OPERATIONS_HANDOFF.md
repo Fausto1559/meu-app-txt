@@ -6,69 +6,59 @@ Branch: `recuperacao/build-2026-11-05`
 Production changes: none
 
 ## Verified automated checks
+The recovery CI runs `npm ci`, full and production dependency audits (both must report zero vulnerabilities), TypeScript typecheck, automated tests, and Vite production build. The latest verified run before the CI hardening commit passed all checks at commit `5994c89ee2572350dd04ab40bc78bca4135c8964`.
 
-The recovery CI enforces all of the following:
-- `npm ci` from the committed lockfile.
-- Full dependency audit and production-only dependency audit, both required to report zero vulnerabilities.
-- TypeScript typecheck for frontend and server API source.
-- Automated tests for the application, Supabase server-key selection, authentication, billing status, checkout validation, Asaas request construction, and webhook input validation.
-- Vite production build.
+## CI hardening — 2026-11-24
+- Updated `.github/workflows/recovery-security-audit.yml` to use `permissions: contents: read`.
+- Removed automatic lockfile mutation/commit/push from CI.
+- Pinned checkout, setup-node, and upload-artifact actions to reviewed full commit SHAs.
+- Added workflow concurrency cancellation for superseded branch runs.
+- Commit `4b98ee0857a73d90ada7506308508671dec947c7` passed the workflow successfully.
+- Vercel's Git deployment for that commit reached the build stage and produced the Vite bundle, but failed the post-build TypeScript function scan with TS2688 because `vite/client` and `node` type definitions were unavailable in the Vercel build environment.
 
-The checks passed at the last verified recovery commit before this document was added. Re-run CI on the new commit before considering the branch ready for deployment.
+## Vercel Preview install configuration — 2026-11-24
+The project install command was changed to `npm install --include=dev` so type packages remain present during Vercel's server-function type scan. This affects project build configuration only; it does not deploy code or change production traffic. A subsequent Preview build is still required to verify the fix.
+
+A Preview deployment request for commit `4b98ee0857a73d90ada7506308508671dec947c7` was rejected by Vercel with HTTP 402, resource `api-deployments-free-per-day`, retry after 86400 seconds. No CLI or alternate path was used to bypass this quota. Existing Preview remains on older commit `688269783ebde2960154135da1f50ee15dee23b3`.
+
+## Homologation duplicate-index correction — 2026-11-24
+- Performance Advisor had identified two identical UNIQUE B-tree indexes on `public.payments(provider, provider_payment_id)`.
+- Inspection confirmed `payments_provider_payment_unique` was a UNIQUE constraint with zero inbound foreign keys; `payments_provider_payment_upsert_uidx` was the non-partial unique index required by the webhook's `ON CONFLICT` upsert.
+- Removed only the redundant constraint from homologation project `eerqeimqzkgdpvutjfhm`; verified that only `payments_provider_payment_upsert_uidx` remains.
+- Migration version `20261124193813` was recorded and its SQL is committed as `supabase/migrations/20261124193813_remove_duplicate_payments_provider_payment_constraint.sql`.
+- Production database was not changed. Homologation Health Advisor returned no findings; Performance Advisor no longer reports the duplicate index, only eight INFO unused-index notices. Retain unused indexes until representative workload/query-plan evidence exists.
+
+## Supabase security and health
+- Production project `genbxhvhmrgyflptnrpi` and homologation project `eerqeimqzkgdpvutjfhm` both report `ACTIVE_HEALTHY`.
+- Health Advisor returns no findings for either project.
+- Security Advisor reports only `auth_leaked_password_protection` disabled on both. Supabase documentation states leaked-password protection requires Pro plan or higher. Do not upgrade or incur cost without an explicit cost decision; do not substitute an insecure frontend password check.
+- Homologation retains eight unused-index INFO notices; production retains fifteen. These are not proof that the indexes are unnecessary.
 
 ## Required Production environment variables
+Production currently has the production Supabase URL and publishable frontend key, plus `ASAAS_ENVIRONMENT=production`. The following are absent:
+- `SUPABASE_SECRET_KEY` or `SUPABASE_SERVICE_ROLE_KEY`
+- `ASAAS_API_KEY`
+- `ASAAS_WEBHOOK_TOKEN`
 
-The Vercel Production environment currently has:
-- `SUPABASE_URL` and `VITE_SUPABASE_URL` pointing to the production project `genbxhvhmrgyflptnrpi`.
-- `VITE_SUPABASE_ANON_KEY`.
-- `ASAAS_ENVIRONMENT=production`.
-
-The following server secrets were absent from the Production environment at inspection:
-- `SUPABASE_SECRET_KEY` or `SUPABASE_SERVICE_ROLE_KEY`.
-- `ASAAS_API_KEY`.
-- `ASAAS_WEBHOOK_TOKEN`.
-
-Add these values in Vercel Project → Settings → Environment Variables, scoped to Production and marked sensitive. The Supabase server key must be generated for project `genbxhvhmrgyflptnrpi`. The Asaas API key must be the live Production key. The webhook token must be the same token configured in the Asaas webhook settings. Never copy Preview credentials into Production and never commit any of these values.
+Do not copy Preview credentials into Production. Add the production Supabase server key generated for project `genbxhvhmrgyflptnrpi`, the live Asaas key, and a high-entropy webhook token only as part of a separately approved release procedure.
 
 ## Recovery Preview environment
-
-Preview for branch `recuperacao/build-2026-11-05` points to homologation project `eerqeimqzkgdpvutjfhm` and uses `ASAAS_ENVIRONMENT=sandbox`. The branch has a branch-scoped `SUPABASE_SERVICE_ROLE_KEY`, plus Asaas Sandbox and webhook secrets. The code prefers the branch-scoped server key and validates legacy JWT project references against `SUPABASE_URL`; if it falls back to an opaque `sb_secret_` key, Supabase itself verifies the project binding on the first request.
-
-The environment variable names and scopes were audited without reading or printing secret values. Presence in Vercel does not prove that a secret is valid; an authenticated Preview health check is still required.
-
-## External / plan restrictions
-
-- Supabase Leaked Password Protection reports disabled on both projects. The attempted native HaveIBeenPwned configuration returned the plan restriction that the feature requires Pro or higher. Do not change plan without an explicit cost decision.
-- Supabase Performance Advisor reports unused indexes, but these are INFO notices and should not be removed without representative workload/query-plan evidence.
-- Vercel Hobby runtime log retention is only one hour, so historical errors older than the retained window cannot be reconstructed from Vercel runtime logs.
-- Vercel's daily deployment creation limit was reached during recovery. Latest code must be deployed to Preview after that platform limit permits another deployment; do not promote to Production.
+Preview variables for `recuperacao/build-2026-11-05` point to homologation project `eerqeimqzkgdpvutjfhm` and Asaas Sandbox. The existence and scope of secrets were inspected without decrypting values. Presence does not prove validity; an authenticated Preview health check and end-to-end Sandbox test are still required.
 
 ## Database migration history
-
-See `supabase/MIGRATION_RECONCILIATION.md`. Six historical migration SQL files are absent from all available branches and their exact-path commit histories. Do not fabricate those historical migrations or run a blanket migration push. Recover original SQL or approve a separately reviewed baseline/schema-repair plan.
-
-## Deployment rule
-
-This branch is for recovery and validation only. No production deployment, promotion, database migration, deletion, or production credential change is authorized by this document.
+See `supabase/MIGRATION_RECONCILIATION.md`. Six historical migration SQL files are absent from all available branches and exact-path commit histories. Do not fabricate historical migrations or run a blanket migration push. Recover original SQL or approve a separately reviewed baseline/schema-repair plan.
 
 ## Confirmed production-domain divergence — 2026-11-24
+See `PRODUCTION_SECURITY_GAP.md`. Production custom domain still serves the older `main` deployment at commit `c4eda33ca3026cc2fc6fa994735d1ac547efa866`. It does not expose the new billing/admin routes; its legacy `/api/webhook` is an unauthenticated in-memory simulator. The recovery branch replaces this with authenticated, persistent webhook processing and disables the legacy route, but this is not yet serving production.
 
-See `PRODUCTION_SECURITY_GAP.md` for the full evidence and release gate. The verified custom domain currently serves production deployment `dpl_AHBcx7iZa19VBWw6XLg6ku7en2z4` from `main` at commit `c4eda33ca3026cc2fc6fa994735d1ac547efa866`. The current Production deployment returns 404 for `/api/billing/status`, `/api/admin/me`, and `/api/billing/checkout`. Its `/api/webhook` is a public in-memory simulator that accepts unauthenticated POSTs and exposes its temporary event list on GET. `WEBHOOK_SECRET` is absent from Production, and the other legacy webhook endpoint only enforces it when present.
+## Release gate — do not bypass
+1. Obtain a current Preview for the latest recovery commit after Vercel's daily deployment quota resets.
+2. Confirm the TypeScript type-scan fix and test the cloud-load retry path.
+3. Authenticate to Preview with a synthetic test user; verify owner/admin membership and protected routes.
+4. Validate Supabase server credentials and Asaas Sandbox key through authenticated health checks without exposing secret values.
+5. Execute a complete Asaas Sandbox checkout/webhook flow; verify persistence, duplicate handling, refunds, and paid-access gating.
+6. Recover the six missing historical migrations or approve a reviewed baseline/schema repair.
+7. Add production-only server credentials and webhook token through a separately approved release procedure.
+8. Obtain explicit approval for a controlled Production release.
 
-The current recovery Preview is READY at commit `bd8ca10ebaefd4b277410c2df263170b5a830319`. Its new webhook requires `ASAAS_WEBHOOK_TOKEN`, persists events, and disables the legacy route with HTTP 410. Production promotion remains blocked by missing production server credentials and requires a separate explicit release decision.
-
-## Additional recovery work — 2026-11-24
-
-At the latest verified recovery commit `c34f5a8ceab5a6482be7c084eed2d02d35a921d7`:
-- Removed direct runtime dependencies `firebase` and `firebase-admin`. The production commit and recovery app/API source were both scanned; no executable Firebase/Firestore imports or initialization were found. Old Firebase configuration/rules and Vercel Production Firebase environment variables remain untouched as historical artifacts.
-- The CI synchronized `package-lock.json`; its resolved package graph contains no remaining Firebase packages.
-- Fixed the financial cloud-load failure screen. A failed fetch no longer leaves the signed-in user on an endless spinner; it presents an error, a retry control, and a sign-out control. An automated regression test covers a failed fetch followed by a successful retry.
-- The recovery CI currently passes with 55 tests in 13 test files, zero vulnerabilities in both full and production dependency audits, TypeScript typecheck, and the Vite build.
-
-## Latest Preview/deployment quota
-
-A new Preview deployment was successfully created earlier at `dpl_2cRQwN4F4gk3AYvLq5GQrRMjANGV`, SHA `bd8ca10ebaefd4b277410c2df263170b5a830319`, state READY. It does not include the newer Firebase-dependency removal and cloud-load retry fix.
-
-A new Preview build was requested for SHA `c34f5a8ceab5a6482be7c084eed2d02d35a921d7`, but Vercel returned HTTP 402, `api-deployments-free-per-day`, retry after 86400 seconds. No CLI or alternative deployment path was used to bypass the limit, and no Production aliases or targets were changed.
-
-The next deployment action is to create a Preview for the latest recovery SHA after Vercel's quota is available, then test the retry path and authenticated admin/billing routes against that deployment. Do not promote to Production as part of that step.
+No Production deployment, alias change, Production migration, real payment, or webhook POST is authorized by this handoff. Keep `main` and production untouched until the separate release approval.
