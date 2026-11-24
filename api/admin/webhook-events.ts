@@ -31,9 +31,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (req.method === 'POST') {
-    const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body;
+    let body: any;
+    try {
+      body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body;
+    } catch {
+      return res.status(400).json({ ok: false, error: 'JSON inválido.' });
+    }
+
     const ids = Array.isArray(body?.eventIds)
-      ? body.eventIds.filter((id: unknown) => typeof id === 'string').slice(0, 50)
+      ? [...new Set(body.eventIds.filter((id: unknown) => typeof id === 'string').slice(0, 50))]
       : [];
 
     if (!ids.length) {
@@ -42,18 +48,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const { data: pending, error: lookupError } = await supabase
       .from('webhook_events')
-      .select('id,provider_event_id,payload,processing_status')
+      .select('id,provider_event_id,payload,processing_status,attempts')
       .eq('provider', 'asaas')
       .in('id', ids)
-      .in('processing_status', ['failed', 'received', 'processing']);
+      .in('processing_status', ['failed', 'received']);
 
     if (lookupError) {
       console.error('Falha ao localizar eventos para reprocessamento:', lookupError.message);
       return res.status(503).json({ ok: false, error: 'Não foi possível localizar os eventos.' });
     }
 
-    const results: Array<{ id: string; processed: boolean }> = [];
+    const results: Array<{ id: string; processed: boolean; skipped?: boolean }> = [];
     for (const event of pending || []) {
+      const attempts = Number(event.attempts || 0) + 1;
+      const { data: claimed, error: claimError } = await supabase
+        .from('webhook_events')
+        .update({
+          processing_status: 'processing',
+          attempts,
+          last_error: null,
+        })
+        .eq('id', event.id)
+        .in('processing_status', ['failed', 'received'])
+        .select('id')
+        .maybeSingle();
+
+      if (claimError) {
+        results.push({ id: event.id, processed: false });
+        continue;
+      }
+      if (!claimed?.id) {
+        results.push({ id: event.id, processed: false, skipped: true });
+        continue;
+      }
+
       try {
         await processAsaasEvent(event.payload);
         const { error } = await supabase
@@ -62,17 +90,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             processing_status: 'processed',
             processed_at: new Date().toISOString(),
             last_error: null,
-            attempts: 2,
           })
-          .eq('id', event.id);
+          .eq('id', event.id)
+          .eq('processing_status', 'processing');
         if (error) throw new Error(error.message);
         results.push({ id: event.id, processed: true });
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Falha desconhecida';
         await supabase
           .from('webhook_events')
-          .update({ attempts: 3, last_error: message.slice(0, 2000) })
-          .eq('id', event.id);
+          .update({
+            processing_status: 'failed',
+            last_error: message.slice(0, 2000),
+          })
+          .eq('id', event.id)
+          .eq('processing_status', 'processing');
         results.push({ id: event.id, processed: false });
       }
     }
@@ -81,7 +113,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ok: true,
       requested: ids.length,
       processed: results.filter((item) => item.processed).length,
-      failed: results.filter((item) => !item.processed).length,
+      failed: results.filter((item) => !item.processed && !item.skipped).length,
+      skipped: results.filter((item) => item.skipped).length,
       results,
     });
   }
