@@ -2,6 +2,8 @@ import { getAdminSupabase } from './_lib/adminSupabase.js';
 import { processAsaasEvent } from './_lib/processAsaasEvent.js';
 import { timingSafeEqual } from 'node:crypto';
 
+const WEBHOOK_PROCESSING_LEASE_TTL_MS = 15 * 60 * 1000;
+
 function safeTokenEquals(received: unknown, expected: string): boolean {
   if (typeof received !== 'string') return false;
   const receivedBuffer = Buffer.from(received);
@@ -55,7 +57,7 @@ async function processClaimedEvent(
 ) {
   try {
     await processAsaasEvent(payload);
-    const { error } = await supabase
+    const { data: finalized, error } = await supabase
       .from('webhook_events')
       .update({
         processing_status: 'processed',
@@ -66,9 +68,25 @@ async function processClaimedEvent(
       .eq('provider', 'asaas')
       .eq('provider_event_id', eventId)
       .eq('processing_status', 'processing')
-      .eq('processing_started_at', processingStartedAt);
+      .eq('processing_started_at', processingStartedAt)
+      .select('id')
+      .maybeSingle();
 
     if (error) throw new Error('Evento aplicado, mas não foi possível registrar a conclusão: ' + error.message);
+
+    // A processing lease can expire while the provider/database call is in
+    // flight. Never report completion when a newer execution owns the row.
+    if (!finalized?.id) {
+      return res.status(202).json({
+        ok: true,
+        received: !duplicate,
+        duplicate,
+        persisted: true,
+        processed: false,
+        processing: true,
+        id: eventId,
+      });
+    }
 
     return res.status(200).json({
       ok: true,
@@ -202,7 +220,7 @@ export default async function handler(req: any, res: any) {
         expectedProcessingStartedAt = existing.processing_started_at || null;
         const leaseOrigin = existing.processing_started_at || existing.received_at;
         const leaseAge = Date.now() - Date.parse(leaseOrigin);
-        if (!Number.isFinite(leaseAge) || leaseAge < 5 * 60 * 1000) {
+        if (!Number.isFinite(leaseAge) || leaseAge < WEBHOOK_PROCESSING_LEASE_TTL_MS) {
           return res.status(202).json({ ok: true, duplicate: true, processing: true, id: eventId });
         }
       } else if (!['received', 'failed'].includes(existing.processing_status)) {

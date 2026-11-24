@@ -36,7 +36,8 @@ function createResponse() {
 }
 
 
-function createWebhookDatabaseMock() {
+function createWebhookDatabaseMock(finalizationLost = false) {
+  let maybeSingleCalls = 0;
   const operations: Array<{
     table: string;
     operation: string;
@@ -76,7 +77,11 @@ function createWebhookDatabaseMock() {
           return query;
         },
         maybeSingle: vi.fn(async () => {
+          maybeSingleCalls += 1;
           operations.push({ table, operation, payload, filters: [...filters] });
+          if (finalizationLost && maybeSingleCalls === 2) {
+            return { data: null, error: null };
+          }
           return { data: { id: 'webhook-row-1' }, error: null };
         }),
         then(resolve: (value: unknown) => unknown, reject: (reason: unknown) => unknown) {
@@ -234,6 +239,38 @@ describe('POST /api/webhook', () => {
     const leaseTimestamp = updates[0].payload?.processing_started_at;
     expect(typeof leaseTimestamp).toBe('string');
     expect(updates[1].filters).toContainEqual(['processing_started_at', leaseTimestamp]);
+  });
+
+
+  it('does not report success when a newer execution owns the processing lease', async () => {
+    const { client, operations } = createWebhookDatabaseMock(true);
+    mockGetAdminSupabase.mockReturnValue(client);
+    mockProcessAsaasEvent.mockResolvedValue(undefined);
+
+    const res = createResponse();
+    await handler({
+      method: 'POST',
+      headers: { 'asaas-access-token': '0123456789abcdef0123456789abcdef' },
+      body: {
+        id: 'evt-lease-lost',
+        event: 'PAYMENT_CREATED',
+        payment: { id: 'pay-lease-lost' },
+        dateCreated: '2026-11-24T12:00:00.000Z',
+      },
+    } as any, res);
+
+    expect(res.statusCode).toBe(202);
+    expect(res.body).toMatchObject({
+      ok: true,
+      persisted: true,
+      processed: false,
+      processing: true,
+    });
+    const updates = operations.filter((operation) => operation.operation === 'update');
+    expect(updates[1].filters).toContainEqual([
+      'processing_started_at',
+      updates[0].payload?.processing_started_at,
+    ]);
   });
 
 });

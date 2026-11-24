@@ -85,3 +85,9 @@ No Production deployment, alias change, Production migration, real payment, or w
 - The route now records the exact timestamp returned by the successful lease claim and includes it in both success and failure finalization filters.
 - Added automated tests covering lease ownership on successful processing and failed processing.
 - The transaction RPCs already use event timestamps/IDs for idempotency; this route-level guard additionally prevents an obsolete execution from clearing a newer lease.
+
+## Public webhook lease duration and ownership response — 2026-11-24
+- Aligned public duplicate-webhook lease recovery with the admin recovery route: both now wait 15 minutes before taking over a stale processing lease. The public route previously used only five minutes and could trigger unnecessary concurrent retries on slow processing.
+- Public webhook completion now selects the updated row and confirms that the caller still owns the exact `processing_started_at` lease.
+- If the lease was taken by a newer execution, the route returns HTTP 202 with `processing: true` instead of falsely reporting the event as fully processed.
+- Added a regression test for lease loss during finalization; existing success/failure ownership tests remain.
