@@ -116,8 +116,10 @@ describe('App.tsx - 100% Cobertura Total', () => {
     
     const { unmount } = render(<App />);
     await waitForAppReady();
-    expect(localStorage.getItem(STORAGE_KEY_RECORDS)).toBeTruthy();
-    expect(localStorage.getItem(STORAGE_KEY_MACHINES)).toBeTruthy();
+    await waitFor(() => {
+      expect(localStorage.getItem(STORAGE_KEY_RECORDS)).toBeTruthy();
+      expect(localStorage.getItem(STORAGE_KEY_MACHINES)).toBeTruthy();
+    });
     unmount();
 
     render(<App />);
