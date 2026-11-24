@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm audit --json > npm-audit-report.json || true; node -e \"const r=require('./npm-audit-report.json'); console.log('AUDIT COUNTS',JSON.stringify(r.metadata?.vulnerabilities||{})); for(const [name,v] of Object.entries(r.vulnerabilities||{})){console.log('AUDIT ITEM',JSON.stringify({name,severity:v.severity,direct:v.isDirect,range:v.range,fixAvailable:v.fixAvailable,via:v.via.map(x=>typeof x==='string'?x:{name:x.name,title:x.title,range:x.range,url:x.url})}));}\" && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "test": "vitest"
   },
