@@ -3,7 +3,7 @@ import { render, screen, fireEvent, within, act, waitFor } from '@testing-librar
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const { mockSupabaseAuth } = vi.hoisted(() => {
-  const session = { user: { id: 'test-user-id', email: 'faustoefiscal@gmail.com' } };
+  const session = { access_token: 'test-access-token', user: { id: 'test-user-id', email: 'faustoefiscal@gmail.com' } };
   let authListener: ((event: string, session: { user: { id: string; email: string } } | null) => void) | null = null;
   const auth = {
     onAuthStateChange: vi.fn((callback: (event: string, session: { user: { id: string; email: string } } | null) => void) => {
@@ -44,6 +44,12 @@ describe('App.tsx - 100% Cobertura Total', () => {
     localStorage.setItem('copiloto_financeiro_auth_v2', 'faustoefiscal@gmail.com');
     localStorage.setItem('copiloto_financeiro_auth_v3', 'faustoefiscal@gmail.com');
     localStorage.setItem(STORAGE_KEY_AUTH, 'faustoefiscal@gmail.com');
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => ({
+      ok: url === '/api/billing/status',
+      json: async () => url === '/api/billing/status'
+        ? { ok: true, account: { accessStatus: 'trial', trialStartedAt: new Date().toISOString(), planName: null } }
+        : { ok: false },
+    })));
     vi.spyOn(window, 'open').mockImplementation(() => null);
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
     Object.defineProperty(URL, 'createObjectURL', {
@@ -58,6 +64,7 @@ describe('App.tsx - 100% Cobertura Total', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     vi.useRealTimers();
   });
 
