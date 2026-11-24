@@ -293,14 +293,6 @@ export default function App() {
     else setAuthNotice('Plano não reconhecido. Atualize a página e tente novamente.');
   };
 
-  const handleSimulateDay31Lock = () => {
-    const thirtyOneDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
-    localStorage.setItem(STORAGE_KEY_TRIAL_START, String(thirtyOneDaysAgo));
-    localStorage.removeItem(STORAGE_KEY_ACTIVE_PLAN);
-    setActivePlan(null);
-    setTrialStartMs(thirtyOneDaysAgo);
-  };
-
   const handleExportMultiDeviceBackup = () => {
     const payload = {
       version: '1.0',
@@ -2463,13 +2455,9 @@ export default function App() {
                       ? 'Ocultar Painel do Administrador (Webhooks)'
                       : 'Acessar Versão Administrador (Webhooks SaaS)'}
                   </button>
-                  <button
-                    type="button"
-                    onClick={handleSimulateDay31Lock}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg border border-rose-500/40 cursor-pointer"
-                  >
-                    🔒 Simular 31º Dia (Testar Bloqueio de Plano)
-                  </button>
+                  <span className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-slate-500/10 text-slate-300 rounded-lg border border-slate-500/30">
+                    🔒 Período gratuito validado pelo servidor
+                  </span>
                 </>
               )}
               {/* v8 ignore stop */}
