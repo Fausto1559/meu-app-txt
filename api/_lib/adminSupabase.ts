@@ -23,21 +23,26 @@ function getProjectRefFromUrl(value: string): string {
   return match[1];
 }
 
-function assertServiceRoleMatchesProject(serviceRoleKey: string, expectedRef: string): void {
-  const parts = serviceRoleKey.split('.');
+function assertServerKeyMatchesProject(serverKey: string, expectedRef: string): void {
+  // Supabase secret API keys (sb_secret_...) are opaque and replace the legacy JWT service_role key.
+  // Their project binding is verified by the Supabase API when the client makes its first request.
+  if (serverKey.startsWith('sb_secret_')) return;
+
+  // Backward compatibility for legacy service_role JWT keys.
+  const parts = serverKey.split('.');
   if (parts.length !== 3) {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY deve ser uma chave JWT de servidor.');
+    throw new Error('SUPABASE_SECRET_KEY/SUPABASE_SERVICE_ROLE_KEY deve ser uma chave secreta de servidor válida.');
   }
 
   let claims: Record<string, unknown>;
   try {
     claims = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
   } catch {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY inválida.');
+    throw new Error('Chave privilegiada do Supabase inválida.');
   }
 
   if (claims.role !== 'service_role' || claims.ref !== expectedRef) {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY não corresponde ao projeto configurado.');
+    throw new Error('A chave privilegiada do Supabase não corresponde ao projeto configurado.');
   }
 }
 
@@ -45,9 +50,9 @@ export function getAdminSupabase(): SupabaseClient {
   if (adminClient) return adminClient;
 
   const supabaseUrl = process.env.SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const serverKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!supabaseUrl || !serviceRoleKey) {
+  if (!supabaseUrl || !serverKey) {
     throw new Error('Configuração administrativa do Supabase ausente no servidor.');
   }
 
@@ -58,9 +63,9 @@ export function getAdminSupabase(): SupabaseClient {
     throw error instanceof Error ? error : new Error('SUPABASE_URL inválida no servidor.');
   }
 
-  assertServiceRoleMatchesProject(serviceRoleKey, projectRef);
+  assertServerKeyMatchesProject(serverKey, projectRef);
 
-  adminClient = createClient(supabaseUrl, serviceRoleKey, {
+  adminClient = createClient(supabaseUrl, serverKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
