@@ -107,7 +107,7 @@ describe('processAsaasEvent — validação e persistência de pagamentos', () =
       status: 'active',
       metadata: { lastEventDate: '2026-11-24T12:00:00.000Z' },
     };
-    const { client, calls } = createSupabaseMock(existingSubscription);
+    const { client, calls } = createSupabaseMock(existingSubscription, null, 'ignored');
     mockGetAdminSupabase.mockReturnValue(client);
 
     await processAsaasEvent({
@@ -117,6 +117,7 @@ describe('processAsaasEvent — validação e persistência de pagamentos', () =
       subscription: { id: 'asaas-sub-1', customer: 'cus-1', nextDueDate: '2026-12-01' },
     });
 
+    expect(calls.some((call) => call.table === 'rpc' && call.method === 'apply_asaas_subscription_event')).toBe(true);
     expect(calls.some((call) => call.method === 'update')).toBe(false);
   });
 
@@ -161,6 +162,38 @@ describe('processAsaasEvent — validação e persistência de pagamentos', () =
     expect(calls.some((call) => call.table === 'payments' && call.method === 'upsert')).toBe(false);
     expect(calls.some((call) => call.table === 'subscriptions' && call.method === 'update')).toBe(false);
     expect(calls.some((call) => call.table === 'billing_accounts' && call.method === 'update')).toBe(false);
+  });
+
+  it('usa a transação atômica para eventos de assinatura cancelada', async () => {
+    const { client, calls } = createSupabaseMock();
+    mockGetAdminSupabase.mockReturnValue(client);
+
+    await processAsaasEvent({
+      id: 'evt-cancel',
+      event: 'SUBSCRIPTION_DELETED',
+      dateCreated: '2026-11-24T12:00:00.000Z',
+      subscription: { id: 'asaas-sub-1', customer: 'cus-1' },
+    });
+
+    const transaction = calls.find((call) => call.table === 'rpc');
+    expect(transaction?.method).toBe('apply_asaas_subscription_event');
+    expect(transaction?.value).toMatchObject({
+      p_provider_subscription_id: 'asaas-sub-1',
+      p_provider_customer_id: 'cus-1',
+      p_event_id: 'evt-cancel',
+      p_event_name: 'SUBSCRIPTION_DELETED',
+    });
+    expect(calls.some((call) => call.method === 'update')).toBe(false);
+  });
+
+  it('propaga falha da transação de pagamento para permitir retry do webhook', async () => {
+    const { client } = createSupabaseMock();
+    client.rpc.mockResolvedValueOnce({ data: null, error: { message: 'transaction failed' } });
+    mockGetAdminSupabase.mockReturnValue(client);
+
+    await expect(processAsaasEvent(paymentEvent())).rejects.toThrow(
+      'Falha na transação de pagamento e acesso: transaction failed',
+    );
   });
 
   it('persiste um pagamento válido com conflito idempotente por provedor e ID', async () => {
