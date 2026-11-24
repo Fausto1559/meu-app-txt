@@ -49,6 +49,8 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
   const [selectedGateway, setSelectedGateway] = useState<string>(
     'Asaas / PIX & Boleto'
   );
+  const [healthResult, setHealthResult] = useState<{ ok: boolean; checks?: Record<string, { ok: boolean; detail: string }> } | null>(null);
+  const [healthLoading, setHealthLoading] = useState(false);
   const [enabledEvents, setEnabledEvents] = useState<{
     pagamento_aprovado: boolean;
     pagamento_recusado: boolean;
@@ -111,6 +113,29 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
     onNotify('URL do Webhook copiada: ' + webhookUrl);
   };
 
+  const handleCheckHealth = async () => {
+    setHealthLoading(true);
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) throw new Error('Sessão administrativa expirada.');
+
+      const response = await fetch('/api/admin/billing-health', {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || !payload) throw new Error('Não foi possível validar as credenciais.');
+      setHealthResult(payload);
+      onNotify(payload.ok ? 'Conexões Supabase e Asaas Sandbox validadas.' : 'Uma ou mais conexões precisam de configuração.');
+    } catch (error) {
+      setHealthResult({ ok: false });
+      onNotify(error instanceof Error ? error.message : 'Falha na verificação.');
+    } finally {
+      setHealthLoading(false);
+    }
+  };
+
   const reprocessEvents = async (eventIds: string[]) => {
     if (!eventIds.length) return;
     try {
@@ -155,10 +180,10 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold">
             <Webhook className="w-3.5 h-3.5" />
-            ARQUITETURA SAAS EM 5 PASSOS ATIVA
+            INTEGRAÇÃO ASAAS · HOMOLOGAÇÃO
           </div>
           <h2 className="text-xl font-bold text-white">
-            Recebimento de Eventos Asaas — integração em configuração
+            Recebimento e processamento de eventos Asaas
           </h2>
           <p className="text-xs text-slate-400">
             Fluxo completo de ponta a ponta: Configuração de Eventos · Escuta no
@@ -168,10 +193,9 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="px-3.5 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/40 text-xs">
-            <span className="text-emerald-200">Blindagem Segurança: </span>
-            <strong className="text-emerald-400">NOTA A+ (5/5)</strong>
-          </div>
+          <button type="button" onClick={() => void handleCheckHealth()} disabled={healthLoading} className="px-3.5 py-2 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-xs font-semibold text-slate-200 disabled:opacity-60">
+            {healthLoading ? 'Verificando…' : 'Testar conexões'}
+          </button>
           <div className="px-3.5 py-2 rounded-xl bg-[#0b1120] border border-[#1e2d4a] text-xs">
             <span className="text-slate-400">200 OK Processados: </span>
             <strong className="text-emerald-400">{processedCount}</strong>
@@ -182,6 +206,20 @@ export const WebhookSaasPanel: React.FC<WebhookSaasPanelProps> = ({
           </div>
         </div>
       </div>
+
+      {healthResult && (
+        <div className={`rounded-xl border p-3 space-y-2 text-xs ${healthResult.ok ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-amber-500/30 bg-amber-500/10'}`}>
+          <strong className={healthResult.ok ? 'text-emerald-300' : 'text-amber-300'}>
+            {healthResult.ok ? 'Conexões validadas' : 'Há conexões pendentes'}
+          </strong>
+          {Object.entries(healthResult.checks || {}).map(([name, check]) => (
+            <div key={name} className="flex items-start justify-between gap-3">
+              <span className="text-slate-300">{name}</span>
+              <span className={check.ok ? 'text-emerald-300' : 'text-rose-300'}>{check.detail}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Blindagem de Segurança SaaS - As 5 Camadas */}
       <div className="bg-[#0b1120] border border-emerald-500/30 rounded-xl p-4 space-y-3">
