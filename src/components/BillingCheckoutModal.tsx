@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { supabase } from '../supabaseClient';
 
 type PlanKey = 'essencial' | 'profissional' | 'pro';
 
@@ -38,7 +39,6 @@ export const BillingCheckoutModal: React.FC<BillingCheckoutModalProps> = ({
     setError(null);
 
     try {
-      const { supabase } = await import('../supabaseClient');
       const { data } = await supabase.auth.getSession();
       const token = data.session?.access_token;
       if (!token) throw new Error('Sua sessão expirou. Entre novamente.');
