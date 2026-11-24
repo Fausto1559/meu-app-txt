@@ -162,55 +162,98 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       : new Date(today.getTime() + 86400000);
 
     const externalReference = `copiloto:${user.id}:${planKey}`;
-    const createdSubscription = await asaasRequest<{
-      id?: string;
-      status?: string;
-      nextDueDate?: string;
-      value?: number;
-      billingType?: string;
-    }>('/subscriptions', {
-      method: 'POST',
-      body: JSON.stringify({
-        customer: customerId,
-        billingType,
-        value: plan.value,
-        nextDueDate: dateOnly(dueDate),
-        cycle: 'MONTHLY',
-        description: `Copiloto Financeiro - Plano ${plan.name}`,
-        externalReference,
-      }),
-    });
-
-    if (!createdSubscription?.id) {
-      return sendError(res, 502, 'O Asaas não retornou o identificador da assinatura.');
-    }
-
-    const { data: localSubscription, error: subscriptionSaveError } = await supabase
+    // Reserve the user's single open subscription slot before creating anything
+    // at Asaas. The partial unique index makes concurrent requests mutually exclusive.
+    const { data: reservation, error: reservationError } = await supabase
       .from('subscriptions')
       .insert({
         user_id: user.id,
         provider: 'asaas',
-        provider_subscription_id: createdSubscription.id,
         provider_customer_id: customerId,
         plan_key: planKey,
         status: 'pending',
         billing_type: billingType,
         value: plan.value,
-        next_due_date: createdSubscription.nextDueDate || dateOnly(dueDate),
-        metadata: { externalReference },
+        next_due_date: dateOnly(dueDate),
+        metadata: { externalReference, checkoutReservation: true },
         updated_at: new Date().toISOString(),
       })
       .select('id')
       .single();
 
+    if (reservationError || !reservation) {
+      if (reservationError?.code === '23505') {
+        return sendError(res, 409, 'Já existe uma contratação em andamento para esta conta.');
+      }
+      console.error('Falha ao reservar contratação:', reservationError?.message);
+      return sendError(res, 503, 'Não foi possível reservar a contratação.');
+    }
+
+    let createdSubscription: {
+      id?: string;
+      status?: string;
+      nextDueDate?: string;
+      value?: number;
+      billingType?: string;
+    };
+    try {
+      createdSubscription = await asaasRequest('/subscriptions', {
+        method: 'POST',
+        body: JSON.stringify({
+          customer: customerId,
+          billingType,
+          value: plan.value,
+          nextDueDate: dateOnly(dueDate),
+          cycle: 'MONTHLY',
+          description: `Copiloto Financeiro - Plano ${plan.name}`,
+          externalReference,
+        }),
+      });
+    } catch (gatewayError) {
+      const { error: cleanupError } = await supabase
+        .from('subscriptions')
+        .delete()
+        .eq('id', reservation.id)
+        .eq('user_id', user.id);
+      if (cleanupError) {
+        console.error('Falha ao liberar reserva após erro do Asaas:', cleanupError.message);
+      }
+      throw gatewayError;
+    }
+
+    if (!createdSubscription?.id) {
+      const { error: cleanupError } = await supabase
+        .from('subscriptions')
+        .delete()
+        .eq('id', reservation.id)
+        .eq('user_id', user.id);
+      if (cleanupError) console.error('Falha ao liberar reserva sem ID do Asaas:', cleanupError.message);
+      return sendError(res, 502, 'O Asaas não retornou o identificador da assinatura.');
+    }
+
+    const { data: localSubscription, error: subscriptionSaveError } = await supabase
+      .from('subscriptions')
+      .update({
+        provider_subscription_id: createdSubscription.id,
+        provider_customer_id: customerId,
+        next_due_date: createdSubscription.nextDueDate || dateOnly(dueDate),
+        metadata: { externalReference, checkoutReservation: false },
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', reservation.id)
+      .eq('user_id', user.id)
+      .select('id')
+      .single();
+
     if (subscriptionSaveError || !localSubscription) {
-      console.error('Falha ao persistir assinatura Asaas:', subscriptionSaveError?.message);
+      console.error('Falha ao vincular assinatura Asaas à reserva:', subscriptionSaveError?.message);
       try {
         await asaasRequest(`/subscriptions/${encodeURIComponent(createdSubscription.id)}`, { method: 'DELETE' });
+        await supabase.from('subscriptions').delete().eq('id', reservation.id).eq('user_id', user.id);
       } catch (cancelError) {
-        console.error('Falha ao tentar cancelar assinatura sem vínculo local:', cancelError instanceof Error ? cancelError.message : 'erro desconhecido');
+        console.error('Falha ao cancelar assinatura sem vínculo local:', cancelError instanceof Error ? cancelError.message : 'erro desconhecido');
       }
-      return sendError(res, 503, 'A assinatura foi criada no gateway, mas não foi salva localmente. O sistema tentou cancelar a assinatura para evitar cobrança sem vínculo.');
+      return sendError(res, 503, 'A assinatura foi criada no gateway, mas não foi possível concluir o vínculo local. O sistema tentou cancelar a assinatura para evitar cobrança sem vínculo.');
     }
 
     const { error: accountUpdateError } = await supabase
