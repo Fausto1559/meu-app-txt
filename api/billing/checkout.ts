@@ -3,8 +3,8 @@ import { getAuthenticatedUser } from '../_lib/userAuth.js';
 import { asaasRequest, isValidCpfCnpj } from '../_lib/asaas.js';
 
 const PLANS = {
-  essencial: { name: 'Essencial', value: 19.90 },
-  profissional: { name: 'Profissional', value: 29.90 },
+  essencial: { name: 'Essencial Básico', value: 19.90 },
+  profissional: { name: 'Copiloto Intermediário', value: 29.90 },
   pro: { name: 'Copiloto PRO', value: 39.90 },
 } as const;
 
