@@ -95,3 +95,11 @@ No Production deployment, alias change, Production migration, real payment, or w
 ## Public webhook lease TTL regression coverage — 2026-11-24
 - Extracted the public route's 15-minute stale-lease decision into a small pure helper.
 - Added deterministic tests for a lease at 14m59s (not stale), exactly 15 minutes (stale), and an invalid timestamp (not automatically reclaimed).
+
+## Asaas subscription-wide event timeline — 2026-11-24
+- Introduced `apply_asaas_payment_event` ordering across the local subscription, not merely within one provider payment ID. The database row lock serializes different payment IDs for one subscription.
+- Older events from a different payment can no longer rewind the billing period or entitlement after a newer subscription event.
+- Terminal subscription states (`canceled`, `suspended`, `expired`) cannot be restored by a later payment confirmation. Such a payment is still recorded for audit/reconciliation, but does not reactivate access.
+- Added checks that payment plan, amount, provider subscription ID, and customer ID match the local subscription.
+- Applied migration `20261124200921` to homologation only. Verified both transaction functions retain `SECURITY DEFINER`, `search_path=public`, and EXECUTE only for `service_role`/postgres.
+- Homologation records remain unchanged: 2 existing auth users and 2 billing accounts; 0 subscriptions, 0 billing customers, 0 payments, and 0 webhook events.
