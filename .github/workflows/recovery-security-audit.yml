@@ -73,6 +73,7 @@ jobs:
           }
           NODE
 
+      # Includes frontend coverage and API route startup/authentication tests.
       - name: Run automated tests
         run: npm test -- --run
 
