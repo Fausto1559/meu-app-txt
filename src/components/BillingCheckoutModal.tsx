@@ -10,8 +10,8 @@ interface BillingCheckoutModalProps {
 }
 
 const PLAN_LABELS: Record<PlanKey, string> = {
-  essencial: 'Essencial — R$ 19,90/mês',
-  profissional: 'Profissional — R$ 29,90/mês',
+  essencial: 'Essencial Básico — R$ 19,90/mês',
+  profissional: 'Copiloto Intermediário — R$ 29,90/mês',
   pro: 'Copiloto PRO — R$ 39,90/mês',
 };
 
