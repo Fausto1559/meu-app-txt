@@ -8,7 +8,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
 
   const authorization = await requireAdmin(req, ['owner', 'admin']);
-  if (!authorization.ok) {
+  if ('status' in authorization) {
     return res.status(authorization.status).json({ ok: false, error: authorization.error });
   }
 
