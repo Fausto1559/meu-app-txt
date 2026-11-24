@@ -71,3 +71,10 @@ No Production deployment, alias change, Production migration, real payment, or w
 - The Vercel project install command was changed to `npm install --include=dev` after the prior deployment's TypeScript scanner could not resolve `vite/client` and `node` type definitions.
 - No deployment currently exists for commit `f5307363064190e5c4b6fbf506f5bb0679be6910`. The earlier deployment daily-creation limit remains in effect, so the function-count reduction and install-command change have not yet been verified by a new Preview.
 - Next gate: create a Preview for `f5307363064190e5c4b6fbf506f5bb0679` once Vercel permits a deployment. Confirm the deployment sees no more than eight application API functions, resolves TypeScript types, and reaches READY. Do not promote it.
+
+## CI guardrail for Vercel function limits — 2026-11-24
+- Added `scripts/check-vercel-functions.mjs` and the `npm run check:vercel-functions` command.
+- CI now counts deployable source files in `api/`, excluding private underscore-prefixed files/folders and TypeScript declaration files as specified by Vercel's file routing rules.
+- The guardrail fails if a test/spec file is placed in a routable `api/` location or if the number of deployable API handlers exceeds the Hobby limit of 12.
+- Current source count is eight deployable API handlers. Tests remain in `tests/api/`; shared helpers/tests remain in the private `api/_lib/` directory.
+- This guardrail catches future accidental route creation before deployment; it does not replace a successful Vercel Preview build.

@@ -30,6 +30,9 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --ignore-scripts --no-audit --no-fund
 
+      - name: Enforce Vercel function-count and route hygiene
+        run: npm run check:vercel-functions
+
       - name: Run full dependency audit
         continue-on-error: true
         run: |
