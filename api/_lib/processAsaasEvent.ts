@@ -52,6 +52,12 @@ export async function processAsaasEvent(input: unknown): Promise<void> {
   }
 
   const event = input as AsaasEvent;
+  if (!event.id.trim() || !event.event.trim()) {
+    throw new Error('Identificador ou tipo do evento Asaas inválido.');
+  }
+  if (!event.dateCreated || !Number.isFinite(Date.parse(event.dateCreated))) {
+    throw new Error('Data de criação do evento Asaas ausente ou inválida.');
+  }
   const supabase = getAdminSupabase();
   const eventName = event.event;
   const payment = event.payment;
@@ -146,9 +152,6 @@ export async function processAsaasEvent(input: unknown): Promise<void> {
     .maybeSingle();
   if (previousPaymentError) throw new Error('Falha ao consultar estado anterior do pagamento: ' + previousPaymentError.message);
 
-  if (!event.dateCreated || !Number.isFinite(Date.parse(event.dateCreated))) {
-    throw new Error('Data de criação do evento Asaas ausente ou inválida.');
-  }
   const incomingEventTime = Date.parse(event.dateCreated);
   const previousEventTime = previousPayment?.metadata?.lastEventDate
     ? Date.parse(previousPayment.metadata.lastEventDate)
