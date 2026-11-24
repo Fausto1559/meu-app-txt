@@ -27,7 +27,7 @@ describe('Asaas server integration — environment, credentials and validation',
   it('rejects unknown Asaas environments', () => {
     vi.stubEnv('ASAAS_ENVIRONMENT', 'staging');
 
-    expect(() => getAsaasEnvironment()).toThrow(/ambiente.*inválido/i);
+    expect(() => getAsaasEnvironment()).toThrow(/ASAAS_ENVIRONMENT inválido/i);
   });
 
   it('does not call the network when the server API key is missing', async () => {
