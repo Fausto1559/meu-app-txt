@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getAuthenticatedUser } from '../_lib/userAuth.js';
-import { asaasRequest, isValidCpfCnpj } from '../_lib/asaas.js';
+import { asaasRequest, getAsaasEnvironment, isValidCpfCnpj } from '../_lib/asaas.js';
 
 const PLANS = {
   essencial: { name: 'Essencial Básico', value: 19.90 },
@@ -227,6 +227,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return sendError(res, 503, 'Assinatura salva, mas falta concluir o vínculo da conta. Contate o suporte.');
     }
 
+    const asaasEnvironment = getAsaasEnvironment();
     return res.status(201).json({
       ok: true,
       subscriptionId: createdSubscription.id,
@@ -236,7 +237,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       billingType,
       nextDueDate: createdSubscription.nextDueDate || dateOnly(dueDate),
       accessStatus: account.access_status,
-      message: 'Assinatura criada no Asaas Sandbox. O plano só será ativado após confirmação de pagamento pelo webhook.',
+      message: `Assinatura criada no Asaas ${asaasEnvironment === 'sandbox' ? 'Sandbox' : 'de Produção'}. O plano só será ativado após confirmação de pagamento pelo webhook.`,
     });
   } catch (error) {
     const status = typeof error === 'object' && error !== null && 'status' in error
