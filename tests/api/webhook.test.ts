@@ -3,7 +3,7 @@ describe('Asaas webhook processing lease duration', () => {
   const now = Date.parse('2026-11-24T20:00:00.000Z');
 
   it('does not treat a 14m59s processing lease as stale', () => {
-    const leaseOrigin = new Date(now - (14 * 60 + 59) * 60 * 1000).toISOString();
+    const leaseOrigin = new Date(now - (14 * 60 + 59) * 1000).toISOString();
     expect(isWebhookProcessingLeaseStale(leaseOrigin, now)).toBe(false);
   });
 
