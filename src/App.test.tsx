@@ -32,7 +32,7 @@ vi.mock('./supabaseClient', () => ({ supabase: { auth: mockSupabaseAuth, from: v
 
 import App, { STORAGE_KEY_RECORDS, STORAGE_KEY_MACHINES, STORAGE_KEY_AUTH } from './App';
 
-describe('App.tsx - 100% Cobertura Total', async () => {
+describe('App.tsx - 100% Cobertura Total', () => {
   const waitForAppReady = async () => {
     await waitFor(() => {
       expect(screen.queryByText('Carregando seus dados financeiros com segurança...')).not.toBeInTheDocument();
@@ -70,6 +70,7 @@ describe('App.tsx - 100% Cobertura Total', async () => {
     unmount();
 
     render(<App />);
+    await waitForAppReady();
 
     if (screen.queryByPlaceholderText(/Digite sua senha/i)) { fireEvent.submit(screen.getByPlaceholderText(/Digite sua senha/i).closest('form')!); }
     fireEvent.click(
@@ -121,6 +122,7 @@ describe('App.tsx - 100% Cobertura Total', async () => {
 
   it('2 - zera todos os campos, carrega dados de exemplo, alterna status, exclui item e foca relatório', async () => {
     render(<App />);
+    await waitForAppReady();
 
     const statusButtons = screen.getAllByRole('button', {
       name: /^Confirmado$/i,
@@ -151,6 +153,7 @@ describe('App.tsx - 100% Cobertura Total', async () => {
 
   it('3 - abre e fecha modais de Novo Lançamento e Maquininhas, desconecta maquininhas e simula lote', async () => {
     render(<App />);
+    await waitForAppReady();
 
     fireEvent.click(
       screen.getAllByRole('button', { name: /Novo Lançamento/i })[0]
@@ -200,6 +203,7 @@ describe('App.tsx - 100% Cobertura Total', async () => {
 
   it('4 - navega por todas as abas secundárias, sincroniza Open Finance, restaura/limpa no Perfil e faz Logout', async () => {
     render(<App />);
+    await waitForAppReady();
 
     fireEvent.click(screen.getByRole('button', { name: /Calculadora/i }));
     fireEvent.click(screen.getByRole('button', { name: /Fechamento Diário/i }));
