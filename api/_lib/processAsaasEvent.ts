@@ -74,7 +74,7 @@ export async function processAsaasEvent(input: unknown): Promise<void> {
     if (!subscriptionId) throw new Error('Evento de assinatura sem identificador.');
     const { data: local, error: lookupError } = await supabase
       .from('subscriptions')
-      .select('id,user_id,status,provider_customer_id')
+      .select('id,user_id,status,provider_customer_id,metadata')
       .eq('provider', 'asaas')
       .eq('provider_subscription_id', subscriptionId)
       .maybeSingle();
@@ -86,6 +86,14 @@ export async function processAsaasEvent(input: unknown): Promise<void> {
       throw new Error('Cliente do evento não corresponde à assinatura cadastrada.');
     }
 
+    const incomingEventTime = Date.parse(event.dateCreated!);
+    const previousEventTime = local.metadata?.lastEventDate
+      ? Date.parse(local.metadata.lastEventDate)
+      : Number.NaN;
+    if (Number.isFinite(previousEventTime) && incomingEventTime < previousEventTime) {
+      return;
+    }
+
     const nextStatus = subscriptionStatus(eventName, local.status);
     if (nextStatus) {
       const { error: updateError } = await supabase
@@ -93,6 +101,12 @@ export async function processAsaasEvent(input: unknown): Promise<void> {
         .update({
           status: nextStatus,
           next_due_date: subscription?.nextDueDate || undefined,
+          metadata: {
+            ...(local.metadata && typeof local.metadata === 'object' ? local.metadata : {}),
+            lastEvent: eventName,
+            lastEventDate: event.dateCreated,
+            asaasEventId: event.id,
+          },
           updated_at: new Date().toISOString(),
         })
         .eq('id', local.id);
