@@ -1,5 +1,6 @@
 import type { VercelRequest } from '@vercel/node';
 import { getAdminSupabase } from './adminSupabase.js';
+import { writeAdminAuditLog } from './adminAudit.js';
 
 export const ADMIN_ROLES = ['owner', 'admin', 'support', 'analyst'] as const;
 export type AdminRole = (typeof ADMIN_ROLES)[number];
@@ -38,6 +39,7 @@ export async function requireAdmin(
       await supabase.auth.getUser(accessToken);
 
     if (authError || !authData.user?.id) {
+      await writeAdminAuditLog(req, { action: 'admin_authentication', resource: 'admin_memberships', result: 'denied' });
       const status = authError && [401, 403].includes(authError.status ?? 0)
         ? 401
         : authError
@@ -60,6 +62,7 @@ export async function requireAdmin(
       .maybeSingle();
 
     if (membershipError) {
+      await writeAdminAuditLog(req, { adminUserId: authData.user.id, action: 'admin_authorization_lookup', resource: 'admin_memberships', result: 'error' });
       return {
         ok: false,
         status: 503,
@@ -68,6 +71,7 @@ export async function requireAdmin(
     }
 
     if (!membership || membership.is_active !== true) {
+      await writeAdminAuditLog(req, { adminUserId: authData.user.id, action: 'admin_authorization', resource: 'admin_memberships', resourceId: authData.user.id, result: 'denied' });
       return {
         ok: false,
         status: 403,
@@ -79,6 +83,7 @@ export async function requireAdmin(
       !ADMIN_ROLES.includes(membership.role as AdminRole) ||
       (allowedRoles && !allowedRoles.includes(membership.role as AdminRole))
     ) {
+      await writeAdminAuditLog(req, { adminUserId: authData.user.id, action: 'admin_role_check', resource: 'admin_memberships', resourceId: authData.user.id, result: 'denied' });
       return {
         ok: false,
         status: 403,
@@ -86,6 +91,7 @@ export async function requireAdmin(
       };
     }
 
+    await writeAdminAuditLog(req, { adminUserId: authData.user.id, action: 'admin_access_granted', resource: 'admin_memberships', resourceId: authData.user.id, result: 'success' });
     return {
       ok: true,
       userId: authData.user.id,
