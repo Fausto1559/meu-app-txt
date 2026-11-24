@@ -165,7 +165,7 @@ export default async function handler(req: any, res: any) {
       provider_subscription_id: subscriptionId,
       payload: body,
       processing_status: 'received',
-      attempts: 0,
+      attempts: 1,
     });
 
     let duplicate = false;
