@@ -39,12 +39,22 @@ export async function requireAdmin(
       await supabase.auth.getUser(accessToken);
 
     if (authError || !authData.user?.id) {
-      await writeAdminAuditLog(req, { action: 'admin_authentication', resource: 'admin_memberships', result: 'denied' });
-      const status = authError && [401, 403].includes(authError.status ?? 0)
-        ? 401
-        : authError
-          ? 503
-          : 401;
+      const invalidServerApiKey =
+        typeof authError?.message === 'string' && /invalid api key/i.test(authError.message);
+
+      // A rejected server API key is an infrastructure failure, not a user's
+      // expired session. Do not attempt an audit write with the rejected key.
+      if (!invalidServerApiKey) {
+        await writeAdminAuditLog(req, { action: 'admin_authentication', resource: 'admin_memberships', result: 'denied' });
+      }
+
+      const status = invalidServerApiKey
+        ? 503
+        : authError && [401, 403].includes(authError.status ?? 0)
+          ? 401
+          : authError
+            ? 503
+            : 401;
 
       return {
         ok: false,
