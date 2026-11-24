@@ -109,3 +109,58 @@ No Production deployment, alias change, Production migration, real payment, or w
 - Failed replays likewise confirm that the same execution still owns the lease before reporting a processing failure.
 - If a newer invocation has taken the lease, the old invocation reports the event as skipped rather than stale success or stale failure.
 - Added success and failure regression tests for the lease-takeover case.
+
+## Final recovery verification — 2026-11-24 20:15 UTC
+
+### Latest branch and CI
+- Current recovery branch head at this verification: `7b3aa5d177aab4d5a579e55e58e08478a79586e5`.
+- GitHub Actions run `45478708072` completed successfully.
+- All gates passed: locked install, Vercel function count, full dependency audit, production dependency audit, TypeScript, all 55 tests, Vite build, and audit artifact upload.
+- Current deployable API route count is 8 of the Hobby limit 12.
+- `main` remains at `a5b6fbc1676d6b739e7015c82dbfbc7daebdc2e3`; it was not changed.
+
+### Webhook lease ownership
+- Both public Asaas webhook and admin replay routes now confirm that the final UPDATE returned the event row while the invocation still owned the exact `processing_started_at` lease.
+- If a newer invocation took ownership, an old invocation reports the event as skipped/processing rather than stale success or stale failure.
+- Public and admin recovery both use a 15-minute lease TTL.
+- Regression coverage includes: 14m59s not stale, exactly 15m stale, invalid timestamps non-reclaimable, public lease loss on success/failure, and administrative replay lease loss on success/failure.
+
+### Transactional event ordering proof in homologation
+A single explicit `BEGIN ... ROLLBACK` SQL test was executed against `eerqeimqzkgdpvutjfhm`. It temporarily used an existing billing-account owner ID to create synthetic subscription/payment rows only inside the transaction, then rolled the entire transaction back. Assertions passed:
+1. a confirmed payment activated a pending subscription;
+2. a later `SUBSCRIPTION_DELETED` event canceled the subscription and suspended access;
+3. a still-later payment for a different payment ID was recorded but did not resurrect the canceled subscription or restore access;
+4. an older overdue payment event was ignored by the subscription-wide timeline;
+5. an older subscription update was ignored after the newer payment event.
+
+Post-rollback counts confirmed no test data remained:
+- Homologation: 2 Auth users, 2 billing accounts, 0 subscriptions, 0 billing customers, 0 payments, 0 webhook events.
+- Production: 2 Auth users, 0 billing accounts, 0 subscriptions, 0 billing customers, 0 payments, 0 webhook events.
+No Auth users were created or changed, and no production records were modified.
+
+### Applied homologation migration
+- Migration version `20261124200921` is recorded in Supabase homologation.
+- Its source file is `supabase/migrations/20261124200921_unify_asaas_event_ordering_for_subscription_entitlements.sql`; the filename was aligned with the actual recorded version to avoid a later duplicate migration attempt.
+- Production migration history and database were not changed by this migration.
+- RPC ACL recheck: both transaction functions remain `SECURITY DEFINER`, `search_path=public`; `anon` and `authenticated` cannot execute; `service_role` and postgres can.
+
+### Current Vercel Preview state
+- Latest READY Preview observed: `dpl_E7ck72mLc2WPVy4X1jk3NqE9VGxB`, commit `52859cbf88141fb7bc2541362b2cd6756ed4c7cc`.
+- Build log confirms `npm install --include=dev`, zero npm audit vulnerabilities, Vite build completed, TypeScript function scanning emitted no TS2688 errors, and the deployment reached READY.
+- The current branch head `7b3aa5d` is newer than that Preview; there is no deployment for the current head yet.
+- Vercel Git status for the current branch reports `Deployment rate limited — retry in 24 hours` (Hobby daily deployment cap). Do not bypass the cap or purchase an upgrade without a separate cost decision.
+- Project Deployment Protection is SSO-enabled for all non-custom deployment domains. The Preview's `.vercel.app` URL is therefore protected. An external Asaas webhook cannot complete an end-to-end call to this URL by presenting only `ASAAS_WEBHOOK_TOKEN`; Vercel SSO intercepts the request before the function. Do not disable SSO. A separately approved branch-specific custom domain / DNS arrangement or another reviewed public webhook ingress is required before provider delivery tests.
+
+### Remaining blockers that require external access or explicit decisions
+1. A Preview for the exact current branch head `7b3aa5d` remains pending Vercel's daily deployment quota.
+2. Preview runtime HTTP validation is blocked by SSO because no Vercel CLI session / trusted OIDC header is available in this environment.
+3. No synthetic Supabase Auth user was created; the available Supabase tools do not expose Auth Admin createUser. Do not insert directly into `auth.users`.
+4. Preview secret variables exist and are scoped to Sandbox/homologation, but their values were not exposed and their validity was not checked. No authenticated `/api/admin/billing-health` call was possible.
+5. No Asaas Sandbox customer, subscription, payment or webhook was created or called.
+6. Production has only its frontend Supabase key, `SUPABASE_URL`, and `ASAAS_ENVIRONMENT=production`; production server-side Supabase key, live Asaas API key, and webhook token are absent. Do not copy Preview credentials into Production.
+7. Six historical SQL migration files remain absent from all available branches and exact-path commit history: two production historical files and four homologation historical files (see `supabase/MIGRATION_RECONCILIATION.md`). Do not invent or regenerate them from names.
+8. Security Advisor continues to show only `auth_leaked_password_protection` disabled in each Supabase project. Enabling it requires a plan that supports the feature; no plan upgrade was performed.
+9. A >500 KB minified frontend chunk warning remains in the Vite build. This is a performance optimization item, not a build failure.
+
+### Production release remains prohibited
+No Production deployment, domain alias change, Production migration, live payment, or Asaas webhook POST was performed. Keep `main`, Production databases, domains, and live payment credentials untouched until a separate controlled-release approval.
