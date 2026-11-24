@@ -22,9 +22,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { supabase, user } = context;
 
     // The first authenticated request creates the authoritative trial window.
+    const signupDate = typeof user.created_at === 'string' && Number.isFinite(Date.parse(user.created_at))
+      ? new Date(user.created_at)
+      : new Date();
+    const trialStartedAt = signupDate.toISOString();
+    const trialEndsAt = new Date(signupDate.getTime() + 30 * 86400000).toISOString();
+
     const { error: createError } = await supabase
       .from('billing_accounts')
-      .upsert({ user_id: user.id }, { onConflict: 'user_id', ignoreDuplicates: true });
+      .upsert({
+        user_id: user.id,
+        trial_started_at: trialStartedAt,
+        trial_ends_at: trialEndsAt,
+      }, { onConflict: 'user_id', ignoreDuplicates: true });
 
     if (createError) {
       console.error('Falha ao inicializar conta de cobrança:', createError.message);
