@@ -204,14 +204,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return jsonError(res, 409, 'O valor da assinatura encontrada diverge do plano reservado. Nenhuma alteração foi feita.');
     }
 
-    const { error: customerSaveError } = await saveCustomerLink();
-    if (customerSaveError) {
-      console.error('Falha ao salvar cliente conciliado:', customerSaveError.message);
-      return jsonError(res, 503, 'Cliente encontrado no Asaas, mas não foi possível salvar o vínculo local.');
-    }
-
     const remoteStatus = remoteSubscription.status === 'ACTIVE'
-      ? 'active'
+      ? 'pending'
       : remoteSubscription.status === 'EXPIRED'
         ? 'expired'
         : remoteSubscription.status === 'INACTIVE'
@@ -219,6 +213,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           : null;
     if (!remoteStatus) {
       return jsonError(res, 409, 'Status remoto não reconhecido. A reserva foi preservada sem vincular a assinatura.');
+    }
+
+    // An ACTIVE Asaas subscription is not proof of a paid invoice.
+    // Entitlement is activated only by apply_asaas_payment_event after
+    // PAYMENT_CONFIRMED or PAYMENT_RECEIVED.
+    const { error: customerSaveError } = await saveCustomerLink();
+    if (customerSaveError) {
+      console.error('Falha ao salvar cliente conciliado:', customerSaveError.message);
+      return jsonError(res, 503, 'Cliente encontrado no Asaas, mas não foi possível salvar o vínculo local.');
     }
 
     const { data: linked, error: linkError } = await supabase
@@ -241,18 +244,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return jsonError(res, 503, 'Assinatura encontrada, mas não foi possível concluir o vínculo local.');
     }
 
-    const { error: accountError } = await supabase
+    const { data: account, error: accountError } = await supabase
       .from('billing_accounts')
       .update({
         current_subscription_id: reservation.id,
-        current_plan_key: reservation.plan_key,
-        access_status: remoteStatus === 'active' ? 'active' : remoteStatus === 'expired' ? 'expired' : 'past_due',
         updated_at: new Date().toISOString(),
       })
-      .eq('user_id', reservation.user_id);
+      .eq('user_id', reservation.user_id)
+      .select('user_id')
+      .maybeSingle();
 
-    if (accountError) {
-      console.error('Falha ao atualizar conta após conciliação:', accountError.message);
+    if (accountError || !account) {
+      console.error('Falha ao atualizar conta após conciliação:', accountError?.message);
       return jsonError(res, 503, 'Assinatura conciliada, mas falta atualizar o vínculo da conta.');
     }
 
@@ -262,7 +265,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       customerLinked: true,
       subscriptionLinked: true,
       subscriptionStatus: remoteStatus,
-      message: 'Cliente e assinatura foram conferidos no Asaas e vinculados à reserva local.',
+      accessActivated: false,
+      message: 'Cliente e assinatura foram vinculados. O acesso pago continuará bloqueado até a confirmação do pagamento pelo webhook.',
     });
   } catch (error) {
     console.error('Falha na conciliação Asaas:', error instanceof Error ? error.message : 'erro desconhecido');
