@@ -256,7 +256,7 @@ describe('App.tsx - 100% Cobertura Total', () => {
     fireEvent.change(screen.getByPlaceholderText(/Ex: voce@empresa.com.br/i), { target: { value: 'faustoefiscal@gmail.com' } });
     fireEvent.change(screen.getByPlaceholderText(/Digite sua senha/i), { target: { value: '123456' } });
     fireEvent.submit(screen.getByPlaceholderText(/Digite sua senha/i).closest('form')!);
-    await waitForAppReady();
+    await waitFor(() => expect(screen.getByRole('button', { name: /^Sair$/i })).toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: /^Sair$/i }));
   }, 90000);
 });
