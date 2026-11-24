@@ -104,7 +104,8 @@ export async function processAsaasEvent(event: AsaasEvent): Promise<void> {
   const amount = Number(payment.value);
   if (!Number.isFinite(amount) || amount < 0) throw new Error('Valor do pagamento inválido.');
   const allowedValues: Record<string, number> = { essencial: 19.90, profissional: 29.90, pro: 39.90 };
-  if (Math.abs(amount - allowedValues[localSubscription.plan_key]) > 0.001) {
+  const expectedAmount = allowedValues[localSubscription.plan_key];
+  if (!expectedAmount || Math.abs(amount - expectedAmount) > 0.001) {
     throw new Error('Valor recebido não corresponde ao plano contratado.');
   }
 
