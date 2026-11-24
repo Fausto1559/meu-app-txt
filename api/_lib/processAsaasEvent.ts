@@ -158,6 +158,25 @@ export async function processAsaasEvent(input: unknown): Promise<void> {
     throw new Error('Data do pagamento inválida.');
   }
 
+  const paymentRecord = {
+    user_id: localSubscription.user_id,
+    subscription_id: localSubscription.id,
+    provider: 'asaas',
+    provider_payment_id: paymentId,
+    provider_subscription_id: subscriptionId,
+    provider_customer_id: payment.customer || localSubscription.provider_customer_id,
+    external_reference: payment.externalReference || null,
+    status: mappedStatus,
+    billing_type: payment.billingType || null,
+    value: amount,
+    net_value: Number.isFinite(Number(payment.netValue)) ? Number(payment.netValue) : null,
+    due_date: payment.dueDate || null,
+    payment_date: paymentDate ? new Date(paymentDate).toISOString() : null,
+    invoice_url: payment.invoiceUrl || null,
+    metadata: { lastEvent: eventName, lastEventDate: event.dateCreated, asaasEventId: event.id },
+    updated_at: new Date().toISOString(),
+  };
+
   const periodStart = paymentDate ? new Date(paymentDate) : new Date();
   const periodEnd = addOneCalendarMonth(periodStart);
   const { data: transactionResult, error: transactionError } = await supabase.rpc(
