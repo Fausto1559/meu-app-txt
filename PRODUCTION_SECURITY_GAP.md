@@ -72,3 +72,13 @@ Do not add or restore the old `WEBHOOK_SECRET` as a substitute for `ASAAS_WEBHOO
 <badge>CRITICAL — PRODUCTION RELEASE BLOCKED</badge>
 
 The recovery branch is CI-green and deployed to a protected Preview. Production is still running the older `main` deployment and does not expose the new billing/admin routes. No Production deployment, alias change, payment, webhook POST, or database mutation was performed.
+
+## Latest recovery CI and source cleanup
+
+The latest verified recovery commit is `c34f5a8ceab5a6482be7c084eed2d02d35a921d7`. CI passed with 55 tests in 13 files, zero vulnerabilities in both full and production dependency audits, TypeScript typecheck and build. Direct Firebase runtime dependencies were removed from the recovery manifest/lockfile after no executable Firebase imports were found.
+
+A cloud data-load failure in the app was also corrected to provide an explicit retry and sign-out path. The test suite covers this recovery behavior.
+
+## Latest Preview status
+
+Preview `dpl_2cRQwN4F4gk3AYvLq5GQrRMjANGV` remains READY but targets commit `bd8ca10ebaefd4b277410c2df263170b5a830319`, preceding the dependency cleanup and cloud retry fix. A new Preview deployment for `c34f5a8ceab5a6482be7c084eed2d02d35a921d7` was rejected by Vercel with HTTP 402 (`api-deployments-free-per-day`, retry after 86400 seconds). The production alias and deployment remain untouched.
