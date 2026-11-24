@@ -26,14 +26,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ? new Date(user.created_at)
       : new Date();
     const trialStartedAt = signupDate.toISOString();
-    const trialEndsAt = new Date(signupDate.getTime() + 30 * 86400000).toISOString();
+    const trialEndsAtIso = new Date(signupDate.getTime() + 30 * 86400000).toISOString();
 
     const { error: createError } = await supabase
       .from('billing_accounts')
       .upsert({
         user_id: user.id,
         trial_started_at: trialStartedAt,
-        trial_ends_at: trialEndsAt,
+        trial_ends_at: trialEndsAtIso,
       }, { onConflict: 'user_id', ignoreDuplicates: true });
 
     if (createError) {
