@@ -29,6 +29,7 @@ export const BillingCheckoutModal: React.FC<BillingCheckoutModalProps> = ({
     subscriptionId: string;
     nextDueDate: string;
     monthlyValue: number;
+    message: string;
   } | null>(null);
 
   if (!planKey) return null;
@@ -60,6 +61,9 @@ export const BillingCheckoutModal: React.FC<BillingCheckoutModalProps> = ({
         subscriptionId: payload.subscriptionId,
         nextDueDate: payload.nextDueDate,
         monthlyValue: payload.monthlyValue,
+        message: typeof payload.message === 'string'
+          ? payload.message
+          : 'Assinatura criada. A liberação do plano depende da confirmação do pagamento pelo Asaas.',
       });
       onCompleted();
     } catch (err) {
@@ -84,7 +88,7 @@ export const BillingCheckoutModal: React.FC<BillingCheckoutModalProps> = ({
         {result ? (
           <div className="space-y-3">
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4">
-              <p className="text-sm font-bold text-emerald-300">Assinatura registrada no Asaas Sandbox.</p>
+              <p className="text-sm font-bold text-emerald-300">{result.message}</p>
               <p className="text-xs text-slate-300 mt-2">A primeira cobrança está prevista para {new Date(result.nextDueDate + 'T12:00:00').toLocaleDateString('pt-BR')}, após o período gratuito, se ainda estiver vigente.</p>
               <p className="text-xs text-slate-300 mt-2">O plano só será liberado após confirmação do pagamento pelo Asaas.</p>
               <p className="text-[10px] font-mono text-slate-400 mt-3 break-all">Referência: {result.subscriptionId}</p>
